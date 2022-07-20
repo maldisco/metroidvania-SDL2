@@ -35,7 +35,7 @@ void TileMap::Load(std::string file){
                 std::stringstream ss(line);
 
                 for(int i; ss >> i;){
-                    tileMatrix.push_back(i-1);
+                    tileMatrix.push_back(i);
                     
                     if(ss.peek()==','){
                         ss.ignore();
@@ -64,8 +64,8 @@ void TileMap::RenderLayer(int layer, int cameraX, int cameraY){
         // i % mapWidth = Posição X  
         // i / mapHeight = Posição Y 
         // Multiplica-se o tileWidth e tileHeight pois as tiles não tem tamanho 1
-        int x = (i % mapWidth)*tileSet->GetTileWidth() - (cameraX * (layer+1));
-        int y = (i / mapWidth)*tileSet->GetTileHeight() - (cameraY * (layer+1));
+        int x = (i % mapWidth)*tileSet->GetTileWidth() - (cameraX * (1));
+        int y = (i / mapWidth)*tileSet->GetTileHeight() - (cameraY * (1));
         int index = At(i%mapWidth, i/mapWidth, layer);
 
         tileSet->RenderTile(index, x, y);
@@ -73,8 +73,9 @@ void TileMap::RenderLayer(int layer, int cameraX, int cameraY){
 }
 
 void TileMap::Render(){
-    RenderLayer(0, Camera::pos.x, Camera::pos.y);
-    RenderLayer(1, Camera::pos.x, Camera::pos.y);
+    for(int i = 0; i < mapDepth; i++){
+        RenderLayer(i, Camera::pos.x, Camera::pos.y);
+    }
 }
 
 void TileMap::Update(float dt){}

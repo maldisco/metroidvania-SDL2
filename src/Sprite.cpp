@@ -91,9 +91,9 @@ void Sprite::SetScaleX(float scaleX, float scaleY){
 
     // rescale associated box
     associated.box.w += widthChange;
+    width = associated.box.w;
     associated.box.h += heightChange;
-    associated.box.x -= widthChange/2;
-    associated.box.y -= heightChange/2;
+    height = associated.box.h;
 
     scale.x = scaleX;
     scale.y = scaleY;

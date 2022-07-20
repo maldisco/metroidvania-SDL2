@@ -36,7 +36,7 @@ Game::Game(std::string title, int width, int height) : frameStart(0), dt(0){
         exit(EXIT_FAILURE);
     }
 
-    if (Mix_Init(MIX_INIT_OGG) == 0)
+    if (Mix_Init(MIX_INIT_OGG | MIX_INIT_MP3) == 0)
     {
         SDL_Log("Cant initialize MIX: %s", SDL_GetError());
     }

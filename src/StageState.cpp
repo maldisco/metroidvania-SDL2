@@ -5,67 +5,38 @@
 #include "Camera.h"
 #include "InputManager.h"
 #include "CameraFollower.h"
-#include "Alien.h"
-#include "PenguinBody.h"
+#include "Android.h"
 #include "Collision.cpp"
 #include "TitleState.h"
 #include "EndState.h"
 #include "GameData.h"
 
-StageState::StageState() : State(), backgroundMusic("assets/audio/stageState.ogg"){    
+StageState::StageState() : State(), backgroundMusic("assets/audio/cinnabar.mp3"){    
 	// background
 	GameObject* bg = new GameObject();
-	bg->AddComponent(new Sprite("assets/img/ocean.jpg", *bg, 1, 1.0));
-	bg->AddComponent(new CameraFollower(*bg));
+	bg->AddComponent(new Sprite("assets/img/background.png", *bg, 1, 1.0));
+	//bg->AddComponent(new CameraFollower(*bg));
 	bg->box.x = 0;
 	bg->box.y = 0;
 	AddObject(bg);
 
 	// tileset
     GameObject* tileMap = new GameObject();
-	TileSet* tileSet = new TileSet(*tileMap, 64, 64, "assets/img/tileset.png");
-	tileMap->AddComponent(new TileMap(*tileMap, "assets/map/tileMap.txt", tileSet));
+	TileSet* tileSet = new TileSet(*tileMap, 32, 32, "assets/img/tileset.png");
+	tileMap->AddComponent(new TileMap(*tileMap, "assets/map/map.txt", tileSet));
 	tileMap->box.x = 0;
 	tileMap->box.y = 0;
 	AddObject(tileMap);
 
 	// main char
-	GameObject* penguin = new GameObject();
-	penguin->AddComponent(new PenguinBody(*penguin));
-	penguin->box.x = 704;
-	penguin->box.y = 640;
-	AddObject(penguin);
+	GameObject* android = new GameObject();
+	android->AddComponent(new Android(*android));
+	android->box.x = 20;
+	android->box.y = 50;
+	AddObject(android);
 
-	// make penguin as camera focus
-	Camera::Follow(penguin);
-    
-	// enemy
-	GameObject* alien = new GameObject();
-	alien->AddComponent(new Alien(*alien));
-	alien->box.x = 512 - alien->box.w/2;
-	alien->box.y = 300 - alien->box.h/2;
-	AddObject(alien);
-
-	// enemy
-	alien = new GameObject();
-	alien->AddComponent(new Alien(*alien, 0.035f));
-	alien->box.x = 1012 - alien->box.w/2;
-	alien->box.y = 100 - alien->box.h/2;
-	AddObject(alien);
-
-	// enemy
-	alien = new GameObject();
-	alien->AddComponent(new Alien(*alien, 0.07f));
-	alien->box.x = 166 - alien->box.w/2;
-	alien->box.y = 500 - alien->box.h/2;
-	AddObject(alien);
-
-	// enemy
-	alien = new GameObject();
-	alien->AddComponent(new Alien(*alien, 0.1f));
-	alien->box.x = 20 - alien->box.w/2;
-	alien->box.y = 20 - alien->box.h/2;
-	AddObject(alien);
+	// make android as camera focus
+	Camera::Follow(android);
 }
 
 StageState::~StageState(){
@@ -100,6 +71,7 @@ void StageState::Update(float dt){
 
 	if(InputManager::GetInstance().KeyPress(ESCAPE_KEY)){
         popRequested = true;
+		backgroundMusic.Stop();
     }
 
 	// Update every object
@@ -124,18 +96,6 @@ void StageState::Update(float dt){
             objectArray.erase(objectArray.begin()+i);
         }
     }
-
-	if(Alien::alienCount <= 0){
-		GameData::playerVictory = true;
-		popRequested = true;
-		Game::GetInstance().Push(new EndState());
-	}
-
-	if(PenguinBody::player == nullptr){
-		GameData::playerVictory = false;
-		popRequested = true;
-		Game::GetInstance().Push(new EndState());
-	}
 }
 
 void StageState::Render(){

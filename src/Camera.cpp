@@ -32,7 +32,13 @@ void Camera::Update(float dt){
             pos.y += speed.y*dt;
         }   
     } else {
-        pos.x = focus->box.Center().x - CAMERA_WIDTH/2;
-        pos.y = focus->box.Center().y - CAMERA_HEIGHT/2;
+        int newX = focus->box.Center().x - CAMERA_WIDTH/2;
+        int newY = focus->box.Center().y - CAMERA_HEIGHT/2;
+        if(newX > 0 and newX+CAMERA_WIDTH < 4704){
+            pos.x = newX;
+        } 
+        if(newY > 0 and newY+CAMERA_HEIGHT < 608){
+            pos.y = newY;
+        }
     }
 }

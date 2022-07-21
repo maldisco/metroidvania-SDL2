@@ -9,7 +9,7 @@
 #include "InputManager.h"
 
 Android* Android::player;
-Android::Android(GameObject& associated) : Component(associated), speed({1,0}), linearSpeed(0), angle(0), hp(100){
+Android::Android(GameObject& associated) : Component(associated), speed({100,100}), linearSpeed(0), angle(0), hp(100){
     player = this;
     associated.AddComponent(new Sprite("assets/img/2bstand.png", associated, 3, 0.2f));
     associated.AddComponent(new Collider(associated));
@@ -24,22 +24,24 @@ void Android::Start(){
 }
 
 void Android::Update(float dt){
+    Vec2 movement = speed*dt;
+    Rect newBox = associated.box;
     if(InputManager::GetInstance().IsKeyDown(W_KEY)){
-        linearSpeed = std::min(linearSpeed+5, float(300));
-    } else if (InputManager::GetInstance().IsKeyDown(S_KEY)){
-        linearSpeed = std::max(linearSpeed-5, float(-300));
-    } else {
-        linearSpeed = std::max(linearSpeed-5, float(0));
+        associated.box.y -= movement.y;
+    } 
+    if (InputManager::GetInstance().IsKeyDown(S_KEY)){
+        associated.box.y += movement.y;
     }
     if (InputManager::GetInstance().IsKeyDown(A_KEY)){
-        speed = Vec2::Rotate(speed, -PI/64);
+        associated.box.x -= movement.x;
     } 
     if (InputManager::GetInstance().IsKeyDown(D_KEY)){
-        speed = Vec2::Rotate(speed, PI/64);
+        newBox.x += movement.x;
+        for(int i = newBox.y; i < newBox.y+newBox.h; i++){
+            //std::cout << (int)i/32 << std::endl;
+        }
+        associated.box.x += movement.x;
     }   
-
-    associated.box = associated.box + (speed*(linearSpeed*dt));
-    associated.angleDeg = speed.SlopeX()*180/PI;
 }
 
 void Android::NotifyCollision(GameObject& other){

@@ -30,9 +30,18 @@ class TileSet{
 
         int GetTileWidth();
         int GetTileHeight();
+        /**
+         * @brief Set the class of the tile
+         * 
+         * @param index 
+         * @param class
+         */
+        void SetTileClass(int index, std::string tileClass);
+        std::string GetTileClass(int index);
     
     private:
         Sprite tileSet;
+        std::vector<std::string> tileSetClasses;
         int rows, columns;
         int tileHeight, tileWidth;
 };

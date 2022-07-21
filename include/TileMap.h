@@ -43,6 +43,17 @@ class TileMap : public Component{
         int& At(int x, int y, int z = 0);
 
         /**
+         * @brief Return if tile in position X, Y is solid or not
+         * 
+         * @param x 
+         * @param y 
+         * @param z 
+         * @return true 
+         * @return false 
+         */
+        bool IsSolid(int x, int y);
+
+        /**
          * @brief Render game map
          * 
          */
@@ -67,7 +78,7 @@ class TileMap : public Component{
     
     private:
         /**
-         * @brief Matrix that represents game map
+         * @brief Matrix that represent game map 
          * 
          */
         std::vector<int> tileMatrix;

@@ -10,6 +10,17 @@ TileMap::TileMap(GameObject& associated, std::string file, TileSet* tileSet) : C
 }
 
 void TileMap::Load(std::string file){
+    std::fstream solidBlocks;
+    int tileId = 0;
+    solidBlocks.open("assets/map/solidblocks.txt");
+    if(solidBlocks.is_open()){
+        std::string line;
+        while(getline(solidBlocks, line)){
+            tileId = std::stoi(line);
+            tileSet->SetTileClass(tileId, "solid");
+        }
+    }
+
     std::fstream map;
     std::vector<int> dims;
 
@@ -36,7 +47,7 @@ void TileMap::Load(std::string file){
 
                 for(int i; ss >> i;){
                     tileMatrix.push_back(i);
-                    
+
                     if(ss.peek()==','){
                         ss.ignore();
                     }
@@ -56,6 +67,12 @@ void TileMap::SetTileSet(TileSet* tileSet){
 
 int& TileMap::At(int x, int y, int z){
     return tileMatrix[mapWidth*mapHeight*z + mapWidth*y + x];
+}
+
+bool TileMap::IsSolid(int x, int y){
+    std::string class1 = tileSet->GetTileClass(At(x%mapWidth, y/mapWidth, 1));
+    std::string class2 = tileSet->GetTileClass(At(x%mapWidth, y/mapWidth, 2));
+    return (class1.compare("solid") == 0) or (class2.compare("solid") == 0);
 }
 
 void TileMap::RenderLayer(int layer, int cameraX, int cameraY){

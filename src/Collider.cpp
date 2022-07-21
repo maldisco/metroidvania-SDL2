@@ -3,13 +3,15 @@
 #include "Camera.h"
 
 Collider::Collider(GameObject& associated, Vec2 scale, Vec2 offset) : Component(associated), scale(scale), offset(offset) {
-
+	
 }
 
 void Collider::Update(float dt){
 	this->box = Rect(associated.box.x, associated.box.y, associated.box.w*scale.x, associated.box.h*scale.y);
     this->box.Centered(associated.box.Center());
 	this->box = this->box + Vec2::Rotate(offset, associated.angleDeg*PI/180);
+
+
 }
 
 void Collider::Render(){

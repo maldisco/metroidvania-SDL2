@@ -5,6 +5,7 @@
 #include "Music.h"
 #include "Sprite.h"
 #include "TileSet.h"
+#include "TileMap.h"
 
 /**
  * @brief Class responsible for controlling the screen and specific internal logics.
@@ -12,7 +13,8 @@
 class StageState : public State{
     private:
         Music backgroundMusic;
-        TileSet* tileSet;        
+        TileSet* tileSet;     
+        TileMap* tileMap;   
 
     public:
         StageState();
@@ -33,5 +35,8 @@ class StageState : public State{
         void Start();
         void Pause();
         void Resume();
+
+        TileMap* GetTileMap();
+        TileSet* GetTileSet();
 };
 #endif

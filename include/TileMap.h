@@ -47,7 +47,6 @@ class TileMap : public Component{
          * 
          * @param x 
          * @param y 
-         * @param z 
          * @return true 
          * @return false 
          */

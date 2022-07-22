@@ -15,23 +15,23 @@ StageState::StageState() : State(), backgroundMusic("assets/audio/cinnabar.mp3")
 	// background
 	GameObject* bg = new GameObject();
 	bg->AddComponent(new Sprite("assets/img/background.png", *bg, 1, 1.0));
-	//bg->AddComponent(new CameraFollower(*bg));
 	bg->box.x = 0;
 	bg->box.y = 0;
 	AddObject(bg);
 
 	// tileset
-    GameObject* tileMap = new GameObject();
-	TileSet* tileSet = new TileSet(*tileMap, 32, 32, "assets/img/tileset.png");
-	tileMap->AddComponent(new TileMap(*tileMap, "assets/map/map.txt", tileSet));
-	tileMap->box.x = 0;
-	tileMap->box.y = 0;
-	AddObject(tileMap);
+    GameObject* map = new GameObject();
+	tileSet = new TileSet(*map, 32, 32, "assets/img/tileset.png");
+	tileMap = new TileMap(*map, "assets/map/map.txt", tileSet);
+	map->AddComponent(tileMap);
+	map->box.x = 0;
+	map->box.y = 0;
+	AddObject(map);
 
 	// main char
 	GameObject* android = new GameObject();
 	android->AddComponent(new Android(*android));
-	android->box.x = 20;
+	android->box.x = 300;
 	android->box.y = 50;
 	AddObject(android);
 
@@ -61,9 +61,6 @@ void StageState::Resume(){
 }
 
 void StageState::Update(float dt){
-	// update camera
-	Camera::Update(dt);
-
 	// check if quit was requested
 	if(InputManager::GetInstance().QuitRequested()){
 		quitRequested = true;
@@ -96,6 +93,9 @@ void StageState::Update(float dt){
             objectArray.erase(objectArray.begin()+i);
         }
     }
+
+	// update camera
+	Camera::Update(dt);
 }
 
 void StageState::Render(){
@@ -103,4 +103,6 @@ void StageState::Render(){
     RenderArray();
 }
 
+TileMap* StageState::GetTileMap(){ return tileMap; }
+TileSet* StageState::GetTileSet(){ return tileSet; }
 

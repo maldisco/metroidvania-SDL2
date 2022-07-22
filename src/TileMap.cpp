@@ -70,8 +70,8 @@ int& TileMap::At(int x, int y, int z){
 }
 
 bool TileMap::IsSolid(int x, int y){
-    std::string class1 = tileSet->GetTileClass(At(x%mapWidth, y/mapWidth, 1));
-    std::string class2 = tileSet->GetTileClass(At(x%mapWidth, y/mapWidth, 2));
+    std::string class1 = tileSet->GetTileClass(At(x, y, 1));
+    std::string class2 = tileSet->GetTileClass(At(x, y, 2));
     return (class1.compare("solid") == 0) or (class2.compare("solid") == 0);
 }
 

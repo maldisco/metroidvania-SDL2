@@ -3,6 +3,8 @@
 #include "Component.h"
 #include "Rect.h"
 
+#define GRAVITY 9.8
+
 class Collider : public Component {
     public:
         Rect box;

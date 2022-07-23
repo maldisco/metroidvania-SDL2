@@ -163,6 +163,20 @@ class Sprite : public Component{
         int GetHeight();
         
         /**
+         * @brief Get the Current Frame object
+         * 
+         * @return int 
+         */
+        int GetCurrentFrame();
+        
+        /**
+         * @brief Get the Frame Count object
+         * 
+         * @return int 
+         */
+        int GetFrameCount();
+
+        /**
          * @brief Tell if texture is already loaded
          * 
          * @return true 

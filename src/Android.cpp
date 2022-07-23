@@ -13,8 +13,8 @@
 Android* Android::player;
 Android::Android(GameObject& associated) : Component(associated), speed({100,150}), mass(77.38f), hp(100), playerState(STANDING){
     player = this;
-    associated.AddComponent(new Sprite("assets/img/2bstand.png", associated, 3, 0.2f));
-    associated.AddComponent(new Collider(associated));
+    associated.AddComponent(new Sprite(PLAYER_IDLE_FILE, associated, 18, 0.05f));
+    associated.AddComponent(new Collider(associated, {1, 1}, {0, 28}));
 }
 
 Android::~Android(){
@@ -46,6 +46,7 @@ void Android::Update(float dt){
     int left = inputManager.IsKeyDown(A_KEY) ? 1 : 0;
     int right = inputManager.IsKeyDown(D_KEY) ? 1 : 0;
     int jump = inputManager.KeyPress(W_KEY) ? 1 : 0;
+    int lightAttack = inputManager.KeyPress(Z_KEY) ? 1 : 0;
     
     std::set<int> xAxis;
     float motionY, closestObstacleY, distance;
@@ -64,12 +65,18 @@ void Android::Update(float dt){
 
             // State change condition
             if(inputManager.KeyPress(A_KEY) or inputManager.KeyPress(D_KEY)){
-                sprite->Change("assets/img/2bwalk.png", 0.1f, 6);
+                sprite->Change(PLAYER_RUN_FILE, 0.05f, 24);
                 playerState = WALKING;
             } else if(jump){
-                sprite->Change("assets/img/2bjump.png", 0.2f, 3, 1);
-                speed.y = (-400000)*dt/mass;
+                sprite->Change(PLAYER_JUMP_FILE, 0.2f, 10, 3);
+                speed.y = (-JUMP_FORCE)*dt/mass;
                 playerState = JUMPING;
+            } else if(not grounded){
+                sprite->Change(PLAYER_FALL_FILE, 0.05f, 5, 1);
+                playerState = FALLING;
+            } else if(lightAttack){
+                sprite->Change(PLAYER_LIGHTATTACK_FILE, 0.05f, 26);
+                playerState = ATTACKING; 
             }
             break;
         
@@ -96,15 +103,18 @@ void Android::Update(float dt){
 
             // State change condition
             if (not( inputManager.IsKeyDown(A_KEY) or inputManager.IsKeyDown(D_KEY) ) and ( inputManager.KeyRelease(A_KEY) or inputManager.KeyRelease(D_KEY) )){
-                sprite->Change("assets/img/2bstand.png", 0.2f, 3);
+                sprite->Change(PLAYER_IDLE_FILE, 0.05f, 18);
                 playerState = STANDING;
             } else if(jump){
-                sprite->Change("assets/img/2bjump.png", 0.1f, 3, 1);
-                speed.y = (-400000)*dt/mass;
+                sprite->Change(PLAYER_JUMP_FILE, 0.05f, 10, 3);
+                speed.y = (-JUMP_FORCE)*dt/mass;
                 playerState = JUMPING;
             } else if (not grounded){
-                sprite->Change("assets/img/2bfall.png", 0.1f, 3, 1);
+                sprite->Change(PLAYER_FALL_FILE, 0.05f, 5, 1);
                 playerState = FALLING;
+            } else if (lightAttack){
+                sprite->Change(PLAYER_LIGHTATTACK_FILE, 0.05f, 26);
+                playerState = ATTACKING; 
             }
             break;
         
@@ -140,7 +150,7 @@ void Android::Update(float dt){
 
             // State change condition
             if(speed.y > 0){
-                sprite->Change("assets/img/2bfall.png", 0.1f, 3, 1);
+                sprite->Change(PLAYER_FALL_FILE, 0.05f, 5, 1);
                 playerState = FALLING;
             }
             break;
@@ -178,12 +188,23 @@ void Android::Update(float dt){
             // State change condition
             if(grounded){
                 if(inputManager.IsKeyDown(A_KEY) or inputManager.IsKeyDown(D_KEY)){
-                    sprite->Change("assets/img/2bwalk.png", 0.1f, 6);
+                    sprite->Change(PLAYER_RUN_FILE, 0.05f, 24);
                     playerState = WALKING;
                 } else {
-                    sprite->Change("assets/img/2bstand.png", 0.2f, 3);
+                    sprite->Change(PLAYER_IDLE_FILE, 0.05f, 18);
                     playerState = STANDING;
                 }
+            }
+            break;
+
+        case ATTACKING:
+            // Actions
+
+
+            // Stage change condition
+            if(sprite->GetCurrentFrame() >= sprite->GetFrameCount()-1){
+                sprite->Change(PLAYER_IDLE_FILE, 0.05f, 18);
+                playerState = STANDING;
             }
             break;
     }

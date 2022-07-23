@@ -52,9 +52,12 @@ void StageState::Start(){
 }
 
 void StageState::LoadAssets(){
-	Resources::GetImage("assets/img/2bwalk.png");
-	Resources::GetImage("assets/img/2bjump.png");
-	Resources::GetImage("assets/img/2bfall.png");
+	Resources::GetImage(PLAYER_IDLE_FILE);
+	Resources::GetImage(PLAYER_RUN_FILE);
+	Resources::GetImage(PLAYER_JUMP_FILE);
+	Resources::GetImage(PLAYER_FALL_FILE);
+	Resources::GetImage(PLAYER_LAND_FILE);
+	Resources::GetImage(PLAYER_LIGHTATTACK_FILE);
 }
 
 void StageState::Pause(){

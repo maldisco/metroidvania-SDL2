@@ -10,8 +10,6 @@ void Collider::Update(float dt){
 	this->box = Rect(associated.box.x, associated.box.y, 32*scale.x, 64*scale.y);
     this->box.Centered(associated.box.Center());
 	this->box = this->box + Vec2::Rotate(offset, associated.angleDeg*PI/180);
-
-
 }
 
 void Collider::Render(){

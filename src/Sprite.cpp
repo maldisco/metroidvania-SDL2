@@ -154,6 +154,14 @@ int Sprite::GetHeight(){
     return height;
 }
 
+int Sprite::GetCurrentFrame(){
+    return currentFrame;
+}
+
+int Sprite::GetFrameCount(){
+    return frameCount;
+}
+
 bool Sprite::IsOpen(){
     return texture != nullptr;
 }

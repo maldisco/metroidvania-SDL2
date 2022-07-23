@@ -3,7 +3,7 @@
 #include "Component.h"
 #include "Rect.h"
 
-#define GRAVITY 9.8
+#define GRAVITY 19.6
 
 class Collider : public Component {
     public:

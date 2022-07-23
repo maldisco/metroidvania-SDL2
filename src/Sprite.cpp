@@ -6,11 +6,12 @@
 #define INCLUDE_SDL_IMAGE
 #include "SDL_include.h"
 
-Sprite::Sprite(GameObject& associated, int frameCount, float frameTime, float secondsToSelfDestruct) : Component(associated), selfDestructCount(), texture(nullptr),
- frameCount(frameCount), currentFrame(0), timeElapsed(0), frameTime(frameTime), secondsToSelfDestruct(secondsToSelfDestruct), dir(0) {}
+Sprite::Sprite(GameObject& associated, int frameCount, float frameTime, float secondsToSelfDestruct, int restart) : Component(associated), texture(nullptr), selfDestructCount(),
+ frameCount(frameCount), currentFrame(0), timeElapsed(0), frameTime(frameTime), secondsToSelfDestruct(secondsToSelfDestruct), dir(0), restart(restart) {}
 
-Sprite::Sprite(std::string file, GameObject& associated, int frameCount, float frameTime, float secondsToSelfDestruct) : Component(associated), selfDestructCount(),
- texture(nullptr), scale({1, 1}), frameCount(frameCount), currentFrame(0), timeElapsed(0), frameTime(frameTime), secondsToSelfDestruct(secondsToSelfDestruct), dir(0) {
+Sprite::Sprite(std::string file, GameObject& associated, int frameCount, float frameTime, float secondsToSelfDestruct, int restart) : Component(associated), texture(nullptr),
+ selfDestructCount(), scale({1, 1}), frameCount(frameCount), currentFrame(0), timeElapsed(0), frameTime(frameTime), secondsToSelfDestruct(secondsToSelfDestruct), dir(0),
+ restart(restart) {
     Open(file);
 }
 
@@ -30,6 +31,24 @@ void Sprite::Open(std::string file){
     SetClip(0, 0, GetWidth(), GetHeight());
 }
 
+void Sprite::Change(std::string file, float frameTime, int frameCount, int restart){
+    texture = Resources::GetImage(file);
+    SetFrameCount(frameCount);
+    SetFrameTime(frameTime);
+    SetRestart(restart);
+
+    if (texture == nullptr){
+        SDL_Log("Cant load sprite: %s", SDL_GetError());
+        exit(EXIT_FAILURE);
+    }
+
+    SDL_QueryTexture(texture.get(), nullptr, nullptr, &width, &height);
+    Rect newBox = {associated.box.x, associated.box.y, width/frameCount, height};
+    newBox.Centered(associated.box.Center());
+    associated.box = newBox;
+    SetClip(0, 0, GetWidth(), GetHeight());
+}
+
 void Sprite::SetClip(int x, int y, int w, int h){
     clipRect.h = h;
     clipRect.w = w;
@@ -43,7 +62,7 @@ void Sprite::Update(float dt){
         currentFrame++;
         timeElapsed = 0;
         if(currentFrame >= frameCount){
-            currentFrame = 0;
+            currentFrame = restart;
         }
         SetClip((currentFrame)*GetWidth(), 0, GetWidth(), GetHeight());
     }
@@ -119,6 +138,10 @@ void Sprite::SetFrameCount(int frameCount){
 
 void Sprite::SetFrameTime(float frameTime){
     this->frameTime = frameTime;
+}
+
+void Sprite::SetRestart(int restart){
+    this->restart = restart; 
 }
 
 Vec2 Sprite::GetScale(){ return scale; }

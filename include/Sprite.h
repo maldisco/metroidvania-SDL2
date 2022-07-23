@@ -33,6 +33,7 @@ class Sprite : public Component{
         float secondsToSelfDestruct;
         Timer selfDestructCount;
         int dir;
+        int restart;
     
     public:
         /**
@@ -42,8 +43,9 @@ class Sprite : public Component{
          * @param frameCount 
          * @param frameTime 
          * @param secondsToSelfDestruct 
+         * @param restart 
          */
-        Sprite(GameObject& associated, int frameCount, float frameTime, float secondsToSelfDestruct = 0);
+        Sprite(GameObject& associated, int frameCount, float frameTime, float secondsToSelfDestruct = 0, int restart = 0);
         
         /**
          * @brief Construct a new Sprite object
@@ -53,8 +55,9 @@ class Sprite : public Component{
          * @param frameCount 
          * @param frameTime 
          * @param secondsToSelfDestruct 
+         * @param restart 
          */
-        Sprite(std::string file, GameObject& associated, int frameCount = 1, float frameTime = 1, float secondsToSelfDestruct = 0);
+        Sprite(std::string file, GameObject& associated, int frameCount = 1, float frameTime = 1, float secondsToSelfDestruct = 0, int restart = 0);
         ~Sprite();
 
         /**
@@ -63,6 +66,16 @@ class Sprite : public Component{
          * @param file 
          */
         void Open(std::string file);
+
+        /**
+         * @brief Change texture
+         * 
+         * @param file 
+         * @param frameTime 
+         * @param frameCount 
+         * @param restart 
+         */
+        void Change(std::string file, float frameTime, int frameCount, int restart = 0);
 
         /**
          * @brief Set the Clip object attributes
@@ -94,6 +107,13 @@ class Sprite : public Component{
          * @param frameTime 
          */
         void SetFrameTime(float frameTime);
+        
+        /**
+         * @brief Set the Restart object
+         * 
+         * @param restart 
+         */
+        void SetRestart(int restart);
 
         /**
          * @brief Render texture on game window at given coordinates

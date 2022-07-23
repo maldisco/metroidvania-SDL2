@@ -9,6 +9,7 @@
 #include "Collision.cpp"
 #include "TitleState.h"
 #include "EndState.h"
+#include "Resources.h"
 #include "GameData.h"
 
 StageState::StageState() : State(), backgroundMusic("assets/audio/cinnabar.mp3"){    
@@ -50,7 +51,11 @@ void StageState::Start(){
 	started = true;
 }
 
-void StageState::LoadAssets(){}
+void StageState::LoadAssets(){
+	Resources::GetImage("assets/img/2bwalk.png");
+	Resources::GetImage("assets/img/2bjump.png");
+	Resources::GetImage("assets/img/2bfall.png");
+}
 
 void StageState::Pause(){
 	backgroundMusic.Stop();

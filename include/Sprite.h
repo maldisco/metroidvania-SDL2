@@ -32,6 +32,7 @@ class Sprite : public Component{
         float frameTime;
         float secondsToSelfDestruct;
         Timer selfDestructCount;
+        int dir;
     
     public:
         /**
@@ -119,6 +120,13 @@ class Sprite : public Component{
          */
         void SetScaleX(float scaleX, float scaleY);
         Vec2 GetScale();
+
+        /**
+         * @brief Set the Dir object
+         * 
+         * @param dir 
+         */
+        void SetDir(int dir);
 
         /**
          * @brief Get the Width object

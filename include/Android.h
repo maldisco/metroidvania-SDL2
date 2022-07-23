@@ -1,6 +1,9 @@
 #ifndef PENGUINBODY_H
 #define PENGUINBODY_H
 
+#define MAX_SPEEDH 100
+#define JUMP_FORCE 15000
+
 #include "Component.h"
 
 class Android : public Component {
@@ -21,10 +24,8 @@ class Android : public Component {
 
         static Android* player;
     private:
-        std::weak_ptr<GameObject> pcannon;
         Vec2 speed;
-        float linearSpeed;
-        float angle;
+        float mass;
         int hp;
 };
 #endif

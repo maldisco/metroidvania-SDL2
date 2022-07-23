@@ -11,7 +11,7 @@
 #include "StageState.h"
 
 Android* Android::player;
-Android::Android(GameObject& associated) : Component(associated), speed({100,0}), linearSpeed(0), angle(0), hp(100){
+Android::Android(GameObject& associated) : Component(associated), speed({100,150}), mass(77.38f), hp(100){
     player = this;
     associated.AddComponent(new Sprite("assets/img/2bstand.png", associated, 3, 0.2f));
     associated.AddComponent(new Collider(associated));
@@ -30,59 +30,51 @@ void Android::Update(float dt){
     StageState state = (StageState&)Game::GetInstance().GetCurrentState();
     TileMap* TileMap = state.GetTileMap();
     TileSet* tileSet = state.GetTileSet();
+    Sprite* sprite = (Sprite*)associated.GetComponent("Sprite");
     InputManager& inputManager = InputManager::GetInstance();
 
-    Vec2 movement = speed*dt;
-    Rect newBox = associated.box;
+    // check if in ground
+    bool grounded = false;
+    int tileLeftX = associated.box.x/tileSet->GetTileWidth();
+    int tileRightX = (associated.box.x+associated.box.w)/tileSet->GetTileWidth();
+    int tileBottomY = (associated.box.y+associated.box.h+1)/tileSet->GetTileHeight();
+    if(TileMap->IsSolid(tileLeftX, tileBottomY) or TileMap->IsSolid(tileRightX, tileBottomY)){
+        grounded = true;
+    }
 
-    if (inputManager.IsKeyDown(A_KEY)){
-        newBox.x -= movement.x;
+    speed.y = speed.y + GRAVITY;
+    int left = inputManager.IsKeyDown(A_KEY) ? 1 : 0;
+    int right = inputManager.IsKeyDown(D_KEY) ? 1 : 0;
+    int jump = inputManager.IsKeyDown(W_KEY) ? 1 : 0;
 
+    sprite->SetDir(right - left);
+    speed.x = (right - left) * (MAX_SPEEDH*dt);
+    if(speed.x){
         std::set<std::pair<int, int>> tiles;
-        for(int i = newBox.y; i < newBox.y+newBox.h; i++){
-            tiles.emplace((newBox.x)/tileSet->GetTileWidth(), i/tileSet->GetTileHeight());
+        for(int i = associated.box.y; i < associated.box.y+associated.box.h; i++){
+            tiles.emplace((associated.box.x + speed.x)/tileSet->GetTileWidth(), i/tileSet->GetTileHeight());
         }
 
         for(auto tile : tiles){
             if(TileMap->IsSolid(tile.first, tile.second)){
-                movement.x = 0;
+                speed.x = 0;
             }
         }   
-        associated.box.x -= movement.x;
-    } 
-    if (inputManager.IsKeyDown(D_KEY)){
-        newBox.x += movement.x;
-
-        std::set<std::pair<int, int>> tiles;
-        for(int i = newBox.y; i < newBox.y+newBox.h; i++){
-            tiles.emplace((newBox.x+newBox.w)/tileSet->GetTileWidth(), i/tileSet->GetTileHeight());
-        }
-
-        for(auto tile : tiles){
-            if(TileMap->IsSolid(tile.first, tile.second)){
-                movement.x = 0;
-            }
-        }   
-        associated.box.x += movement.x;
+        associated.box.x += speed.x;    
     }
 
-    if(inputManager.IsKeyDown(W_KEY)){
-        speed.y = -150;
-    } 
-    // Gravity
-    speed.y += GRAVITY;
-    newBox = associated.box;
-    newBox.y += speed.y*dt;
-    std::set<std::pair<int, int>> tiles;
-    for(int i = newBox.x; i < newBox.x+newBox.w; i++){
-        tiles.emplace(i/tileSet->GetTileWidth(), (newBox.y+newBox.h)/tileSet->GetTileHeight());       
+    if(jump and grounded){
+        speed.y = (-400000)*dt/mass;
     }
-    for(auto tile : tiles){
-        if(TileMap->IsSolid(tile.first, tile.second)){
-            speed.y = 0;
-        }
-    }   
-    associated.box.y += speed.y*dt;   
+    float motionY = speed.y*dt + (GRAVITY*(dt*dt))/2;
+
+    std::set<int> xAxis;
+    xAxis.emplace(tileLeftX);
+    xAxis.emplace(tileRightX);
+    float closestObstacleY = TileMap->ScanY(xAxis, (associated.box.y+associated.box.h)/tileSet->GetTileHeight());
+    float distance = closestObstacleY*tileSet->GetTileHeight() - (associated.box.y+associated.box.h);
+    motionY = std::min(motionY, distance);
+    associated.box.y += motionY;
 }
 
 void Android::NotifyCollision(GameObject& other){
@@ -91,17 +83,6 @@ void Android::NotifyCollision(GameObject& other){
         if(bullet->targetsPlayer){
             this->hp -= 5;
             if(this->hp <= 0){
-                Camera::Unfollow();
-                associated.RequestDelete();
-                pcannon.lock()->RequestDelete();
-
-                GameObject* penguimDeath = new GameObject();
-	            penguimDeath->AddComponent(new Sprite("assets/img/penguindeath.png", *penguimDeath, 5, 0.1f, 0.5f));
-                Sound* sound = new Sound("assets/audio/boom.wav", *penguimDeath);
-                sound->Play();
-                penguimDeath->AddComponent(sound);
-	            penguimDeath->box.Centered(associated.box.Center());
-	            Game::GetInstance().GetCurrentState().AddObject(penguimDeath);
             }
         }
     }

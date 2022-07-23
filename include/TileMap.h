@@ -53,6 +53,23 @@ class TileMap : public Component{
         bool IsSolid(int x, int y);
 
         /**
+         * @brief Scan xAxis for obstacle
+         * 
+         * @param yAxis 
+         * @return float 
+         */
+        float ScanX(std::set<int> yAxis);
+
+        /**
+         * @brief scan yAxis for obstacle
+         * 
+         * @param xAxis 
+         * @param y 
+         * @return float 
+         */
+        float ScanY(std::set<int> xAxis, float y);
+
+        /**
          * @brief Render game map
          * 
          */

@@ -7,10 +7,10 @@
 #include "SDL_include.h"
 
 Sprite::Sprite(GameObject& associated, int frameCount, float frameTime, float secondsToSelfDestruct) : Component(associated), selfDestructCount(), texture(nullptr),
- frameCount(frameCount), currentFrame(0), timeElapsed(0), frameTime(frameTime), secondsToSelfDestruct(secondsToSelfDestruct) {}
+ frameCount(frameCount), currentFrame(0), timeElapsed(0), frameTime(frameTime), secondsToSelfDestruct(secondsToSelfDestruct), dir(0) {}
 
 Sprite::Sprite(std::string file, GameObject& associated, int frameCount, float frameTime, float secondsToSelfDestruct) : Component(associated), selfDestructCount(),
- texture(nullptr), scale({1, 1}), frameCount(frameCount), currentFrame(0), timeElapsed(0), frameTime(frameTime), secondsToSelfDestruct(secondsToSelfDestruct) {
+ texture(nullptr), scale({1, 1}), frameCount(frameCount), currentFrame(0), timeElapsed(0), frameTime(frameTime), secondsToSelfDestruct(secondsToSelfDestruct), dir(0) {
     Open(file);
 }
 
@@ -71,7 +71,11 @@ void Sprite::Render(int x, int y){
     dstrect.w = clipRect.w*scale.x;
     dstrect.h = clipRect.h*scale.y;
 
-    SDL_RenderCopyEx(Game::GetInstance().GetRenderer(), texture.get(), &clipRect, &dstrect, associated.angleDeg, nullptr, SDL_FLIP_NONE);
+    if(dir >= 0){
+        SDL_RenderCopyEx(Game::GetInstance().GetRenderer(), texture.get(), &clipRect, &dstrect, associated.angleDeg, nullptr, SDL_FLIP_NONE);
+    } else {
+        SDL_RenderCopyEx(Game::GetInstance().GetRenderer(), texture.get(), &clipRect, &dstrect, associated.angleDeg, nullptr, SDL_FLIP_HORIZONTAL);
+    }
 }
 
 void Sprite::Render(){
@@ -105,6 +109,8 @@ void Sprite::SetFrame(int frame){
         SetClip((currentFrame)*GetWidth(), 0, GetWidth(), GetHeight());
     }
 }
+
+void Sprite::SetDir(int dir){ this->dir = dir; }
 
 void Sprite::SetFrameCount(int frameCount){
     this->frameCount = frameCount;

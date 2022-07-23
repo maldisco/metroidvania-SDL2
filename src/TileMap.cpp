@@ -75,6 +75,22 @@ bool TileMap::IsSolid(int x, int y){
     return (class1.compare("solid") == 0) or (class2.compare("solid") == 0);
 }
 
+float TileMap::ScanX(std::set<int> yAxis){
+
+}
+
+float TileMap::ScanY(std::set<int> xAxis, float y){
+    for(int i = y; i < mapHeight; i++){
+        for(auto x : xAxis){
+            if(IsSolid(x, i)){
+                return i;
+            }
+        }
+    }
+
+    return mapHeight;
+}
+
 void TileMap::RenderLayer(int layer, int cameraX, int cameraY){
     for(int i = 0; i < mapWidth*mapHeight; i++){
         

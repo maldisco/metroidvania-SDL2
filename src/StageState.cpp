@@ -5,7 +5,8 @@
 #include "Camera.h"
 #include "InputManager.h"
 #include "CameraFollower.h"
-#include "Android.h"
+#include "RedHood.h"
+#include "Skeleton.h"
 #include "Collision.cpp"
 #include "TitleState.h"
 #include "EndState.h"
@@ -30,14 +31,21 @@ StageState::StageState() : State(), backgroundMusic("assets/audio/cinnabar.mp3")
 	AddObject(map);
 
 	// main char
-	GameObject* android = new GameObject();
-	android->AddComponent(new Android(*android));
-	android->box.x = 300;
-	android->box.y = 50;
-	AddObject(android);
+	GameObject* player = new GameObject();
+	player->AddComponent(new RedHood(*player));
+	player->box.x = 300;
+	player->box.y = 50;
+	AddObject(player);
+
+	// enemy 1
+	GameObject* enemy = new GameObject();
+	enemy->AddComponent(new Skeleton(*enemy));
+	enemy->box.x = 500;
+	enemy->box.y = 50;
+	AddObject(enemy);
 
 	// make android as camera focus
-	Camera::Follow(android);
+	Camera::Follow(player);
 }
 
 StageState::~StageState(){
@@ -52,12 +60,21 @@ void StageState::Start(){
 }
 
 void StageState::LoadAssets(){
+	std::cout << "Carregando sprites do personagem principal..." << "\n";
 	Resources::GetImage(PLAYER_IDLE_FILE);
 	Resources::GetImage(PLAYER_RUN_FILE);
 	Resources::GetImage(PLAYER_JUMP_FILE);
 	Resources::GetImage(PLAYER_FALL_FILE);
 	Resources::GetImage(PLAYER_LAND_FILE);
-	Resources::GetImage(PLAYER_LIGHTATTACK_FILE);
+	Resources::GetImage(PLAYER_LIGHTATTACK1_FILE);
+	Resources::GetImage(PLAYER_LIGHTATTACK2_FILE);
+	Resources::GetImage(PLAYER_LIGHTATTACK3_FILE);
+	std::cout << "Carregando sprites do inimigo numero 1..." << "\n";
+	Resources::GetImage(SKELETON_IDLE_FILE);
+	Resources::GetImage(SKELETON_RUN_FILE);
+	Resources::GetImage(SKELETON_HURT_FILE);
+	Resources::GetImage(SKELETON_DEATH_FILE);
+	Resources::GetImage(SKELETON_ATTACK_FILE);
 }
 
 void StageState::Pause(){

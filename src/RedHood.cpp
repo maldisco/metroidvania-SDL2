@@ -1,4 +1,4 @@
-#include "Android.h"
+#include "RedHood.h"
 #include "Sprite.h"
 #include "Collider.h"
 #include "Game.h"
@@ -10,22 +10,22 @@
 #include "TileMap.h"
 #include "StageState.h"
 
-Android* Android::player;
-Android::Android(GameObject& associated) : Component(associated), speed({100,150}), mass(77.38f), hp(100), playerState(STANDING){
+RedHood* RedHood::player;
+RedHood::RedHood(GameObject& associated) : Being(associated, {100, 150}, 77.38f, 100), combo(0){
     player = this;
     associated.AddComponent(new Sprite(PLAYER_IDLE_FILE, associated, 18, 0.05f));
     associated.AddComponent(new Collider(associated, {1, 1}, {0, 28}));
 }
 
-Android::~Android(){
+RedHood::~RedHood(){
     player = nullptr;
 }
 
-void Android::Start(){
+void RedHood::Start(){
     
 }
 
-void Android::Update(float dt){
+void RedHood::Update(float dt){
     // Useful objects
     StageState state = (StageState&)Game::GetInstance().GetCurrentState();
     TileMap* TileMap = state.GetTileMap();
@@ -51,8 +51,8 @@ void Android::Update(float dt){
     std::set<int> xAxis;
     float motionY, closestObstacleY, distance;
     // State machine
-    switch(playerState){
-        case STANDING:
+    switch(charState){
+        case IDLE:
             // Actions
             // - update vertical speed
             motionY = speed.y*dt + (GRAVITY*(dt*dt))/2;
@@ -66,17 +66,17 @@ void Android::Update(float dt){
             // State change condition
             if(inputManager.KeyPress(A_KEY) or inputManager.KeyPress(D_KEY)){
                 sprite->Change(PLAYER_RUN_FILE, 0.05f, 24);
-                playerState = WALKING;
+                charState = WALKING;
             } else if(jump){
                 sprite->Change(PLAYER_JUMP_FILE, 0.2f, 10, 3);
                 speed.y = (-JUMP_FORCE)*dt/mass;
-                playerState = JUMPING;
+                charState = JUMPING;
             } else if(not grounded){
                 sprite->Change(PLAYER_FALL_FILE, 0.05f, 5, 1);
-                playerState = FALLING;
+                charState = FALLING;
             } else if(lightAttack){
-                sprite->Change(PLAYER_LIGHTATTACK_FILE, 0.05f, 26);
-                playerState = ATTACKING; 
+                sprite->Change(PLAYER_LIGHTATTACK1_FILE, 0.05f, 7);
+                charState = ATTACKING; 
             }
             break;
         
@@ -104,17 +104,17 @@ void Android::Update(float dt){
             // State change condition
             if (not( inputManager.IsKeyDown(A_KEY) or inputManager.IsKeyDown(D_KEY) ) and ( inputManager.KeyRelease(A_KEY) or inputManager.KeyRelease(D_KEY) )){
                 sprite->Change(PLAYER_IDLE_FILE, 0.05f, 18);
-                playerState = STANDING;
+                charState = IDLE;
             } else if(jump){
                 sprite->Change(PLAYER_JUMP_FILE, 0.05f, 10, 3);
                 speed.y = (-JUMP_FORCE)*dt/mass;
-                playerState = JUMPING;
+                charState = JUMPING;
             } else if (not grounded){
                 sprite->Change(PLAYER_FALL_FILE, 0.05f, 5, 1);
-                playerState = FALLING;
+                charState = FALLING;
             } else if (lightAttack){
-                sprite->Change(PLAYER_LIGHTATTACK_FILE, 0.05f, 26);
-                playerState = ATTACKING; 
+                sprite->Change(PLAYER_LIGHTATTACK1_FILE, 0.05f, 7);
+                charState = ATTACKING; 
             }
             break;
         
@@ -151,7 +151,7 @@ void Android::Update(float dt){
             // State change condition
             if(speed.y > 0){
                 sprite->Change(PLAYER_FALL_FILE, 0.05f, 5, 1);
-                playerState = FALLING;
+                charState = FALLING;
             }
             break;
         
@@ -189,28 +189,38 @@ void Android::Update(float dt){
             if(grounded){
                 if(inputManager.IsKeyDown(A_KEY) or inputManager.IsKeyDown(D_KEY)){
                     sprite->Change(PLAYER_RUN_FILE, 0.05f, 24);
-                    playerState = WALKING;
+                    charState = WALKING;
                 } else {
                     sprite->Change(PLAYER_IDLE_FILE, 0.05f, 18);
-                    playerState = STANDING;
+                    charState = IDLE;
                 }
             }
             break;
 
         case ATTACKING:
             // Actions
-
+            if(lightAttack and sprite->GetCurrentFrame() >= sprite->GetFrameCount()-3){
+                combo++;
+                if(combo == 1){
+                    sprite->Change(PLAYER_LIGHTATTACK2_FILE, 0.05f, 7);
+                    sprite->SetFrame(0);
+                } else if (combo == 2){
+                    sprite->Change(PLAYER_LIGHTATTACK3_FILE, 0.05f, 14);
+                    sprite->SetFrame(0);
+                } 
+            }
 
             // Stage change condition
             if(sprite->GetCurrentFrame() >= sprite->GetFrameCount()-1){
                 sprite->Change(PLAYER_IDLE_FILE, 0.05f, 18);
-                playerState = STANDING;
+                charState = IDLE;
+                combo = 0;
             }
             break;
     }
 }
 
-void Android::NotifyCollision(GameObject& other){
+void RedHood::NotifyCollision(GameObject& other){
     if(other.GetComponent("Bullet") != nullptr){
         Bullet* bullet = (Bullet*)other.GetComponent("Bullet");
         if(bullet->targetsPlayer){
@@ -221,10 +231,10 @@ void Android::NotifyCollision(GameObject& other){
     }
 }
 
-void Android::Render(){}
+void RedHood::Render(){}
 
-bool Android::Is(std::string type){
-    if(type.compare("Android") == 0){
+bool RedHood::Is(std::string type){
+    if(type.compare("RedHood") == 0){
         return true;
     }
 

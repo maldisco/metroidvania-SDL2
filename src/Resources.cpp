@@ -1,6 +1,7 @@
 #include "Resources.h"
 #include "Game.h"
 #include <string>
+#include <iostream>
 
 std::unordered_map<std::string, std::shared_ptr<SDL_Texture>> Resources::imageTable;
 std::unordered_map<std::string, std::shared_ptr<Mix_Music>> Resources::musicTable;
@@ -12,6 +13,7 @@ std::shared_ptr<SDL_Texture> Resources::GetImage(std::string file){
         return imageTable[file];
     }
 
+    std::cout << " - Carregou " << file << "\n";
     SDL_Texture* texture = IMG_LoadTexture(Game::GetInstance().GetRenderer(), file.c_str());
     imageTable[file] = std::shared_ptr<SDL_Texture>(texture, [](SDL_Texture* ptr) {SDL_DestroyTexture(ptr);});
     return imageTable[file];
@@ -30,6 +32,7 @@ std::shared_ptr<Mix_Music> Resources::GetMusic(std::string file){
         return musicTable[file];
     }
 
+    std::cout << "Carregou " << file << "\n";
     Mix_Music* music = Mix_LoadMUS(file.c_str());
     musicTable[file] = std::shared_ptr<Mix_Music>(music, [](Mix_Music* ptr) {Mix_FreeMusic(ptr);});
     return musicTable[file];
@@ -48,6 +51,7 @@ std::shared_ptr<Mix_Chunk> Resources::GetSound(std::string file){
         return soundTable[file];
     }
 
+    std::cout << "Carregou " << file << "\n";
     Mix_Chunk* sound = Mix_LoadWAV(file.c_str());
     soundTable[file] = std::shared_ptr<Mix_Chunk>(sound, [](Mix_Chunk* ptr) {Mix_FreeChunk(ptr);});
     return soundTable[file];
@@ -67,6 +71,7 @@ std::shared_ptr<TTF_Font> Resources::GetFont(std::string file, int size){
         return fontTable[key];
     }
 
+    std::cout << "Carregou " << file << "\n";
     TTF_Font* font = TTF_OpenFont(file.c_str(), size);
     fontTable[key] = std::shared_ptr<TTF_Font>(font, [](TTF_Font* ptr) {TTF_CloseFont(ptr);});
     return fontTable[key];

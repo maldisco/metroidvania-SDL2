@@ -2,6 +2,7 @@
 #include "Collider.h"
 #include "Game.h"
 #include "StageState.h"
+#include "InputManager.h"
 
 Skeleton::Skeleton(GameObject& associated) : Being(associated, {100, 0}, 50.0f, 100){
     associated.AddComponent(new Sprite(SKELETON_IDLE_FILE, associated, 4, 0.05f));
@@ -22,6 +23,7 @@ void Skeleton::Update(float dt){
     TileMap* TileMap = state.GetTileMap();
     TileSet* tileSet = state.GetTileSet();
     Sprite* sprite = (Sprite*)associated.GetComponent("Sprite");
+    InputManager& inputManager = InputManager::GetInstance();
     
     // check if in ground
     bool grounded = false;
@@ -33,6 +35,46 @@ void Skeleton::Update(float dt){
     }
 
     speed.y = speed.y + GRAVITY;
+    int hit =  inputManager.KeyPress(SPACE_KEY);
+
+    switch(charState){
+        case IDLE:
+            // Actions
+
+
+            // State change conditions
+            if(hit){
+                this->hp -= 20;
+                if(hp <= 0){
+                    sprite->Change(SKELETON_DEATH_FILE, 0.05, 13);
+                    charState = DEAD;
+                } else {
+                    sprite->Change(SKELETON_HURT_FILE, 0.05, 3);
+                    charState = HURT;
+                }
+
+            }
+            break;
+        case HURT:
+            // Actions
+
+            
+            // State change conditions
+            if(sprite->GetCurrentFrame() == sprite->GetFrameCount()-1){
+                sprite->Change(SKELETON_IDLE_FILE, 0.05, 4);
+                charState = IDLE;
+            }
+            break;
+        
+        case DEAD:
+            // Actions
+
+            // State change conditions
+            if(sprite->GetCurrentFrame() == sprite->GetFrameCount()-1){
+                associated.RequestDelete();
+            }
+            break;
+    }
 
     std::set<int> xAxis;
     // - update vertical speed
@@ -58,5 +100,7 @@ bool Skeleton::Is(std::string type){
 }
 
 void Skeleton::NotifyCollision(GameObject& other){
-
+    if(other.GetComponent("RedHood") != nullptr){
+         
+    }
 }

@@ -54,14 +54,6 @@ void RedHood::Update(float dt){
     switch(charState){
         case IDLE:
             // Actions
-            // - update vertical speed
-            motionY = speed.y*dt + (GRAVITY*(dt*dt))/2;
-            xAxis.emplace(tileLeftX);
-            xAxis.emplace(tileRightX);
-            closestObstacleY = TileMap->ScanY(xAxis, (associated.box.y+associated.box.h)/tileSet->GetTileHeight());
-            distance = closestObstacleY*tileSet->GetTileHeight() - (associated.box.y+associated.box.h);
-            motionY = std::min(motionY, distance);
-            associated.box.y += motionY;
 
             // State change condition
             if(inputManager.KeyPress(A_KEY) or inputManager.KeyPress(D_KEY)){
@@ -97,7 +89,6 @@ void RedHood::Update(float dt){
                     }
                 }   
                 associated.box.x += speed.x;    
-
                 sprite->SetDir(right - left);
             }
 
@@ -139,15 +130,6 @@ void RedHood::Update(float dt){
                 sprite->SetDir(right - left);
             }
 
-            // - update vertical speed
-            motionY = speed.y*dt + (GRAVITY*(dt*dt))/2;
-            xAxis.emplace(tileLeftX);
-            xAxis.emplace(tileRightX);
-            closestObstacleY = TileMap->ScanY(xAxis, (associated.box.y+associated.box.h)/tileSet->GetTileHeight());
-            distance = closestObstacleY*tileSet->GetTileHeight() - (associated.box.y+associated.box.h);
-            motionY = std::min(motionY, distance);
-            associated.box.y += motionY;
-
             // State change condition
             if(speed.y > 0){
                 sprite->Change(PLAYER_FALL_FILE, 0.05f, 5, 1);
@@ -175,15 +157,6 @@ void RedHood::Update(float dt){
 
                 sprite->SetDir(right - left);
             }
-
-            // - update vertical speed
-            motionY = speed.y*dt + (GRAVITY*(dt*dt))/2;
-            xAxis.emplace(tileLeftX);
-            xAxis.emplace(tileRightX);
-            closestObstacleY = TileMap->ScanY(xAxis, (associated.box.y+associated.box.h)/tileSet->GetTileHeight());
-            distance = closestObstacleY*tileSet->GetTileHeight() - (associated.box.y+associated.box.h);
-            motionY = std::min(motionY, distance);
-            associated.box.y += motionY;
 
             // State change condition
             if(grounded){
@@ -218,17 +191,19 @@ void RedHood::Update(float dt){
             }
             break;
     }
+
+    // - update vertical speed (all states do)
+    motionY = speed.y*dt + (GRAVITY*(dt*dt))/2;
+    xAxis.emplace(tileLeftX);
+    xAxis.emplace(tileRightX);
+    closestObstacleY = TileMap->ScanY(xAxis, (associated.box.y+associated.box.h)/tileSet->GetTileHeight());
+    distance = closestObstacleY*tileSet->GetTileHeight() - (associated.box.y+associated.box.h);
+    motionY = std::min(motionY, distance);
+    associated.box.y += motionY;
 }
 
 void RedHood::NotifyCollision(GameObject& other){
-    if(other.GetComponent("Bullet") != nullptr){
-        Bullet* bullet = (Bullet*)other.GetComponent("Bullet");
-        if(bullet->targetsPlayer){
-            this->hp -= 5;
-            if(this->hp <= 0){
-            }
-        }
-    }
+    
 }
 
 void RedHood::Render(){}

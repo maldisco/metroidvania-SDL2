@@ -10,6 +10,11 @@
 
 class Skeleton : public Being {
     public:
+        /**
+         * @brief Construct a new Skeleton object
+         * 
+         * @param associated 
+         */
         Skeleton(GameObject& associated);
         ~Skeleton();
 

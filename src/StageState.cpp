@@ -8,6 +8,7 @@
 #include "RedHood.h"
 #include "Skeleton.h"
 #include "Collision.cpp"
+#include "Collider.h"
 #include "TitleState.h"
 #include "EndState.h"
 #include "Resources.h"
@@ -30,19 +31,19 @@ StageState::StageState() : State(), backgroundMusic("assets/audio/cinnabar.mp3")
 	map->box.y = 0;
 	AddObject(map);
 
-	// main char
-	GameObject* player = new GameObject();
-	player->AddComponent(new RedHood(*player));
-	player->box.x = 300;
-	player->box.y = 50;
-	AddObject(player);
-
 	// enemy 1
 	GameObject* enemy = new GameObject();
 	enemy->AddComponent(new Skeleton(*enemy));
 	enemy->box.x = 500;
 	enemy->box.y = 50;
 	AddObject(enemy);
+
+	// main char
+	GameObject* player = new GameObject();
+	player->AddComponent(new RedHood(*player));
+	player->box.x = 300;
+	player->box.y = 50;
+	AddObject(player);
 
 	// make android as camera focus
 	Camera::Follow(player);
@@ -103,11 +104,11 @@ void StageState::Update(float dt){
 	std::vector<std::weak_ptr<GameObject>> collidable = QueryObjectsBy("Collider");
 	for(unsigned i=0; i<collidable.size(); i++){
 		for(unsigned j=i+1; j<collidable.size(); j++){
-			if(Collision::IsColliding(collidable[i].lock()->box, collidable[j].lock()->box, collidable[i].lock()->angleDeg*PI/180, collidable[j].lock()->angleDeg*PI/180)){
-				GameObject* g1 = collidable[i].lock().get();
-				GameObject* g2 = collidable[j].lock().get();
-				g1->NotifyCollision(*g2);
-				g2->NotifyCollision(*g1);
+			Collider* collider1 = (Collider*)collidable[i].lock()->GetComponent("Collider");
+			Collider* collider2 = (Collider*)collidable[j].lock()->GetComponent("Collider");
+			if(Collision::IsColliding(collider1->box, collider2->box, collidable[i].lock()->angleDeg*PI/180, collidable[j].lock()->angleDeg*PI/180)){
+				collidable[i].lock()->NotifyCollision(*collidable[j].lock());
+				collidable[j].lock()->NotifyCollision(*collidable[i].lock());
 			}
 		}
 	}

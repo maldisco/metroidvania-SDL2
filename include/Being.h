@@ -21,7 +21,7 @@ class Being : public Component{
         float mass;
         int hp;
         int dir;
-        enum STATE{ IDLE, WALKING, JUMPING, FALLING, ATTACKING, HURT, DEAD };
+        enum STATE{ IDLE, WALKING, JUMPING, FALLING, ATTACKING, DASHING, HURT, DEAD };
         STATE charState;
 };
 #endif

@@ -14,7 +14,7 @@ State* Game::storedState;
 Game& Game::GetInstance(){
     if (instance == nullptr)
     {
-        new Game("Filipe de Sousa Fernandes - 202065879", 1024, 600);
+        new Game("Filipe de Sousa Fernandes - 202065879", 1280, 720);
     }
 
     return *instance;

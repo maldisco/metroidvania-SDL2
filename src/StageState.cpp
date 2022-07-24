@@ -66,10 +66,14 @@ void StageState::LoadAssets(){
 	Resources::GetImage(PLAYER_RUN_FILE);
 	Resources::GetImage(PLAYER_JUMP_FILE);
 	Resources::GetImage(PLAYER_FALL_FILE);
-	Resources::GetImage(PLAYER_LAND_FILE);
-	Resources::GetImage(PLAYER_LIGHTATTACK1_FILE);
-	Resources::GetImage(PLAYER_LIGHTATTACK2_FILE);
-	Resources::GetImage(PLAYER_LIGHTATTACK3_FILE);
+	Resources::GetImage(PLAYER_HURT_FILE);
+	Resources::GetImage(PLAYER_DEATH_FILE);
+	Resources::GetImage(PLAYER_DASH_FILE);
+	Resources::GetImage(PLAYER_DASHATTACK_FILE);
+	Resources::GetImage(PLAYER_CROUCH_FILE);
+	Resources::GetImage(PLAYER_SLIDE_FILE);
+	Resources::GetImage(PLAYER_ATTACK1_FILE);
+	Resources::GetImage(PLAYER_ATTACK2_FILE);
 	std::cout << "Carregando sprites do inimigo numero 1..." << "\n";
 	Resources::GetImage(SKELETON_IDLE_FILE);
 	Resources::GetImage(SKELETON_RUN_FILE);

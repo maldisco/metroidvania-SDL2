@@ -2,16 +2,20 @@
 #define PENGUINBODY_H
 
 #define MAX_SPEEDH 200
-#define JUMP_FORCE 600000
+#define JUMP_FORCE 300
 
-#define PLAYER_JUMP_FILE            "assets/img/playerjump.png"
-#define PLAYER_RUN_FILE             "assets/img/playerrun.png"
-#define PLAYER_IDLE_FILE            "assets/img/playeridle.png"
-#define PLAYER_FALL_FILE            "assets/img/playerfall.png"
-#define PLAYER_LAND_FILE            "assets/img/playerland.png"
-#define PLAYER_LIGHTATTACK1_FILE    "assets/img/playerlightattack1.png"
-#define PLAYER_LIGHTATTACK2_FILE    "assets/img/playerlightattack2.png"
-#define PLAYER_LIGHTATTACK3_FILE    "assets/img/playerlightattack3.png"
+#define PLAYER_JUMP_FILE            "assets/img/warrior-jump.png"
+#define PLAYER_RUN_FILE             "assets/img/warrior-run.png"
+#define PLAYER_IDLE_FILE            "assets/img/warrior-idle.png"
+#define PLAYER_FALL_FILE            "assets/img/warrior-fall.png"
+#define PLAYER_ATTACK1_FILE         "assets/img/warrior-attack1.png"
+#define PLAYER_ATTACK2_FILE         "assets/img/warrior-attack2.png"
+#define PLAYER_CROUCH_FILE          "assets/img/warrior-crouch.png"
+#define PLAYER_DASH_FILE            "assets/img/warrior-dash.png"
+#define PLAYER_DASHATTACK_FILE      "assets/img/warrior-dash-attack.png"
+#define PLAYER_DEATH_FILE           "assets/img/warrior-death.png"
+#define PLAYER_SLIDE_FILE           "assets/img/warrior-slide.png"
+#define PLAYER_HURT_FILE            "assets/img/warrior-hurt.png"
 
 
 #include "Being.h"

@@ -1,12 +1,13 @@
 #include "Skeleton.h"
 #include "Collider.h"
 #include "Game.h"
+#include "Damage.h"
 #include "StageState.h"
 #include "InputManager.h"
 
 Skeleton::Skeleton(GameObject& associated) : Being(associated, {100, 0}, 50.0f, 100){
     associated.AddComponent(new Sprite(SKELETON_IDLE_FILE, associated, 4, 0.05f));
-    associated.AddComponent(new Collider(associated));
+    associated.AddComponent(new Collider(associated, {32/associated.box.w, 64/associated.box.h}));
 }
 
 Skeleton::~Skeleton(){
@@ -35,7 +36,6 @@ void Skeleton::Update(float dt){
     }
 
     speed.y = speed.y + GRAVITY;
-    int hit =  inputManager.KeyPress(SPACE_KEY);
 
     switch(charState){
         case IDLE:
@@ -43,17 +43,6 @@ void Skeleton::Update(float dt){
 
 
             // State change conditions
-            if(hit){
-                this->hp -= 20;
-                if(hp <= 0){
-                    sprite->Change(SKELETON_DEATH_FILE, 0.05, 13);
-                    charState = DEAD;
-                } else {
-                    sprite->Change(SKELETON_HURT_FILE, 0.05, 3);
-                    charState = HURT;
-                }
-
-            }
             break;
         case HURT:
             // Actions
@@ -100,7 +89,17 @@ bool Skeleton::Is(std::string type){
 }
 
 void Skeleton::NotifyCollision(GameObject& other){
-    if(other.GetComponent("RedHood") != nullptr){
-         
+    if(other.GetComponent("Damage") != nullptr){
+        Damage* damage = (Damage*)other.GetComponent("Damage");
+        if(not damage->targetsPlayer and not (charState == DEAD or charState == HURT)){
+            Sprite* sprite = (Sprite*)associated.GetComponent("Sprite");
+            this->hp -= damage->GetDamage();
+            this->charState = HURT;
+            sprite->Change(SKELETON_HURT_FILE, 0.05, 3);
+            if(this->hp <= 0){
+                this->charState = DEAD;
+                sprite->Change(SKELETON_DEATH_FILE, 0.05, 13);
+            }
+        }
     }
 }

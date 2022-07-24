@@ -3,7 +3,7 @@
 #include "Collider.h"
 #include "Game.h"
 #include "Camera.h"
-#include "Bullet.h"
+#include "Damage.h"
 #include "Timer.h"
 #include "Sound.h"
 #include "InputManager.h"
@@ -14,7 +14,7 @@ RedHood* RedHood::player;
 RedHood::RedHood(GameObject& associated) : Being(associated, {100, 150}, 77.38f, 100), combo(0){
     player = this;
     associated.AddComponent(new Sprite(PLAYER_IDLE_FILE, associated, 18, 0.05f));
-    associated.AddComponent(new Collider(associated, {1, 1}, {0, 28}));
+    associated.AddComponent(new Collider(associated, {32/associated.box.w, 64/associated.box.h}, {0, 28}));
 }
 
 RedHood::~RedHood(){
@@ -31,6 +31,7 @@ void RedHood::Update(float dt){
     TileMap* TileMap = state.GetTileMap();
     TileSet* tileSet = state.GetTileSet();
     Sprite* sprite = (Sprite*)associated.GetComponent("Sprite");
+    Collider* collider = (Collider*)associated.GetComponent("Collider");
     InputManager& inputManager = InputManager::GetInstance();
 
     // check if in ground
@@ -89,7 +90,7 @@ void RedHood::Update(float dt){
                     }
                 }   
                 associated.box.x += speed.x;    
-                sprite->SetDir(right - left);
+                this->dir = right - left;
             }
 
             // State change condition
@@ -126,8 +127,7 @@ void RedHood::Update(float dt){
                     }
                 }   
                 associated.box.x += speed.x;    
-
-                sprite->SetDir(right - left);
+                this->dir = right - left;
             }
 
             // State change condition
@@ -154,8 +154,7 @@ void RedHood::Update(float dt){
                     }
                 }   
                 associated.box.x += speed.x;    
-
-                sprite->SetDir(right - left);
+                this->dir = right - left;
             }
 
             // State change condition
@@ -172,6 +171,18 @@ void RedHood::Update(float dt){
 
         case ATTACKING:
             // Actions
+            if(sprite->GetCurrentFrame() == 1){
+                GameObject* damage = new GameObject();
+                damage->AddComponent(new Damage(*damage, 10*(combo+1), false));
+                damage->box.w = 48;
+                damage->box.h = 64;
+                damage->box.y = collider->box.y;
+                if(dir >= 0) damage->box.x = collider->box.x + collider->box.w;
+                else damage->box.x = collider->box.x;
+
+                Game::GetInstance().GetCurrentState().AddObject(damage);
+            }
+
             if(lightAttack and sprite->GetCurrentFrame() >= sprite->GetFrameCount()-3){
                 combo++;
                 if(combo == 1){
@@ -200,6 +211,9 @@ void RedHood::Update(float dt){
     distance = closestObstacleY*tileSet->GetTileHeight() - (associated.box.y+associated.box.h);
     motionY = std::min(motionY, distance);
     associated.box.y += motionY;
+    
+    // sprite direction
+    sprite->SetDir(dir);
 }
 
 void RedHood::NotifyCollision(GameObject& other){

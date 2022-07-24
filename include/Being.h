@@ -12,7 +12,7 @@ class Being : public Component{
          * @param mass 
          * @param hp 
          */
-        Being(GameObject& associated, Vec2 speed, float mass, int hp);
+        Being(GameObject& associated, Vec2 speed, float mass, int hp, int dir = 1);
 
         virtual ~Being();
     
@@ -20,6 +20,7 @@ class Being : public Component{
         Vec2 speed;
         float mass;
         int hp;
+        int dir;
         enum STATE{ IDLE, WALKING, JUMPING, FALLING, ATTACKING, HURT, DEAD };
         STATE charState;
 };

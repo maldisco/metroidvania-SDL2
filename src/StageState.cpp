@@ -101,6 +101,13 @@ void StageState::Update(float dt){
 		backgroundMusic.Stop();
     }
 
+	if(Player::player == nullptr){
+		if(InputManager::GetInstance().KeyPress(SPACE_KEY)){
+			popRequested = true;
+			backgroundMusic.Stop();
+		}
+	}
+
 	// Update every object
     UpdateArray(dt);
 

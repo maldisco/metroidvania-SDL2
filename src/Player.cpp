@@ -9,6 +9,7 @@
 #include "InputManager.h"
 #include "TileMap.h"
 #include "StageState.h"
+#include "Text.h"
 
 Player* Player::player;
 Player::Player(GameObject& associated) : Being(associated, {100, 150}, 1, 100), combo(0){
@@ -159,9 +160,9 @@ void Player::Update(float dt){
         case ATTACKING:
             // Actions
             // - create damage box
-            if(sprite->GetCurrentFrame() == sprite->GetFrameCount()-2){
+            if(sprite->GetCurrentFrame() == sprite->GetFrameCount()-3){
                 GameObject* damage = new GameObject();
-                damage->AddComponent(new Damage(*damage, 10*(combo+1), false));
+                damage->AddComponent(new Damage(*damage, 10*(combo+1), false, 0.15f));
                 damage->box.w = 48;
                 damage->box.h = 64;
                 damage->box.y = collider->box.y;
@@ -229,6 +230,40 @@ void Player::Update(float dt){
                 }
             } 
             break;
+
+        case HURT:
+            // Actions
+
+            // State change conditions
+            if(sprite->GetCurrentFrame() >= sprite->GetFrameCount()-1){
+                if(inputManager.IsKeyDown(A_KEY) or inputManager.IsKeyDown(D_KEY)){
+                    sprite->Change(PLAYER_RUN_FILE, 0.05f, 8);
+                    charState = WALKING;
+                } else if(not grounded){
+                    if(speed.y >= 0){
+                        sprite->Change(PLAYER_FALL_FILE, 0.05f, 5, 2);
+                        charState = FALLING;
+                    } else {
+                        sprite->Change(PLAYER_JUMP_FILE, 0.05f, 3);
+                        charState = JUMPING;
+                    }
+                } else {
+                    sprite->Change(PLAYER_IDLE_FILE, 0.05f, 6);
+                    charState = IDLE;
+                    speed.x = 0;
+                }
+            }
+            break;
+        
+        case DEAD:
+            // Actions
+
+            // State change conditions
+            if(sprite->GetCurrentFrame() >= sprite->GetFrameCount()-1){
+                associated.RequestDelete();
+            }
+            break;
+
     }
 
     // - update vertical speed (all states do)
@@ -239,7 +274,28 @@ void Player::Update(float dt){
 }
 
 void Player::NotifyCollision(GameObject& other){
-    
+    if(other.GetComponent("Damage") != nullptr){
+        Damage* damage = (Damage*)other.GetComponent("Damage");
+
+        if(damage->targetsPlayer and not (charState == DEAD or charState == HURT or charState == DASHING)){
+            Sprite* sprite = (Sprite*)associated.GetComponent("Sprite");
+            this->hp -= damage->GetDamage();
+
+            this->charState = HURT;
+            sprite->Change(PLAYER_HURT_FILE, 0.05, 4);            
+        
+            if(this->hp <= 0){
+                this->charState = DEAD;
+                sprite->Change(PLAYER_DEATH_FILE, 0.05, 11);
+
+                GameObject* gameOver = new GameObject();
+                gameOver->box.y = CAMERA_HEIGHT/2;
+                gameOver->box.x = CAMERA_WIDTH/2;
+                gameOver->AddComponent(new Text(*gameOver, "assets/font/PeaberryBase.ttf", 150, Text::BLENDED, "YOU DIED", {255, 255, 255, SDL_ALPHA_TRANSPARENT}, 1));
+                Game::GetInstance().GetCurrentState().AddObject(gameOver);
+            }
+        }
+    }
 }
 
 void Player::Render(){}

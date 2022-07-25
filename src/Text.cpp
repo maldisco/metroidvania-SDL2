@@ -3,9 +3,12 @@
 #include "Game.h"
 #include "Resources.h"
 
-Text::Text(GameObject& associated, std::string fontFile, int fontSize, TextStyle style, std::string text, SDL_Color color) : 
-    Component(associated), fontFile(fontFile), fontSize(fontSize), style(style), text(text), color(color), texture(nullptr), cooldown(), showText(true){
+Text::Text(GameObject& associated, std::string fontFile, int fontSize, TextStyle style, std::string text, SDL_Color color, float fade) : 
+    Component(associated), fontFile(fontFile), fontSize(fontSize), style(style), text(text), color(color), texture(nullptr), cooldown(), showText(true), fade(fade), alpha(0){
         RemakeTexture();
+        if(fade > 0){
+            SDL_SetTextureAlphaMod(texture, alpha);
+        }
     }
 
 Text::~Text(){
@@ -15,10 +18,9 @@ Text::~Text(){
 }
 
 void Text::Update(float dt){
-    cooldown.Update(dt);
-    if(cooldown.Get() > 0.5f){
-        showText = !showText;
-        cooldown.Restart();
+    if(fade > 0 and alpha < 255){
+        SDL_SetTextureAlphaMod(texture, alpha);
+        alpha += 1;
     }
 }
 

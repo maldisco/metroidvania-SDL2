@@ -13,7 +13,7 @@ class Text : public Component {
     public:
         enum TextStyle{SOLID, SHADED, BLENDED};
 
-        Text(GameObject& associated, std::string fontFile, int fontSize, TextStyle style, std::string text, SDL_Color color);
+        Text(GameObject& associated, std::string fontFile, int fontSize, TextStyle style, std::string text, SDL_Color color, float fade = 0);
         ~Text();
 
         void Update(float dt);
@@ -36,6 +36,8 @@ class Text : public Component {
         SDL_Color color;
         Timer cooldown;
         bool showText;
+        float fade;
+        float alpha;
 
         void RemakeTexture();
 };

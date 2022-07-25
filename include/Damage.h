@@ -16,7 +16,7 @@ class Damage : public Component{
          * @param damage 
          * @param targetsPlayer 
          */
-        Damage(GameObject& associated, int damage, bool targetsPlayer);
+        Damage(GameObject& associated, int damage, bool targetsPlayer, float msToSelfDestruct = 0.1f);
         void Update(float dt);
         void Render();
         bool Is(std::string type);
@@ -27,5 +27,6 @@ class Damage : public Component{
     private:
         Timer lifeTime;
         int damage;
+        float msToSelfDestruct;
 };
 #endif

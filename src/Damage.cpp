@@ -2,14 +2,15 @@
 #include "sprite.h"
 #include "Collider.h"
 
-Damage::Damage(GameObject& associated, int damage, bool targetsPlayer) : Component(associated), damage(damage), targetsPlayer(targetsPlayer), lifeTime(){
+Damage::Damage(GameObject& associated, int damage, bool targetsPlayer, float msToSelfDestruct) : Component(associated), damage(damage), targetsPlayer(targetsPlayer),
+ lifeTime(), msToSelfDestruct(msToSelfDestruct){
     associated.AddComponent(new Collider(associated));
 } 
 
 void Damage::Update(float dt){
     lifeTime.Update(dt);
 
-    if(lifeTime.Get() >= 0.1f){
+    if(lifeTime.Get() >= msToSelfDestruct){
         associated.RequestDelete();
     }
 }
@@ -18,7 +19,7 @@ void Damage::Render(){}
 
 void Damage::NotifyCollision(GameObject& other){
     if(targetsPlayer){
-        if(other.GetComponent("RedHood") != nullptr){
+        if(other.GetComponent("Player") != nullptr){
             associated.RequestDelete();
         }
     } else {

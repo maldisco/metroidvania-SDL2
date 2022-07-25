@@ -1,8 +1,8 @@
-#ifndef PENGUINBODY_H
-#define PENGUINBODY_H
+#ifndef PLAYER_H
+#define PLAYER_H
 
 #define MAX_SPEEDH 200
-#define JUMP_FORCE 300
+#define JUMP_FORCE 350
 
 #define PLAYER_JUMP_FILE            "assets/img/warrior-jump.png"
 #define PLAYER_RUN_FILE             "assets/img/warrior-run.png"
@@ -20,15 +20,15 @@
 
 #include "Being.h"
 
-class RedHood : public Being {
+class Player : public Being {
     public:
         /**
-         * @brief Construct a new Penguin Body object
+         * @brief Construct a new Red Hood object
          * 
          * @param associated 
          */
-        RedHood(GameObject& associated);
-        ~RedHood();
+        Player(GameObject& associated);
+        ~Player();
 
         void Start();
         void Update(float dt);
@@ -36,7 +36,7 @@ class RedHood : public Being {
         bool Is(std::string type);
         void NotifyCollision(GameObject& other);
 
-        static RedHood* player;
+        static Player* player;
     private:
         int combo;
 };

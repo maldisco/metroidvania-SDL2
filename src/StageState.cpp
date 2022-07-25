@@ -5,7 +5,7 @@
 #include "Camera.h"
 #include "InputManager.h"
 #include "CameraFollower.h"
-#include "RedHood.h"
+#include "Player.h"
 #include "Skeleton.h"
 #include "Collision.cpp"
 #include "Collider.h"
@@ -16,16 +16,16 @@
 
 StageState::StageState() : State(), backgroundMusic("assets/audio/cinnabar.mp3"){    
 	// background
-	GameObject* bg = new GameObject();
-	bg->AddComponent(new Sprite("assets/img/background.png", *bg, 1, 1.0));
-	bg->box.x = 0;
-	bg->box.y = 0;
-	AddObject(bg);
+	//GameObject* bg = new GameObject();
+	//bg->AddComponent(new Sprite("assets/img/background.png", *bg, 1, 1.0));
+	//bg->box.x = 0;
+	//bg->box.y = 0;
+	//AddObject(bg);
 
 	// tileset
     GameObject* map = new GameObject();
-	tileSet = new TileSet(*map, 32, 32, "assets/img/tileset.png");
-	tileMap = new TileMap(*map, "assets/map/map.txt", tileSet);
+	tileSet = new TileSet(*map, 32, 32, "assets/img/tileset3.png");
+	tileMap = new TileMap(*map, "assets/map/tilemap.txt", tileSet);
 	map->AddComponent(tileMap);
 	map->box.x = 0;
 	map->box.y = 0;
@@ -40,7 +40,7 @@ StageState::StageState() : State(), backgroundMusic("assets/audio/cinnabar.mp3")
 
 	// main char
 	GameObject* player = new GameObject();
-	player->AddComponent(new RedHood(*player));
+	player->AddComponent(new Player(*player));
 	player->box.x = 300;
 	player->box.y = 50;
 	AddObject(player);

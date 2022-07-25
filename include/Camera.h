@@ -1,8 +1,8 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#define CAMERA_WIDTH    1024
-#define CAMERA_HEIGHT   600
+#define CAMERA_WIDTH    1280
+#define CAMERA_HEIGHT   720
 
 #include "Vec2.h"
 #include "GameObject.h"

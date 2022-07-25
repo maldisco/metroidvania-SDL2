@@ -34,10 +34,10 @@ void Camera::Update(float dt){
     } else {
         int newX = focus->box.Center().x - CAMERA_WIDTH/2;
         int newY = focus->box.Center().y - CAMERA_HEIGHT/2;
-        if(newX > 0 and newX+CAMERA_WIDTH < 4704){
+        if(newX > 0 and newX+CAMERA_WIDTH < 3200){
             pos.x = newX;
         } 
-        if(newY > 0 and newY+CAMERA_HEIGHT < 608){
+        if(newY > 0 and newY+CAMERA_HEIGHT < 768){
             pos.y = newY;
         }
     }

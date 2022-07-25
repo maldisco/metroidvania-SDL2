@@ -1,4 +1,4 @@
-#include "RedHood.h"
+#include "Player.h"
 #include "Sprite.h"
 #include "Collider.h"
 #include "Game.h"
@@ -10,22 +10,22 @@
 #include "TileMap.h"
 #include "StageState.h"
 
-RedHood* RedHood::player;
-RedHood::RedHood(GameObject& associated) : Being(associated, {100, 150}, 1, 100), combo(0){
+Player* Player::player;
+Player::Player(GameObject& associated) : Being(associated, {100, 150}, 1, 100), combo(0){
     player = this;
     associated.AddComponent(new Sprite(PLAYER_IDLE_FILE, associated, 6, 0.05f));
-    associated.AddComponent(new Collider(associated, {32/associated.box.w, 64/associated.box.h}, {0, 8}));
+    associated.AddComponent(new Collider(associated, {32/associated.box.w, 64/associated.box.h}, {0, 12}));
 }
 
-RedHood::~RedHood(){
+Player::~Player(){
     player = nullptr;
 }
 
-void RedHood::Start(){
+void Player::Start(){
     
 }
 
-void RedHood::Update(float dt){
+void Player::Update(float dt){
     // Useful objects
     StageState state = (StageState&)Game::GetInstance().GetCurrentState();
     TileMap* TileMap = state.GetTileMap();
@@ -84,10 +84,13 @@ void RedHood::Update(float dt){
             // - update horizontal speed
             speed.x = (right - left) * (MAX_SPEEDH*dt);
             if(speed.x){
+                this->dir = right - left;
+
                 // set of rows player intersects
                 std::set<std::pair<int, int>> tiles;
                 for(int i = collider->box.y; i < collider->box.y+collider->box.h; i++){
-                    tiles.emplace((collider->box.x + speed.x)/tileSet->GetTileWidth(), i/tileSet->GetTileHeight());
+                    if(this->dir >= 0) tiles.emplace((collider->box.x + collider->box.w + speed.x)/tileSet->GetTileWidth(), i/tileSet->GetTileHeight());
+                    else tiles.emplace((collider->box.x + speed.x)/tileSet->GetTileWidth(), i/tileSet->GetTileHeight());
                 }
 
                 for(auto tile : tiles){
@@ -96,7 +99,6 @@ void RedHood::Update(float dt){
                     }
                 }   
                 associated.box.x += speed.x;    
-                this->dir = right - left;
             }
 
             // State change condition
@@ -126,10 +128,13 @@ void RedHood::Update(float dt){
             // - update horizontal speed
             speed.x = (right - left) * (MAX_SPEEDH*dt);
             if(speed.x){
+                this->dir = right - left;
+
                 // set of rows player intersects
                 std::set<std::pair<int, int>> tiles;
                 for(int i = collider->box.y; i < collider->box.y+collider->box.h; i++){
-                    tiles.emplace((collider->box.x + speed.x)/tileSet->GetTileWidth(), i/tileSet->GetTileHeight());
+                    if(this->dir >= 0) tiles.emplace((collider->box.x + collider->box.w + speed.x)/tileSet->GetTileWidth(), i/tileSet->GetTileHeight());
+                    else tiles.emplace((collider->box.x + speed.x)/tileSet->GetTileWidth(), i/tileSet->GetTileHeight());
                 }
 
                 for(auto tile : tiles){
@@ -138,7 +143,7 @@ void RedHood::Update(float dt){
                     }
                 }   
                 associated.box.x += speed.x;    
-                this->dir = right - left;
+                
             }
 
             // State change condition
@@ -158,10 +163,13 @@ void RedHood::Update(float dt){
             // - update horizontal speed
             speed.x = (right - left) * (MAX_SPEEDH*dt);
             if(speed.x){
+                this->dir = right-left;
+
                 // set of rows player intersects
                 std::set<std::pair<int, int>> tiles;
                 for(int i = collider->box.y; i < collider->box.y+collider->box.h; i++){
-                    tiles.emplace((collider->box.x + speed.x)/tileSet->GetTileWidth(), i/tileSet->GetTileHeight());
+                    if(this->dir >= 0) tiles.emplace((collider->box.x + collider->box.w + speed.x)/tileSet->GetTileWidth(), i/tileSet->GetTileHeight());
+                    else tiles.emplace((collider->box.x + speed.x)/tileSet->GetTileWidth(), i/tileSet->GetTileHeight());
                 }
 
                 for(auto tile : tiles){
@@ -169,8 +177,7 @@ void RedHood::Update(float dt){
                         speed.x = 0;
                     }
                 }   
-                associated.box.x += speed.x;    
-                this->dir = right - left;
+                associated.box.x += speed.x;  
             }
 
             // State change condition
@@ -227,7 +234,8 @@ void RedHood::Update(float dt){
                 // set of rows player intersects
                 std::set<std::pair<int, int>> tiles;
                 for(int i = collider->box.y; i < collider->box.y+collider->box.h; i++){
-                    tiles.emplace((collider->box.x + speed.x)/tileSet->GetTileWidth(), i/tileSet->GetTileHeight());
+                    if(this->dir >= 0) tiles.emplace((collider->box.x + collider->box.w + speed.x)/tileSet->GetTileWidth(), i/tileSet->GetTileHeight());
+                    else tiles.emplace((collider->box.x + speed.x)/tileSet->GetTileWidth(), i/tileSet->GetTileHeight());
                 }
 
                 for(auto tile : tiles){
@@ -272,14 +280,14 @@ void RedHood::Update(float dt){
     sprite->SetDir(dir);
 }
 
-void RedHood::NotifyCollision(GameObject& other){
+void Player::NotifyCollision(GameObject& other){
     
 }
 
-void RedHood::Render(){}
+void Player::Render(){}
 
-bool RedHood::Is(std::string type){
-    if(type.compare("RedHood") == 0){
+bool Player::Is(std::string type){
+    if(type.compare("Player") == 0){
         return true;
     }
 

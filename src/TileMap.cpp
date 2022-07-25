@@ -70,9 +70,10 @@ int& TileMap::At(int x, int y, int z){
 }
 
 bool TileMap::IsSolid(int x, int y){
-    std::string class1 = tileSet->GetTileClass(At(x, y, 1));
-    std::string class2 = tileSet->GetTileClass(At(x, y, 2));
-    return (class1.compare("solid") == 0) or (class2.compare("solid") == 0);
+    std::string class1 = tileSet->GetTileClass(At(x, y, 5));
+    std::string class2 = tileSet->GetTileClass(At(x, y, 6));
+    std::string class3 = tileSet->GetTileClass(At(x, y, 7));
+    return (class1.compare("solid") == 0) or (class2.compare("solid") == 0) or (class3.compare("solid") == 0);
 }
 
 float TileMap::ScanX(std::set<int> yAxis){
@@ -97,8 +98,15 @@ void TileMap::RenderLayer(int layer, int cameraX, int cameraY){
         // i % mapWidth = Posição X  
         // i / mapHeight = Posição Y 
         // Multiplica-se o tileWidth e tileHeight pois as tiles não tem tamanho 1
-        int x = (i % mapWidth)*tileSet->GetTileWidth() - (cameraX * (1));
-        int y = (i / mapWidth)*tileSet->GetTileHeight() - (cameraY * (1));
+        int x, y;
+        if(layer < 5){
+            float aux = 1 -  1 / pow(2, layer);
+            x = (i % mapWidth)*tileSet->GetTileWidth() - (cameraX * aux);
+            y = (i / mapWidth)*tileSet->GetTileHeight() - (cameraY * aux);
+        } else {
+            x = (i % mapWidth)*tileSet->GetTileWidth() - cameraX;
+            y = (i / mapWidth)*tileSet->GetTileHeight() - cameraY;
+        }
         int index = At(i%mapWidth, i/mapWidth, layer);
 
         tileSet->RenderTile(index, x, y);

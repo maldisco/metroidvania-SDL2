@@ -3,9 +3,10 @@
 #include "Game.h"
 #include "Damage.h"
 #include "StageState.h"
+#include "Player.h"
 #include "InputManager.h"
 
-Skeleton::Skeleton(GameObject& associated) : Being(associated, {100, 0}, 50.0f, 100){
+Skeleton::Skeleton(GameObject& associated) : Being(associated, {75, 0}, 1.0f, 100), cooldown(){
     associated.AddComponent(new Sprite(SKELETON_IDLE_FILE, associated, 4, 0.05f));
     associated.AddComponent(new Collider(associated, {32/associated.box.w, 64/associated.box.h}));
 }
@@ -21,36 +22,63 @@ void Skeleton::Start(){
 void Skeleton::Update(float dt){
     // Useful objects
     StageState state = (StageState&)Game::GetInstance().GetCurrentState();
-    TileMap* TileMap = state.GetTileMap();
+    TileMap* tileMap = state.GetTileMap();
     TileSet* tileSet = state.GetTileSet();
     Sprite* sprite = (Sprite*)associated.GetComponent("Sprite");
+    Collider* collider = (Collider*)associated.GetComponent("Collider");
     InputManager& inputManager = InputManager::GetInstance();
     
     // check if in ground
     bool grounded = false;
-    int tileLeftX = associated.box.x/tileSet->GetTileWidth();
-    int tileRightX = (associated.box.x+associated.box.w)/tileSet->GetTileWidth();
-    int tileBottomY = (associated.box.y+associated.box.h+1)/tileSet->GetTileHeight();
-    if(TileMap->IsSolid(tileLeftX, tileBottomY) or TileMap->IsSolid(tileRightX, tileBottomY)){
+    int tileLeftX = collider->box.x/tileSet->GetTileWidth();
+    int tileRightX = (collider->box.x+collider->box.w)/tileSet->GetTileWidth();
+    int tileBottomY = (collider->box.y+collider->box.h+1)/tileSet->GetTileHeight();
+    if(tileMap->IsSolid(tileLeftX, tileBottomY) or tileMap->IsSolid(tileRightX, tileBottomY)){
         grounded = true;
     }
 
     speed.y = speed.y + GRAVITY;
-
     switch(charState){
         case IDLE:
             // Actions
 
+            // State change conditions
+            if(grounded and Rect::Distance(Player::player->GetBox(), associated.box) <= 640){
+                sprite->Change(SKELETON_RUN_FILE, 0.05f, 12);
+                charState = WALKING;
+            }
+            break;
+
+        case WALKING:
+            // Actions
+            // - update timer (will walk for 1 sec)
+            cooldown.Update(dt);
+
+            // - update horizontal speed
+            moveX(speed.x*dt, collider->box, tileMap, tileSet);   
+            
+            // - update direction
+            if(cooldown.Get() >= 3.0f){
+                speed.x = speed.x*-1;
+                dir = dir*-1;
+                cooldown.Restart();
+            } 
 
             // State change conditions
+            if (Rect::Distance(Player::player->GetBox(), associated.box) > 640){
+                sprite->Change(SKELETON_IDLE_FILE, 0.05f, 4);
+                charState = IDLE;
+                cooldown.Restart();
+            }
             break;
+
         case HURT:
             // Actions
 
             
             // State change conditions
             if(sprite->GetCurrentFrame() == sprite->GetFrameCount()-1){
-                sprite->Change(SKELETON_IDLE_FILE, 0.05, 4);
+                sprite->Change(SKELETON_IDLE_FILE, 0.05f, 4);
                 charState = IDLE;
             }
             break;
@@ -65,15 +93,10 @@ void Skeleton::Update(float dt){
             break;
     }
 
-    std::set<int> xAxis;
-    // - update vertical speed
-    float motionY = speed.y*dt + (GRAVITY*(dt*dt))/2;
-    xAxis.emplace(tileLeftX);
-    xAxis.emplace(tileRightX);
-    float closestObstacleY = TileMap->ScanY(xAxis, (associated.box.y+associated.box.h)/tileSet->GetTileHeight());
-    float distance = closestObstacleY*tileSet->GetTileHeight() - (associated.box.y+associated.box.h);
-    motionY = std::min(motionY, distance);
-    associated.box.y += motionY;
+    // - update vertical speed (all states do)
+    moveY(speed.y*dt + (GRAVITY*(dt*dt))/2, collider->box, tileMap, tileSet);
+
+    sprite->SetDir(dir);
 }
 
 void Skeleton::Render(){

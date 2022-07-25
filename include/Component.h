@@ -4,6 +4,7 @@
 #include "string"
 #include "bits/stdc++.h"
 #include "GameObject.h"
+#include "Rect.h"
 
 /**
  * @brief interface for parts of gameobjects
@@ -43,6 +44,8 @@ class Component{
         virtual void Start();
 
         virtual void NotifyCollision(GameObject& other);
+
+        virtual Rect GetBox();
     
     protected:
         GameObject& associated;

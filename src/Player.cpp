@@ -28,7 +28,7 @@ void Player::Start(){
 void Player::Update(float dt){
     // Useful objects
     StageState state = (StageState&)Game::GetInstance().GetCurrentState();
-    TileMap* TileMap = state.GetTileMap();
+    TileMap* tileMap = state.GetTileMap();
     TileSet* tileSet = state.GetTileSet();
     Sprite* sprite = (Sprite*)associated.GetComponent("Sprite");
     Collider* collider = (Collider*)associated.GetComponent("Collider");
@@ -39,7 +39,7 @@ void Player::Update(float dt){
     int tileLeftX = collider->box.x/tileSet->GetTileWidth();
     int tileRightX = (collider->box.x+collider->box.w)/tileSet->GetTileWidth();
     int tileBottomY = (collider->box.y+collider->box.h+1)/tileSet->GetTileHeight();
-    if(TileMap->IsSolid(tileLeftX, tileBottomY) or TileMap->IsSolid(tileRightX, tileBottomY)){
+    if(tileMap->IsSolid(tileLeftX, tileBottomY) or tileMap->IsSolid(tileRightX, tileBottomY)){
         grounded = true;
     }
 
@@ -50,13 +50,12 @@ void Player::Update(float dt){
     int attack = inputManager.KeyPress(Z_KEY) ? 1 : 0;
     int dash = inputManager.KeyPress(SPACE_KEY) ? 1 : 0;
     
-    std::set<int> xAxis;
-    float motionY, closestObstacleY, distance;
+    float motionX;
     // State machine
     switch(charState){
         case IDLE:
             // Actions
-
+            
             // State change condition
             if(inputManager.KeyPress(A_KEY) or inputManager.KeyPress(D_KEY)){
                 sprite->Change(PLAYER_RUN_FILE, 0.05f, 8);
@@ -73,36 +72,23 @@ void Player::Update(float dt){
                 charState = ATTACKING; 
             } else if (dash){
                 sprite->Change(PLAYER_DASH_FILE, 0.05f, 7);
-                if(dir >= 0) speed.x = MAX_SPEEDH*2*dt;
-                else speed.x = -MAX_SPEEDH*2*dt;
                 charState = DASHING;
+                if(dir >= 0) speed.x = MAX_SPEEDH*2;
+                else speed.x = -MAX_SPEEDH*2;
             }
             break;
     
         case WALKING:
             // Actions
             // - update horizontal speed
-            speed.x = (right - left) * (MAX_SPEEDH*dt);
-            if(speed.x){
+            motionX = (right - left) * (MAX_SPEEDH*dt);
+            if(motionX){
                 this->dir = right - left;
-
-                // set of rows player intersects
-                std::set<std::pair<int, int>> tiles;
-                for(int i = collider->box.y; i < collider->box.y+collider->box.h; i++){
-                    if(this->dir >= 0) tiles.emplace((collider->box.x + collider->box.w + speed.x)/tileSet->GetTileWidth(), i/tileSet->GetTileHeight());
-                    else tiles.emplace((collider->box.x + speed.x)/tileSet->GetTileWidth(), i/tileSet->GetTileHeight());
-                }
-
-                for(auto tile : tiles){
-                    if(TileMap->IsSolid(tile.first, tile.second)){
-                        speed.x = 0;
-                    }
-                }   
-                associated.box.x += speed.x;    
+                moveX(motionX, collider->box, tileMap, tileSet);
             }
 
             // State change condition
-            if (not( inputManager.IsKeyDown(A_KEY) or inputManager.IsKeyDown(D_KEY) ) and ( inputManager.KeyRelease(A_KEY) or inputManager.KeyRelease(D_KEY) )){
+            if (not motionX){
                 sprite->Change(PLAYER_IDLE_FILE, 0.05f, 6);
                 charState = IDLE;
             } else if(jump){
@@ -117,33 +103,19 @@ void Player::Update(float dt){
                 charState = ATTACKING; 
             } else if (dash){
                 sprite->Change(PLAYER_DASH_FILE, 0.05f, 7);
-                if(dir >= 0) speed.x = MAX_SPEEDH*2*dt;
-                else speed.x = -MAX_SPEEDH*2*dt;
                 charState = DASHING;
+                if(dir >= 0) speed.x = MAX_SPEEDH*2;
+                else speed.x = -MAX_SPEEDH*2;
             }
             break;
         
         case JUMPING:
             // Actions
             // - update horizontal speed
-            speed.x = (right - left) * (MAX_SPEEDH*dt);
-            if(speed.x){
+            motionX = (right - left) * (MAX_SPEEDH*dt);
+            if(motionX){
                 this->dir = right - left;
-
-                // set of rows player intersects
-                std::set<std::pair<int, int>> tiles;
-                for(int i = collider->box.y; i < collider->box.y+collider->box.h; i++){
-                    if(this->dir >= 0) tiles.emplace((collider->box.x + collider->box.w + speed.x)/tileSet->GetTileWidth(), i/tileSet->GetTileHeight());
-                    else tiles.emplace((collider->box.x + speed.x)/tileSet->GetTileWidth(), i/tileSet->GetTileHeight());
-                }
-
-                for(auto tile : tiles){
-                    if(TileMap->IsSolid(tile.first, tile.second)){
-                        speed.x = 0;
-                    }
-                }   
-                associated.box.x += speed.x;    
-                
+                moveX(motionX, collider->box, tileMap, tileSet);
             }
 
             // State change condition
@@ -152,32 +124,19 @@ void Player::Update(float dt){
                 charState = FALLING;
             } else if (dash){
                 sprite->Change(PLAYER_DASH_FILE, 0.05f, 7);
-                if(dir >= 0) speed.x = MAX_SPEEDH*2*dt;
-                else speed.x = -MAX_SPEEDH*2*dt;
                 charState = DASHING;
+                if(dir >= 0) speed.x = MAX_SPEEDH*2;
+                else speed.x = -MAX_SPEEDH*2;
             }
             break;
         
         case FALLING:
             // Actions
             // - update horizontal speed
-            speed.x = (right - left) * (MAX_SPEEDH*dt);
-            if(speed.x){
-                this->dir = right-left;
-
-                // set of rows player intersects
-                std::set<std::pair<int, int>> tiles;
-                for(int i = collider->box.y; i < collider->box.y+collider->box.h; i++){
-                    if(this->dir >= 0) tiles.emplace((collider->box.x + collider->box.w + speed.x)/tileSet->GetTileWidth(), i/tileSet->GetTileHeight());
-                    else tiles.emplace((collider->box.x + speed.x)/tileSet->GetTileWidth(), i/tileSet->GetTileHeight());
-                }
-
-                for(auto tile : tiles){
-                    if(TileMap->IsSolid(tile.first, tile.second)){
-                        speed.x = 0;
-                    }
-                }   
-                associated.box.x += speed.x;  
+            motionX = (right - left) * (MAX_SPEEDH*dt);
+            if(motionX){
+                this->dir = right - left;
+                moveX(motionX, collider->box, tileMap, tileSet);
             }
 
             // State change condition
@@ -191,14 +150,15 @@ void Player::Update(float dt){
                 }
             } else if (dash){
                 sprite->Change(PLAYER_DASH_FILE, 0.05f, 7);
-                if(dir >= 0) speed.x = MAX_SPEEDH*2*dt;
-                else speed.x = -MAX_SPEEDH*2*dt;
                 charState = DASHING;
+                if(dir >= 0) speed.x = MAX_SPEEDH*2;
+                else speed.x = -MAX_SPEEDH*2;
             }
             break;
 
         case ATTACKING:
             // Actions
+            // - create damage box
             if(sprite->GetCurrentFrame() == sprite->GetFrameCount()-2){
                 GameObject* damage = new GameObject();
                 damage->AddComponent(new Damage(*damage, 10*(combo+1), false));
@@ -210,7 +170,7 @@ void Player::Update(float dt){
 
                 Game::GetInstance().GetCurrentState().AddObject(damage);
             }
-
+            // - update combo
             if(attack and sprite->GetCurrentFrame() >= sprite->GetFrameCount()-2){
                 combo++;
                 if(combo == 1){
@@ -218,33 +178,36 @@ void Player::Update(float dt){
                     sprite->SetFrame(0);
                 } 
             }
+            // - update horizontal speed
+            motionX = (right - left) * (MAX_SPEEDH*dt);
+            if(motionX){
+                this->dir = right - left;
+                moveX(motionX, collider->box, tileMap, tileSet);
+            }
 
             // Stage change condition
             if(sprite->GetCurrentFrame() >= sprite->GetFrameCount()-1){
-                sprite->Change(PLAYER_IDLE_FILE, 0.05f, 6);
-                charState = IDLE;
                 combo = 0;
+                if(dir){
+                    sprite->Change(PLAYER_RUN_FILE, 0.05f, 8);
+                    charState = WALKING;
+                } else {
+                    sprite->Change(PLAYER_IDLE_FILE, 0.05f, 6);
+                    charState = IDLE;
+                }
+            } else if (dash){
+                sprite->Change(PLAYER_DASH_FILE, 0.05f, 7);
+                charState = DASHING;
+                if(dir >= 0) speed.x = MAX_SPEEDH*2;
+                else speed.x = -MAX_SPEEDH*2;
             }
             break;
         
         case DASHING:
             // Actions
             // - update horizontal speed
-            if(speed.x){
-                // set of rows player intersects
-                std::set<std::pair<int, int>> tiles;
-                for(int i = collider->box.y; i < collider->box.y+collider->box.h; i++){
-                    if(this->dir >= 0) tiles.emplace((collider->box.x + collider->box.w + speed.x)/tileSet->GetTileWidth(), i/tileSet->GetTileHeight());
-                    else tiles.emplace((collider->box.x + speed.x)/tileSet->GetTileWidth(), i/tileSet->GetTileHeight());
-                }
-
-                for(auto tile : tiles){
-                    if(TileMap->IsSolid(tile.first, tile.second)){
-                        speed.x = 0;
-                    }
-                }   
-                associated.box.x += speed.x;   
-            }
+            motionX = speed.x*dt;
+            moveX(motionX, collider->box, tileMap, tileSet);
 
             // State change condition
             if(sprite->GetCurrentFrame() >= sprite->GetFrameCount()-1){
@@ -262,19 +225,14 @@ void Player::Update(float dt){
                 } else {
                     sprite->Change(PLAYER_IDLE_FILE, 0.05f, 6);
                     charState = IDLE;
+                    speed.x = 0;
                 }
-            }
+            } 
             break;
     }
 
     // - update vertical speed (all states do)
-    motionY = speed.y*dt + (GRAVITY*(dt*dt))/2;
-    xAxis.emplace(tileLeftX);
-    xAxis.emplace(tileRightX);
-    closestObstacleY = TileMap->ScanY(xAxis, (collider->box.y+collider->box.h)/tileSet->GetTileHeight());
-    distance = closestObstacleY*tileSet->GetTileHeight() - (collider->box.y+collider->box.h);
-    motionY = std::min(motionY, distance);
-    associated.box.y += motionY;
+    moveY(speed.y*dt + (GRAVITY*(dt*dt))/2, collider->box, tileMap, tileSet);
     
     // sprite direction
     sprite->SetDir(dir);

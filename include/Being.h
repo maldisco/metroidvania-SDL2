@@ -1,6 +1,8 @@
 #ifndef BEING_H
 #define BEING_H
 #include "Component.h"
+#include "TileMap.h"
+#include "TileSet.h"
 
 class Being : public Component{
     public:
@@ -15,7 +17,27 @@ class Being : public Component{
         Being(GameObject& associated, Vec2 speed, float mass, int hp, int dir = 1);
 
         virtual ~Being();
-    
+        
+        /**
+         * @brief Move in X axis (if possible)
+         * 
+         * @param motion 
+         * @param colliderBox 
+         * @param tileMap 
+         * @param tileSet 
+         */
+        virtual void moveX(float motion, Rect colliderBox, TileMap* tileMap, TileSet* tileSet);
+
+        /**
+         * @brief Move in Y axis (if possible)
+         * 
+         * @param motion 
+         * @param colliderBox 
+         * @param tileMap 
+         * @param tileSet 
+         */
+        virtual void moveY(float motion, Rect colliderBox, TileMap* tileMap, TileSet* tileSet);
+
     protected:
         Vec2 speed;
         float mass;

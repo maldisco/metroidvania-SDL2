@@ -61,13 +61,22 @@ class TileMap : public Component{
         float ScanX(std::set<int> yAxis);
 
         /**
-         * @brief scan yAxis for obstacle
+         * @brief scan yAxis (top-down) for obstacle
          * 
          * @param xAxis 
-         * @param y 
+         * @param height 
          * @return float 
          */
-        float ScanY(std::set<int> xAxis, float y);
+        float ScanDown(std::set<int> xAxis, float height);
+        
+        /**
+         * @brief scan yAxis (down-top) for obstacle
+         * 
+         * @param xAxis 
+         * @param height 
+         * @return float 
+         */
+        float ScanUp(std::set<int> xAxis, float height);
 
         /**
          * @brief Render game map

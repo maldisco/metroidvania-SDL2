@@ -80,8 +80,8 @@ float TileMap::ScanX(std::set<int> yAxis){
 
 }
 
-float TileMap::ScanY(std::set<int> xAxis, float y){
-    for(int i = y; i < mapHeight; i++){
+float TileMap::ScanDown(std::set<int> xAxis, float height){
+    for(int i = height; i < mapHeight; i++){
         for(auto x : xAxis){
             if(IsSolid(x, i)){
                 return i;
@@ -92,6 +92,18 @@ float TileMap::ScanY(std::set<int> xAxis, float y){
     return mapHeight;
 }
 
+float TileMap::ScanUp(std::set<int> xAxis, float height){
+    for(int i = height; i > 0; i--){
+        for(auto x: xAxis){
+            if(IsSolid(x, i)){
+                return i;
+            }
+        }
+    }
+
+    return 0;
+}
+
 void TileMap::RenderLayer(int layer, int cameraX, int cameraY){
     for(int i = 0; i < mapWidth*mapHeight; i++){
         
@@ -100,9 +112,9 @@ void TileMap::RenderLayer(int layer, int cameraX, int cameraY){
         // Multiplica-se o tileWidth e tileHeight pois as tiles não tem tamanho 1
         int x, y;
         if(layer < 5){
-            float aux = 1 -  1 / pow(2, layer);
-            x = (i % mapWidth)*tileSet->GetTileWidth() - (cameraX * aux);
-            y = (i / mapWidth)*tileSet->GetTileHeight() - (cameraY * aux);
+            float parallax = 1 - 1 / pow(2, layer+1);
+            x = (i % mapWidth)*tileSet->GetTileWidth() - (cameraX * parallax);
+            y = (i / mapWidth)*tileSet->GetTileHeight() - (cameraY * parallax);
         } else {
             x = (i % mapWidth)*tileSet->GetTileWidth() - cameraX;
             y = (i / mapWidth)*tileSet->GetTileHeight() - cameraY;

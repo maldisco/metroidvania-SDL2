@@ -3,15 +3,19 @@
 #include "Player.h"
 #include "Collider.h"
 #include "Game.h"
+#include "StageState.h"
 
 Vec2 Camera::pos = Vec2(0, 0);
 Vec2 Camera::speed = Vec2(100, 100);
-Rect Camera::cameraWindow = Rect(576, 400, 64, 150);
-Rect Camera::panic = Rect(0, 50, 0, 600);
+
+Rect Camera::window = Rect(576, 400, 64, 150);
+Rect Camera::panicBox = Rect(0, 50, 0, 600);
+
 float Camera::shakeDur = -1;
 float Camera::shakeForce = 5.0f;
 Timer Camera::shakeTimer;
 int Camera::shakeDir = -1;
+
 GameObject* Camera::focus = nullptr;
 void Camera::Follow(GameObject* newFocus){
     focus = newFocus;
@@ -29,28 +33,43 @@ void Camera::Reset(){
 void Camera::Update(float dt){
     if(focus) {
         Collider* collider = (Collider*)focus->GetComponent("Collider");
+        StageState state = (StageState&)Game::GetInstance().GetCurrentState();
+        Rect mapBox = state.GetTileMap()->GetBox();
 
         if(shakeDur <= 0){
+
             if(Player::player->GetDir() >= 0) {
-                cameraWindow.x = 480;
-                if(collider->box.x+collider->box.w > (pos.x+cameraWindow.x+cameraWindow.w)){
-                    float dist = ((collider->box.x+collider->box.w) - (pos.x+cameraWindow.x+cameraWindow.w));
-                    pos.x = std::min(pos.x + dist/16, 3200.0f);
+                window.x = 480;
+                
+                // Update horizotal position if player gets out of the window
+                if(collider->box.x+collider->box.w > (pos.x+window.x+window.w)){
+                    float dist = ((collider->box.x+collider->box.w) - (pos.x+window.x+window.w));
+                    pos.x = std::min(pos.x + dist/16, (mapBox.w)-(CAMERA_WIDTH + window.x));
                 }
             } else {
-                cameraWindow.x = 672;
-                if (collider->box.x < (pos.x+cameraWindow.x)){
-                    float dist = (collider->box.x - (pos.x+cameraWindow.x));
+                window.x = 672;
+
+                if (collider->box.x < (pos.x+window.x)){
+                    float dist = (collider->box.x - (pos.x+window.x));
                     pos.x = std::max(pos.x + dist/16, 0.0f);
                 } 
             }
 
+            // Update vertical position when player lands in a platform
             if(Player::player->Grounded()){
-                float dist = (collider->box.y - (pos.y+cameraWindow.y));
-                if(pos.y + dist/8 > 0 and (pos.y + dist/8 + CAMERA_HEIGHT) < 720) pos.y += dist/8;
-            } else if ((Player::player->GetBox().y < panic.y) or (Player::player->GetBox().y + Player::player->GetBox().h > panic.y + panic.h)){
-                float dist = (collider->box.y - (pos.y+cameraWindow.y));
-                if(pos.y + dist/8 > 0 and (pos.y + dist/8 + CAMERA_HEIGHT) < 720) pos.y += dist/8;
+                float dist = (collider->box.y - (pos.y+window.y));
+
+                // Only move if new position is inside map
+                if(pos.y + dist/8 > 0 and (pos.y + dist/8 + CAMERA_HEIGHT) < 1536) {
+                    pos.y += dist/8;
+                }
+            } else if ((Player::player->GetBox().y < panicBox.y) or (Player::player->GetBox().y + Player::player->GetBox().h > panicBox.y + panicBox.h)){
+                float dist = (collider->box.y - (pos.y+window.y));
+
+                // Only move if new position is inside map
+                if(pos.y + dist/4 > 0 and (pos.y + dist/4 + CAMERA_HEIGHT) < 1536){
+                    pos.y += dist/4;
+                } 
             }
         } else {
             shakeTimer.Update(dt);
@@ -67,7 +86,7 @@ void Camera::Update(float dt){
 
 void Camera::Render(){
 #ifdef DEBUG
-    Rect box = cameraWindow+pos;
+    Rect box = window+pos;
 	Vec2 center( box.Center() );
 	SDL_Point points[5];
 

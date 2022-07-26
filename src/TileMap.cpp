@@ -10,17 +10,6 @@ TileMap::TileMap(GameObject& associated, std::string file, TileSet* tileSet) : C
 }
 
 void TileMap::Load(std::string file){
-    std::fstream solidBlocks;
-    int tileId = 0;
-    solidBlocks.open("assets/map/solidblocks.txt");
-    if(solidBlocks.is_open()){
-        std::string line;
-        while(getline(solidBlocks, line)){
-            tileId = std::stoi(line);
-            tileSet->SetTileClass(tileId, "solid");
-        }
-    }
-
     std::fstream map;
     std::vector<int> dims;
 
@@ -41,12 +30,15 @@ void TileMap::Load(std::string file){
         mapHeight = dims[1];
         mapDepth = dims[2];
 
+        associated.box.w = mapWidth*tileSet->GetTileWidth();
+        associated.box.h = mapHeight*tileSet->GetTileHeight();
+
         while(getline(map, line)){
             if(line != ""){
                 std::stringstream ss(line);
 
                 for(int i; ss >> i;){
-                    tileMatrix.push_back(i);
+                    tileMatrix.push_back(i-1);
 
                     if(ss.peek()==','){
                         ss.ignore();
@@ -70,10 +62,7 @@ int& TileMap::At(int x, int y, int z){
 }
 
 bool TileMap::IsSolid(int x, int y){
-    std::string class1 = tileSet->GetTileClass(At(x, y, 5));
-    std::string class2 = tileSet->GetTileClass(At(x, y, 6));
-    std::string class3 = tileSet->GetTileClass(At(x, y, 7));
-    return (class1.compare("solid") == 0) or (class2.compare("solid") == 0) or (class3.compare("solid") == 0);
+    return At(x, y, 4) != -1;
 }
 
 float TileMap::ScanX(std::set<int> yAxis){
@@ -111,7 +100,7 @@ void TileMap::RenderLayer(int layer, int cameraX, int cameraY){
         // i / mapHeight = Posição Y 
         // Multiplica-se o tileWidth e tileHeight pois as tiles não tem tamanho 1
         int x, y;
-        if(layer < 5){
+        if(layer < mapDepth-1){
             float parallax = 1 - 1 / pow(2, layer+1);
             x = (i % mapWidth)*tileSet->GetTileWidth() - (cameraX * parallax);
             y = (i / mapWidth)*tileSet->GetTileHeight() - (cameraY * parallax);

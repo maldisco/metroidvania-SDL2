@@ -289,6 +289,14 @@ void Player::Update(float dt){
 
             // State change conditions
             if(sprite->GetCurrentFrame() >= sprite->GetFrameCount()-1){
+
+                // Game over message
+                GameObject* gameOver = new GameObject();
+                gameOver->box.y = Camera::pos.y + CAMERA_HEIGHT/2;
+                gameOver->box.x = Camera::pos.x + CAMERA_WIDTH/2;
+                gameOver->AddComponent(new Text(*gameOver, "assets/font/PeaberryBase.ttf", 150, Text::BLENDED, "YOU DIED", {255, 255, 255, SDL_ALPHA_TRANSPARENT}, 1));
+                Game::GetInstance().GetCurrentState().AddObject(gameOver);
+
                 associated.RequestDelete();
                 Camera::Unfollow();
             }
@@ -319,12 +327,6 @@ void Player::NotifyCollision(GameObject& other){
             if(this->hp <= 0){
                 this->charState = DEAD;
                 sprite->Change(PLAYER_DEATH_FILE, 0.05, 11);
-
-                GameObject* gameOver = new GameObject();
-                gameOver->box.y = CAMERA_HEIGHT/2;
-                gameOver->box.x = CAMERA_WIDTH/2;
-                gameOver->AddComponent(new Text(*gameOver, "assets/font/PeaberryBase.ttf", 150, Text::BLENDED, "YOU DIED", {255, 255, 255, SDL_ALPHA_TRANSPARENT}, 1));
-                Game::GetInstance().GetCurrentState().AddObject(gameOver);
             }
         }
     }

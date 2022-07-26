@@ -71,7 +71,7 @@ std::shared_ptr<TTF_Font> Resources::GetFont(std::string file, int size){
         return fontTable[key];
     }
 
-    std::cout << "Carregou " << file << "\n";
+    std::cout << " - Carregou " << file << "\n";
     TTF_Font* font = TTF_OpenFont(file.c_str(), size);
     fontTable[key] = std::shared_ptr<TTF_Font>(font, [](TTF_Font* ptr) {TTF_CloseFont(ptr);});
     return fontTable[key];

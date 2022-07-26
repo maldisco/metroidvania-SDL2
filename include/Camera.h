@@ -30,14 +30,14 @@ class Camera{
         static void TriggerShake(float time, float intensity);
         static Vec2 pos;
         static Vec2 speed;
-        static Rect cameraWindow;
+        static Rect window;
+        static Rect panicBox;
         static Timer shakeTimer;
         static float shakeDur, shakeForce;
         static int shakeDir;
 
         // maybe use
         static Rect anchor;
-        static Rect panic;
     
     private:
         static GameObject* focus;

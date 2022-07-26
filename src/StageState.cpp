@@ -15,17 +15,9 @@
 #include "GameData.h"
 
 StageState::StageState() : State(), backgroundMusic("assets/audio/cinnabar.mp3"){    
-	// background
-	//GameObject* bg = new GameObject();
-	//bg->AddComponent(new Sprite("assets/img/background.png", *bg, 1, 1.0));
-	//bg->box.x = 0;
-	//bg->box.y = 0;
-	//AddObject(bg);
-
-	// tileset
     GameObject* map = new GameObject();
-	tileSet = new TileSet(*map, 32, 32, "assets/img/tileset3.png");
-	tileMap = new TileMap(*map, "assets/map/tilemap.txt", tileSet);
+	tileSet = new TileSet(*map, 32, 32, "assets/img/foresTileset.png");
+	tileMap = new TileMap(*map, "assets/map/room0.txt", tileSet);
 	map->AddComponent(tileMap);
 	map->box.x = 0;
 	map->box.y = 0;
@@ -61,7 +53,7 @@ void StageState::Start(){
 }
 
 void StageState::LoadAssets(){
-	std::cout << "Carregando sprites do personagem principal..." << "\n";
+	std::cout << "Carregando sprites do personagem principal...\n";
 	Resources::GetImage(PLAYER_IDLE_FILE);
 	Resources::GetImage(PLAYER_RUN_FILE);
 	Resources::GetImage(PLAYER_JUMP_FILE);
@@ -74,12 +66,14 @@ void StageState::LoadAssets(){
 	Resources::GetImage(PLAYER_SLIDE_FILE);
 	Resources::GetImage(PLAYER_ATTACK1_FILE);
 	Resources::GetImage(PLAYER_ATTACK2_FILE);
-	std::cout << "Carregando sprites do inimigo numero 1..." << "\n";
+	std::cout << "Carregando sprites do inimigo numero 1...\n";
 	Resources::GetImage(SKELETON_IDLE_FILE);
 	Resources::GetImage(SKELETON_RUN_FILE);
 	Resources::GetImage(SKELETON_HURT_FILE);
 	Resources::GetImage(SKELETON_DEATH_FILE);
 	Resources::GetImage(SKELETON_ATTACK_FILE);
+	std::cout << "Carregando fonte...\n";
+	Resources::GetFont("assets/font/PeaberryBase.ttf", 150);
 }
 
 void StageState::Pause(){

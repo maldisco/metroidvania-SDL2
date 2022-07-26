@@ -41,3 +41,7 @@ void Being::moveY(float motion, Rect colliderBox, TileMap* tileMap, TileSet* til
     }
     associated.box.y += motion;
 }
+
+int Being::GetDir(){ return dir; }
+
+Vec2 Being::GetSpeed(){ return speed; }

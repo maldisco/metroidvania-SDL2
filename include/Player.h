@@ -2,7 +2,8 @@
 #define PLAYER_H
 
 #define MAX_SPEEDH 200
-#define JUMP_FORCE 375
+#define JUMP_FORCE 300
+#define JUMP_HOLD  30
 
 #define PLAYER_JUMP_FILE            "assets/img/warrior-jump.png"
 #define PLAYER_RUN_FILE             "assets/img/warrior-run.png"
@@ -19,6 +20,7 @@
 
 
 #include "Being.h"
+#include "Timer.h"
 
 class Player : public Being {
     public:
@@ -38,6 +40,7 @@ class Player : public Being {
 
         static Player* player;
     private:
-        int combo;
+        int combo, jumpCounter;
+        Timer jumpImpulse;
 };
 #endif

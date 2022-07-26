@@ -38,6 +38,20 @@ class Being : public Component{
          */
         virtual void moveY(float motion, Rect colliderBox, TileMap* tileMap, TileSet* tileSet);
 
+        /**
+         * @brief Get the Dir object
+         * 
+         * @return int 
+         */
+        virtual int GetDir();
+
+        /**
+         * @brief Get the Speed object
+         * 
+         * @return Vec2 
+         */
+        virtual Vec2 GetSpeed();
+
     protected:
         Vec2 speed;
         float mass;

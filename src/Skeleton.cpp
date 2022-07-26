@@ -96,7 +96,7 @@ void Skeleton::Update(float dt){
             // Actions
             if(sprite->GetCurrentFrame() == sprite->GetFrameCount()-9){
                 GameObject* damage = new GameObject();
-                damage->AddComponent(new Damage(*damage, 100, true, 0.3f));
+                damage->AddComponent(new Damage(*damage, 10, true, 0.3f));
                 damage->box.w = 48;
                 damage->box.h = 64;
                 damage->box.y = collider->box.y;

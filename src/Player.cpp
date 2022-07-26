@@ -12,7 +12,7 @@
 #include "Text.h"
 
 Player* Player::player;
-Player::Player(GameObject& associated) : Being(associated, {100, 150}, 1, 100), combo(0){
+Player::Player(GameObject& associated) : Being(associated, {100, 150}, 1, 100), combo(0), jumpCounter(0), jumpImpulse(){
     player = this;
     associated.AddComponent(new Sprite(PLAYER_IDLE_FILE, associated, 6, 0.05f));
     associated.AddComponent(new Collider(associated, {32/associated.box.w, 64/associated.box.h}, {0, 12}));
@@ -42,9 +42,11 @@ void Player::Update(float dt){
     int tileBottomY = (collider->box.y+collider->box.h+1)/tileSet->GetTileHeight();
     if(tileMap->IsSolid(tileLeftX, tileBottomY) or tileMap->IsSolid(tileRightX, tileBottomY)){
         grounded = true;
+        jumpCounter = 0;
+        speed.y = 0;
     }
 
-    if(not grounded) speed.y = speed.y + GRAVITY;
+    if(not grounded and (charState != DASHING)) speed.y = speed.y + GRAVITY;
     int left = inputManager.IsKeyDown(A_KEY) ? 1 : 0;
     int right = inputManager.IsKeyDown(D_KEY) ? 1 : 0;
     int jump = inputManager.KeyPress(W_KEY) ? 1 : 0;
@@ -56,7 +58,7 @@ void Player::Update(float dt){
     switch(charState){
         case IDLE:
             // Actions
-            
+
             // State change condition
             if(inputManager.KeyPress(A_KEY) or inputManager.KeyPress(D_KEY)){
                 sprite->Change(PLAYER_RUN_FILE, 0.05f, 8);
@@ -65,6 +67,8 @@ void Player::Update(float dt){
                 sprite->Change(PLAYER_JUMP_FILE, 0.05f, 3);
                 speed.y = -JUMP_FORCE/mass;
                 charState = JUMPING;
+                jumpCounter++;
+                jumpImpulse.Restart();
             } else if(not grounded){
                 sprite->Change(PLAYER_FALL_FILE, 0.05f, 5, 2);
                 charState = FALLING;
@@ -72,10 +76,10 @@ void Player::Update(float dt){
                 sprite->Change(PLAYER_ATTACK1_FILE, 0.05f, 8);
                 charState = ATTACKING; 
             } else if (dash){
-                sprite->Change(PLAYER_DASH_FILE, 0.05f, 7);
+                sprite->Change(PLAYER_DASH_FILE, 0.04f, 7);
                 charState = DASHING;
-                if(dir >= 0) speed.x = MAX_SPEEDH*2;
-                else speed.x = -MAX_SPEEDH*2;
+                if(dir >= 0) speed.x = MAX_SPEEDH*3;
+                else speed.x = -MAX_SPEEDH*3;
             }
             break;
     
@@ -96,6 +100,8 @@ void Player::Update(float dt){
                 sprite->Change(PLAYER_JUMP_FILE, 0.05f, 3);
                 speed.y = -JUMP_FORCE/mass;
                 charState = JUMPING;
+                jumpCounter++;
+                jumpImpulse.Restart();
             } else if (not grounded){
                 sprite->Change(PLAYER_FALL_FILE, 0.05f, 5, 2);
                 charState = FALLING;
@@ -103,15 +109,23 @@ void Player::Update(float dt){
                 sprite->Change(PLAYER_ATTACK1_FILE, 0.05f, 8);
                 charState = ATTACKING; 
             } else if (dash){
-                sprite->Change(PLAYER_DASH_FILE, 0.05f, 7);
+                sprite->Change(PLAYER_DASH_FILE, 0.04f, 7);
                 charState = DASHING;
-                if(dir >= 0) speed.x = MAX_SPEEDH*2;
-                else speed.x = -MAX_SPEEDH*2;
+                if(dir >= 0) speed.x = MAX_SPEEDH*3;
+                else speed.x = -MAX_SPEEDH*3;
             }
             break;
         
         case JUMPING:
             // Actions
+            // - keep the impulse holding jump
+            if(inputManager.IsKeyDown(W_KEY)){
+                jumpImpulse.Update(dt);
+                if(jumpImpulse.Get() <= 1.0f){
+                    speed.y += -JUMP_HOLD/mass;
+                }
+            }
+
             // - update horizontal speed
             motionX = (right - left) * (MAX_SPEEDH*dt);
             if(motionX){
@@ -124,10 +138,16 @@ void Player::Update(float dt){
                 sprite->Change(PLAYER_FALL_FILE, 0.05f, 5, 2);
                 charState = FALLING;
             } else if (dash){
-                sprite->Change(PLAYER_DASH_FILE, 0.05f, 7);
+                sprite->Change(PLAYER_DASH_FILE, 0.04f, 7);
                 charState = DASHING;
-                if(dir >= 0) speed.x = MAX_SPEEDH*2;
-                else speed.x = -MAX_SPEEDH*2;
+                this->speed.y = 0;
+                if(dir >= 0) speed.x = MAX_SPEEDH*3;
+                else speed.x = -MAX_SPEEDH*3;
+            } else if (jump and jumpCounter < 2){
+                speed.y = -JUMP_FORCE/mass;
+                sprite->SetFrame(0);
+                jumpCounter++;
+                jumpImpulse.Restart();
             }
             break;
         
@@ -150,10 +170,17 @@ void Player::Update(float dt){
                     charState = IDLE;
                 }
             } else if (dash){
-                sprite->Change(PLAYER_DASH_FILE, 0.05f, 7);
+                sprite->Change(PLAYER_DASH_FILE, 0.04f, 7);
                 charState = DASHING;
-                if(dir >= 0) speed.x = MAX_SPEEDH*2;
-                else speed.x = -MAX_SPEEDH*2;
+                this->speed.y = 0;
+                if(dir >= 0) speed.x = MAX_SPEEDH*3;
+                else speed.x = -MAX_SPEEDH*3;
+            } else if (jump and jumpCounter < 2){
+                sprite->Change(PLAYER_JUMP_FILE, 0.05f, 3);
+                speed.y = -JUMP_FORCE/mass;
+                charState = JUMPING;
+                jumpCounter++;
+                jumpImpulse.Restart();
             }
             break;
 
@@ -197,10 +224,10 @@ void Player::Update(float dt){
                     charState = IDLE;
                 }
             } else if (dash){
-                sprite->Change(PLAYER_DASH_FILE, 0.05f, 7);
+                sprite->Change(PLAYER_DASH_FILE, 0.04f, 7);
                 charState = DASHING;
-                if(dir >= 0) speed.x = MAX_SPEEDH*2;
-                else speed.x = -MAX_SPEEDH*2;
+                if(dir >= 0) speed.x = MAX_SPEEDH*3;
+                else speed.x = -MAX_SPEEDH*3;
             }
             break;
         
@@ -212,17 +239,18 @@ void Player::Update(float dt){
 
             // State change condition
             if(sprite->GetCurrentFrame() >= sprite->GetFrameCount()-1){
-                if(inputManager.IsKeyDown(A_KEY) or inputManager.IsKeyDown(D_KEY)){
+                if(inputManager.IsKeyDown(W_KEY) and jumpCounter < 2){
+                    sprite->Change(PLAYER_JUMP_FILE, 0.05f, 3);
+                    speed.y = -JUMP_FORCE/mass;
+                    charState = JUMPING;
+                    jumpCounter++;
+                    jumpImpulse.Restart();
+                } else if(inputManager.IsKeyDown(A_KEY) or inputManager.IsKeyDown(D_KEY)){
                     sprite->Change(PLAYER_RUN_FILE, 0.05f, 8);
                     charState = WALKING;
                 } else if(not grounded){
-                    if(speed.y >= 0){
-                        sprite->Change(PLAYER_FALL_FILE, 0.05f, 5, 2);
-                        charState = FALLING;
-                    } else {
-                        sprite->Change(PLAYER_JUMP_FILE, 0.05f, 3);
-                        charState = JUMPING;
-                    }
+                    sprite->Change(PLAYER_FALL_FILE, 0.05f, 5, 2);
+                    charState = FALLING;
                 } else {
                     sprite->Change(PLAYER_IDLE_FILE, 0.05f, 6);
                     charState = IDLE;
@@ -246,6 +274,7 @@ void Player::Update(float dt){
                     } else {
                         sprite->Change(PLAYER_JUMP_FILE, 0.05f, 3);
                         charState = JUMPING;
+                        jumpImpulse.Restart();
                     }
                 } else {
                     sprite->Change(PLAYER_IDLE_FILE, 0.05f, 6);
@@ -266,9 +295,10 @@ void Player::Update(float dt){
 
     }
 
-    // - update vertical speed (all states do)
-    moveY(speed.y*dt + (GRAVITY*(dt*dt))/2, collider->box, tileMap, tileSet);
-    
+    // - update vertical speed (if not dashing)
+    if(charState != DASHING){
+        moveY(speed.y*dt + (GRAVITY*(dt*dt))/2, collider->box, tileMap, tileSet);
+    }    
     // sprite direction
     sprite->SetDir(dir);
 }

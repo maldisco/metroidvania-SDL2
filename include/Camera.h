@@ -3,6 +3,7 @@
 
 #define CAMERA_WIDTH    1280
 #define CAMERA_HEIGHT   720
+#define CAMERA_SPEED    10.0f
 
 #include "Vec2.h"
 #include "GameObject.h"
@@ -19,6 +20,7 @@ class Camera{
         static void Update(float dt);
         static Vec2 pos;
         static Vec2 speed;
+        static Rect cameraWindow;
     
     private:
         static GameObject* focus;

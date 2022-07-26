@@ -36,7 +36,7 @@ void Player::Update(float dt){
     InputManager& inputManager = InputManager::GetInstance();
 
     // check if in ground
-    bool grounded = false;
+    grounded = false;
     int tileLeftX = collider->box.x/tileSet->GetTileWidth();
     int tileRightX = (collider->box.x+collider->box.w)/tileSet->GetTileWidth();
     int tileBottomY = (collider->box.y+collider->box.h+1)/tileSet->GetTileHeight();
@@ -290,6 +290,7 @@ void Player::Update(float dt){
             // State change conditions
             if(sprite->GetCurrentFrame() >= sprite->GetFrameCount()-1){
                 associated.RequestDelete();
+                Camera::Unfollow();
             }
             break;
 
@@ -312,7 +313,8 @@ void Player::NotifyCollision(GameObject& other){
             this->hp -= damage->GetDamage();
 
             this->charState = HURT;
-            sprite->Change(PLAYER_HURT_FILE, 0.05, 4);            
+            sprite->Change(PLAYER_HURT_FILE, 0.05, 4);   
+            Camera::TriggerShake(0.5f, 5.0f);         
         
             if(this->hp <= 0){
                 this->charState = DEAD;

@@ -52,11 +52,13 @@ class Being : public Component{
          */
         virtual Vec2 GetSpeed();
 
+        virtual bool Grounded();
+
     protected:
         Vec2 speed;
         float mass;
-        int hp;
-        int dir;
+        int hp, dir;
+        bool grounded;
         enum STATE{ IDLE, WALKING, JUMPING, FALLING, ATTACKING, DASHING, HURT, DEAD };
         STATE charState;
 };

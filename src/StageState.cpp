@@ -138,6 +138,9 @@ void StageState::Update(float dt){
 void StageState::Render(){
 	// Render every object
     RenderArray();
+
+	// render camera window
+	Camera::Render();
 }
 
 TileMap* StageState::GetTileMap(){ return tileMap; }

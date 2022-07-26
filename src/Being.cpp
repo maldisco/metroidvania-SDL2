@@ -45,3 +45,5 @@ void Being::moveY(float motion, Rect colliderBox, TileMap* tileMap, TileSet* til
 int Being::GetDir(){ return dir; }
 
 Vec2 Being::GetSpeed(){ return speed; }
+
+bool Being::Grounded() { return grounded; }

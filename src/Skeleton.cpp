@@ -5,6 +5,8 @@
 #include "StageState.h"
 #include "Player.h"
 #include "InputManager.h"
+#include "Camera.h"
+
 
 Skeleton::Skeleton(GameObject& associated) : Being(associated, {75, 0}, 1.0f, 100), cooldown(){
     associated.AddComponent(new Sprite(SKELETON_IDLE_FILE, associated, 4, 0.05f));
@@ -158,6 +160,8 @@ void Skeleton::NotifyCollision(GameObject& other){
         if(not damage->targetsPlayer and not (charState == DEAD or charState == HURT)){
             Sprite* sprite = (Sprite*)associated.GetComponent("Sprite");
             this->hp -= damage->GetDamage();
+
+            Camera::TriggerShake(0.4f, 3.0f);
             if(this->charState != ATTACKING){
                 this->charState = HURT;
                 sprite->Change(SKELETON_HURT_FILE, 0.05, 3);

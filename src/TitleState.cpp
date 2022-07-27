@@ -47,8 +47,7 @@ void TitleState::Update(float dt){
 	}
 
     if(InputManager::GetInstance().KeyPress(SPACE_KEY)){
-        State* stage = new StageState();
-        Game::GetInstance().Push(stage);
+        Game::GetInstance().Push(new StageState(0));
     }
 }
 

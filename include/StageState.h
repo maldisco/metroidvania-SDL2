@@ -14,10 +14,10 @@ class StageState : public State{
     private:
         Music backgroundMusic;
         TileSet* tileSet;     
-        TileMap* tileMap;   
+        TileMap* tileMap;
 
     public:
-        StageState();
+        StageState(int stage = 0);
         ~StageState();
 
         /**

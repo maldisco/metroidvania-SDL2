@@ -13,29 +13,91 @@
 #include "EndState.h"
 #include "Resources.h"
 #include "GameData.h"
+#include "Sensor.h"
 
-StageState::StageState() : State(), backgroundMusic("assets/audio/cinnabar.mp3"){    
-    GameObject* map = new GameObject();
+StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinnabar.mp3"){    
+    
+	// all stages have a map
+	GameObject* map = new GameObject();
 	tileSet = new TileSet(*map, 32, 32, "assets/img/foresTileset.png");
-	tileMap = new TileMap(*map, "assets/map/room0.txt", tileSet);
-	map->AddComponent(tileMap);
-	map->box.x = 0;
-	map->box.y = 0;
-	AddObject(map);
 
-	// enemy 1
-	GameObject* enemy = new GameObject();
-	enemy->AddComponent(new Skeleton(*enemy));
-	enemy->box.x = 500;
-	enemy->box.y = 50;
-	AddObject(enemy);
-
-	// main char
+	// all stages have a player
 	GameObject* player = new GameObject();
 	player->AddComponent(new Player(*player));
-	player->box.x = 300;
-	player->box.y = 50;
-	AddObject(player);
+
+	GameObject* enemy = new GameObject();
+	GameObject* sensor = new GameObject();
+	switch(stage){
+		case 0:
+			tileMap = new TileMap(*map, "assets/map/room0.txt", tileSet);
+			map->AddComponent(tileMap);
+			map->box.x = 0;
+			map->box.y = 0;
+			AddObject(map);
+
+			enemy = new GameObject();
+			enemy->AddComponent(new Skeleton(*enemy));
+			enemy->box.x = 500;
+			enemy->box.y = 50;
+			AddObject(enemy);
+
+			enemy = new GameObject();
+			enemy->AddComponent(new Skeleton(*enemy));
+			enemy->box.x = 700;
+			enemy->box.y = 50;
+			AddObject(enemy);
+
+			enemy = new GameObject();
+			enemy->AddComponent(new Skeleton(*enemy));
+			enemy->box.x = 100;
+			enemy->box.y = 50;
+			AddObject(enemy);
+
+			player->box.x = 300;
+			player->box.y = 50;
+			AddObject(player);
+
+			sensor = new GameObject();
+			sensor->AddComponent(new Sensor(*sensor, 1));
+			sensor->AddComponent(new Collider(*sensor));
+			sensor->box.x = 70*tileSet->GetTileWidth();
+			sensor->box.y = 47*tileSet->GetTileHeight();
+			sensor->box.w = tileSet->GetTileWidth()*3;
+			sensor->box.h = tileSet->GetTileHeight();
+			AddObject(sensor);
+			break;
+
+		case 1:
+			tileMap = new TileMap(*map, "assets/map/room1.txt", tileSet);
+			map->AddComponent(tileMap);
+			map->box.x = 0;
+			map->box.y = 0;
+			AddObject(map);
+
+			enemy = new GameObject();
+			enemy->AddComponent(new Skeleton(*enemy));
+			enemy->box.x = 500;
+			enemy->box.y = 50;
+			AddObject(enemy);
+
+			enemy = new GameObject();
+			enemy->AddComponent(new Skeleton(*enemy));
+			enemy->box.x = 700;
+			enemy->box.y = 50;
+			AddObject(enemy);
+
+			enemy = new GameObject();
+			enemy->AddComponent(new Skeleton(*enemy));
+			enemy->box.x = 100;
+			enemy->box.y = 50;
+			AddObject(enemy);
+
+			player->box.x = 30*tileSet->GetTileWidth();
+			player->box.y = tileSet->GetTileHeight();
+			AddObject(player);
+			break;
+	}	
+	
 
 	// make android as camera focus
 	Camera::Follow(player);

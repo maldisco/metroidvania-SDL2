@@ -37,6 +37,7 @@ void Skeleton::Update(float dt){
     int tileBottomY = (collider->box.y+collider->box.h+1)/tileSet->GetTileHeight();
     if(tileMap->IsSolid(tileLeftX, tileBottomY) or tileMap->IsSolid(tileRightX, tileBottomY)){
         grounded = true;
+        speed.y = 0;
     }
 
     speed.y = speed.y + GRAVITY;

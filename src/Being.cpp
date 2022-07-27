@@ -35,7 +35,7 @@ void Being::moveY(float motion, Rect colliderBox, TileMap* tileMap, TileSet* til
         motion = std::min(motion, distance);
     } else {
         closestObstacleY = tileMap->ScanUp(xAxis, (colliderBox.y)/tileSet->GetTileHeight());
-        distance = closestObstacleY*tileSet->GetTileHeight() - (colliderBox.y);
+        distance = (closestObstacleY*tileSet->GetTileHeight()+tileSet->GetTileHeight()) - (colliderBox.y);
         // distance (and motion) here are negative values, thats why max
         motion = std::max(motion, distance);
     }

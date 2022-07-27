@@ -82,7 +82,7 @@ float TileMap::ScanDown(std::set<int> xAxis, float height){
 }
 
 float TileMap::ScanUp(std::set<int> xAxis, float height){
-    for(int i = height; i > 0; i--){
+    for(int i = height; i >= 0; i--){
         for(auto x: xAxis){
             if(IsSolid(x, i)){
                 return i;

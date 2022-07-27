@@ -29,7 +29,6 @@ class Camera{
          */
         static void TriggerShake(float time, float intensity);
         static Vec2 pos;
-        static Vec2 speed;
         static Rect window;
         static Rect panicBox;
         static Timer shakeTimer;

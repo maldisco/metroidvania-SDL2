@@ -6,7 +6,6 @@
 #include "StageState.h"
 
 Vec2 Camera::pos = Vec2(0, 0);
-Vec2 Camera::speed = Vec2(100, 100);
 
 Rect Camera::window = Rect(576, 400, 64, 150);
 Rect Camera::panicBox = Rect(0, 50, 0, 600);
@@ -44,7 +43,7 @@ void Camera::Update(float dt){
                 // Update horizotal position if player gets out of the window
                 if(collider->box.x+collider->box.w > (pos.x+window.x+window.w)){
                     float dist = ((collider->box.x+collider->box.w) - (pos.x+window.x+window.w));
-                    pos.x = std::min(pos.x + dist/16, (mapBox.w)-(CAMERA_WIDTH + window.x));
+                    pos.x = std::min(pos.x + dist/16, mapBox.w - CAMERA_WIDTH); 
                 }
             } else {
                 window.x = 672;
@@ -60,14 +59,14 @@ void Camera::Update(float dt){
                 float dist = (collider->box.y - (pos.y+window.y));
 
                 // Only move if new position is inside map
-                if(pos.y + dist/8 > 0 and (pos.y + dist/8 + CAMERA_HEIGHT) < 1536) {
-                    pos.y += dist/8;
+                if(pos.y + dist/16 > 0 and (pos.y + dist/16 + CAMERA_HEIGHT) < mapBox.h) {
+                    pos.y += dist/16;
                 }
-            } else if ((Player::player->GetBox().y < panicBox.y) or (Player::player->GetBox().y + Player::player->GetBox().h > panicBox.y + panicBox.h)){
+            } else if ((Player::player->GetBox().y < pos.y+panicBox.y) or (Player::player->GetBox().y + Player::player->GetBox().h > pos.y+panicBox.y+panicBox.h)){
                 float dist = (collider->box.y - (pos.y+window.y));
 
                 // Only move if new position is inside map
-                if(pos.y + dist/4 > 0 and (pos.y + dist/4 + CAMERA_HEIGHT) < 1536){
+                if(pos.y + dist/4 > 0 and (pos.y + dist/4 + CAMERA_HEIGHT) < mapBox.h){
                     pos.y += dist/4;
                 } 
             }

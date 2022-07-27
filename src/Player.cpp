@@ -12,7 +12,7 @@
 #include "Text.h"
 
 Player* Player::player;
-Player::Player(GameObject& associated) : Being(associated, {100, 150}, 1, 100), combo(0), jumpCounter(0), jumpImpulse(){
+Player::Player(GameObject& associated) : Being(associated, {100, 150}, 1, 5), combo(0), jumpCounter(0), invincible(false), invincibleTime(), jumpImpulse(){
     player = this;
     associated.AddComponent(new Sprite(PLAYER_IDLE_FILE, associated, 6, 0.05f));
     associated.AddComponent(new Collider(associated, {32/associated.box.w, 64/associated.box.h}, {0, 12}));
@@ -35,12 +35,26 @@ void Player::Update(float dt){
     Collider* collider = (Collider*)associated.GetComponent("Collider");
     InputManager& inputManager = InputManager::GetInstance();
 
+    // remove invulnerability after 1 sec
+    if(invincible){
+        invincibleTime.Update(dt);
+        if(invincibleTime.Get() >= 1.0f){
+            invincible = false;
+            invincibleTime.Restart();
+        }
+    } 
+
     // check if in ground
     grounded = false;
     int tileLeftX = collider->box.x/tileSet->GetTileWidth();
     int tileRightX = (collider->box.x+collider->box.w)/tileSet->GetTileWidth();
     int tileBottomY = (collider->box.y+collider->box.h+1)/tileSet->GetTileHeight();
     if(tileMap->IsSolid(tileLeftX, tileBottomY) or tileMap->IsSolid(tileRightX, tileBottomY)){
+        
+        // shake if fell with too much speed
+        if(speed.y > 1000.0f){
+            Camera::TriggerShake(0.5f, {0, 5.0f});
+        }
         grounded = true;
         jumpCounter = 0;
         speed.y = 0;
@@ -61,25 +75,15 @@ void Player::Update(float dt){
 
             // State change condition
             if(inputManager.KeyPress(A_KEY) or inputManager.KeyPress(D_KEY)){
-                sprite->Change(PLAYER_RUN_FILE, 0.05f, 8);
-                charState = WALKING;
+                Walk();
             } else if(jump){
-                sprite->Change(PLAYER_JUMP_FILE, 0.05f, 3);
-                speed.y = -JUMP_FORCE/mass;
-                charState = JUMPING;
-                jumpCounter++;
-                jumpImpulse.Restart();
+                Jump();
             } else if(not grounded){
-                sprite->Change(PLAYER_FALL_FILE, 0.05f, 5, 2);
-                charState = FALLING;
+                Fall();
             } else if(attack){
-                sprite->Change(PLAYER_ATTACK1_FILE, 0.05f, 8);
-                charState = ATTACKING; 
+                Attack();
             } else if (dash){
-                sprite->Change(PLAYER_DASH_FILE, 0.04f, 7);
-                charState = DASHING;
-                if(dir >= 0) speed.x = MAX_SPEEDH*3;
-                else speed.x = -MAX_SPEEDH*3;
+                Dash(dir);
             }
             break;
     
@@ -94,25 +98,15 @@ void Player::Update(float dt){
 
             // State change condition
             if (not motionX){
-                sprite->Change(PLAYER_IDLE_FILE, 0.05f, 6);
-                charState = IDLE;
+                Idle();
             } else if(jump){
-                sprite->Change(PLAYER_JUMP_FILE, 0.05f, 3);
-                speed.y = -JUMP_FORCE/mass;
-                charState = JUMPING;
-                jumpCounter++;
-                jumpImpulse.Restart();
+                Jump();
             } else if (not grounded){
-                sprite->Change(PLAYER_FALL_FILE, 0.05f, 5, 2);
-                charState = FALLING;
+                Fall();
             } else if (attack){
-                sprite->Change(PLAYER_ATTACK1_FILE, 0.05f, 8);
-                charState = ATTACKING; 
+                Attack();
             } else if (dash){
-                sprite->Change(PLAYER_DASH_FILE, 0.04f, 7);
-                charState = DASHING;
-                if(dir >= 0) speed.x = MAX_SPEEDH*3;
-                else speed.x = -MAX_SPEEDH*3;
+                Dash(dir);
             }
             break;
         
@@ -135,19 +129,13 @@ void Player::Update(float dt){
 
             // State change condition
             if(speed.y > 0){
-                sprite->Change(PLAYER_FALL_FILE, 0.05f, 5, 2);
-                charState = FALLING;
+                Fall();
             } else if (dash){
-                sprite->Change(PLAYER_DASH_FILE, 0.04f, 7);
-                charState = DASHING;
-                this->speed.y = 0;
-                if(dir >= 0) speed.x = MAX_SPEEDH*3;
-                else speed.x = -MAX_SPEEDH*3;
+                Dash(dir);
             } else if (jump and jumpCounter < 2){
-                speed.y = -JUMP_FORCE/mass;
-                sprite->SetFrame(0);
-                jumpCounter++;
-                jumpImpulse.Restart();
+                Jump();
+            } else if (attack){
+                Attack();
             }
             break;
         
@@ -163,24 +151,14 @@ void Player::Update(float dt){
             // State change condition
             if(grounded){
                 if(inputManager.IsKeyDown(A_KEY) or inputManager.IsKeyDown(D_KEY)){
-                    sprite->Change(PLAYER_RUN_FILE, 0.05f, 8);
-                    charState = WALKING;
+                    Walk();
                 } else {
-                    sprite->Change(PLAYER_IDLE_FILE, 0.05f, 6);
-                    charState = IDLE;
+                    Idle();
                 }
             } else if (dash){
-                sprite->Change(PLAYER_DASH_FILE, 0.04f, 7);
-                charState = DASHING;
-                this->speed.y = 0;
-                if(dir >= 0) speed.x = MAX_SPEEDH*3;
-                else speed.x = -MAX_SPEEDH*3;
+                Dash(dir);
             } else if (jump and jumpCounter < 2){
-                sprite->Change(PLAYER_JUMP_FILE, 0.05f, 3);
-                speed.y = -JUMP_FORCE/mass;
-                charState = JUMPING;
-                jumpCounter++;
-                jumpImpulse.Restart();
+                Jump();
             }
             break;
 
@@ -189,7 +167,7 @@ void Player::Update(float dt){
             // - create damage box
             if(sprite->GetCurrentFrame() == sprite->GetFrameCount()-3){
                 GameObject* damage = new GameObject();
-                damage->AddComponent(new Damage(*damage, 10*(combo+1), false, 0.15f));
+                damage->AddComponent(new Damage(*damage, 1, false, 0.15f));
                 damage->box.w = 48;
                 damage->box.h = 64;
                 damage->box.y = collider->box.y;
@@ -202,8 +180,7 @@ void Player::Update(float dt){
             if(attack and sprite->GetCurrentFrame() >= sprite->GetFrameCount()-2){
                 combo++;
                 if(combo == 1){
-                    sprite->Change(PLAYER_ATTACK2_FILE, 0.05f, 4);
-                    sprite->SetFrame(0);
+                    Attack2();
                 } 
             }
             // - update horizontal speed
@@ -216,19 +193,18 @@ void Player::Update(float dt){
             // Stage change condition
             if(sprite->GetCurrentFrame() >= sprite->GetFrameCount()-1){
                 combo = 0;
-                if(dir){
-                    sprite->Change(PLAYER_RUN_FILE, 0.05f, 8);
-                    charState = WALKING;
+                if(not grounded){
+                    if(speed.y >= 0){
+                        Fall();
+                    } else {
+                        Jump();
+                    }
+                } else if(dir){
+                    Walk();
                 } else {
-                    sprite->Change(PLAYER_IDLE_FILE, 0.05f, 6);
-                    charState = IDLE;
+                    Idle();
                 }
-            } else if (dash){
-                sprite->Change(PLAYER_DASH_FILE, 0.04f, 7);
-                charState = DASHING;
-                if(dir >= 0) speed.x = MAX_SPEEDH*3;
-                else speed.x = -MAX_SPEEDH*3;
-            }
+            } 
             break;
         
         case DASHING:
@@ -240,21 +216,13 @@ void Player::Update(float dt){
             // State change condition
             if(sprite->GetCurrentFrame() >= sprite->GetFrameCount()-1){
                 if(inputManager.IsKeyDown(W_KEY) and jumpCounter < 2){
-                    sprite->Change(PLAYER_JUMP_FILE, 0.05f, 3);
-                    speed.y = -JUMP_FORCE/mass;
-                    charState = JUMPING;
-                    jumpCounter++;
-                    jumpImpulse.Restart();
+                    Jump();
                 } else if(inputManager.IsKeyDown(A_KEY) or inputManager.IsKeyDown(D_KEY)){
-                    sprite->Change(PLAYER_RUN_FILE, 0.05f, 8);
-                    charState = WALKING;
+                    Walk();
                 } else if(not grounded){
-                    sprite->Change(PLAYER_FALL_FILE, 0.05f, 5, 2);
-                    charState = FALLING;
+                    Fall();
                 } else {
-                    sprite->Change(PLAYER_IDLE_FILE, 0.05f, 6);
-                    charState = IDLE;
-                    speed.x = 0;
+                    Idle();
                 }
             } 
             break;
@@ -265,21 +233,15 @@ void Player::Update(float dt){
             // State change conditions
             if(sprite->GetCurrentFrame() >= sprite->GetFrameCount()-1){
                 if(inputManager.IsKeyDown(A_KEY) or inputManager.IsKeyDown(D_KEY)){
-                    sprite->Change(PLAYER_RUN_FILE, 0.05f, 8);
-                    charState = WALKING;
+                    Walk();
                 } else if(not grounded){
                     if(speed.y >= 0){
-                        sprite->Change(PLAYER_FALL_FILE, 0.05f, 5, 2);
-                        charState = FALLING;
+                        Fall();
                     } else {
-                        sprite->Change(PLAYER_JUMP_FILE, 0.05f, 3);
-                        charState = JUMPING;
-                        jumpImpulse.Restart();
+                        Jump();
                     }
                 } else {
-                    sprite->Change(PLAYER_IDLE_FILE, 0.05f, 6);
-                    charState = IDLE;
-                    speed.x = 0;
+                    Idle();
                 }
             }
             break;
@@ -316,23 +278,80 @@ void Player::NotifyCollision(GameObject& other){
     if(other.GetComponent("Damage") != nullptr){
         Damage* damage = (Damage*)other.GetComponent("Damage");
 
-        if(damage->targetsPlayer and not (charState == DEAD or charState == HURT or charState == DASHING)){
+        if(damage->targetsPlayer and not (charState == DEAD or charState == DASHING) and not invincible){
             Sprite* sprite = (Sprite*)associated.GetComponent("Sprite");
             this->hp -= damage->GetDamage();
 
             this->charState = HURT;
             sprite->Change(PLAYER_HURT_FILE, 0.05, 4);   
-            Camera::TriggerShake(0.5f, 5.0f);         
+            Camera::TriggerShake(0.5f, {5.0f, 0});         
+            invincible = true;
         
             if(this->hp <= 0){
                 this->charState = DEAD;
-                sprite->Change(PLAYER_DEATH_FILE, 0.05, 11);
+                sprite->Change(PLAYER_DEATH_FILE, 0.1, 11);
             }
         }
     }
 }
 
 void Player::Render(){}
+
+void Player::Idle(){
+    Sprite* sprite = (Sprite*)associated.GetComponent("Sprite");
+
+    sprite->Change(PLAYER_IDLE_FILE, 0.05f, 6);
+    charState = IDLE;
+    speed.x = 0;
+}
+
+void Player::Attack(){
+    Sprite* sprite = (Sprite*)associated.GetComponent("Sprite");
+
+    sprite->Change(PLAYER_ATTACK1_FILE, 0.05f, 4);
+    charState = ATTACKING; 
+}
+
+void Player::Attack2(){
+    Sprite* sprite = (Sprite*)associated.GetComponent("Sprite");
+
+    sprite->Change(PLAYER_ATTACK2_FILE, 0.05f, 4);
+    charState = ATTACKING; 
+}
+
+void Player::Jump(){
+    Sprite* sprite = (Sprite*)associated.GetComponent("Sprite");
+
+    sprite->Change(PLAYER_JUMP_FILE, 0.05f, 3);
+    speed.y = -JUMP_FORCE/mass;
+    charState = JUMPING;
+    jumpCounter++;
+    jumpImpulse.Restart();
+}
+
+void Player::Fall(){
+    Sprite* sprite = (Sprite*)associated.GetComponent("Sprite");
+
+    sprite->Change(PLAYER_FALL_FILE, 0.05f, 5, 2);
+    charState = FALLING;
+}
+
+void Player::Walk(){
+    Sprite* sprite = (Sprite*)associated.GetComponent("Sprite");
+
+    sprite->Change(PLAYER_RUN_FILE, 0.05f, 8);
+    charState = WALKING;
+}
+
+void Player::Dash(int dir){
+    Sprite* sprite = (Sprite*)associated.GetComponent("Sprite");
+
+    sprite->Change(PLAYER_DASH_FILE, 0.04f, 7);
+    charState = DASHING;
+    this->speed.y = 0;
+    if(dir >= 0) speed.x = MAX_SPEEDH*3;
+    else speed.x = -MAX_SPEEDH*3;
+}
 
 bool Player::Is(std::string type){
     if(type.compare("Player") == 0){

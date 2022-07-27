@@ -162,6 +162,10 @@ int Sprite::GetFrameCount(){
     return frameCount;
 }
 
+SDL_Texture* Sprite::GetTexture(){
+    return texture.get();
+}
+
 bool Sprite::IsOpen(){
     return texture != nullptr;
 }

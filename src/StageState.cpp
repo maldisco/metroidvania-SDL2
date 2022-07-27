@@ -17,7 +17,7 @@
 
 StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinnabar.mp3"){    
     
-	// all stages have a map
+	// all stages have a map (with the same tileset)
 	GameObject* map = new GameObject();
 	tileSet = new TileSet(*map, 32, 32, "assets/img/foresTileset.png");
 
@@ -105,6 +105,7 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 
 StageState::~StageState(){
 	objectArray.clear();
+	backgroundMusic.Stop();
 }
 
 void StageState::Start(){
@@ -154,13 +155,11 @@ void StageState::Update(float dt){
 
 	if(InputManager::GetInstance().KeyPress(ESCAPE_KEY)){
         popRequested = true;
-		backgroundMusic.Stop();
     }
 
 	if(Player::player == nullptr){
 		if(InputManager::GetInstance().KeyPress(SPACE_KEY)){
 			popRequested = true;
-			backgroundMusic.Stop();
 		}
 	}
 

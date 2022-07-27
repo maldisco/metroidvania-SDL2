@@ -38,9 +38,19 @@ class Player : public Being {
         bool Is(std::string type);
         void NotifyCollision(GameObject& other);
 
+        void Idle();
+        void Attack();
+        void Attack2();
+        void Jump();
+        void Walk();
+        void Dash(int dir);
+        void Fall();
+
         static Player* player;
     private:
         int combo, jumpCounter;
+        bool invincible;
+        Timer invincibleTime;
         Timer jumpImpulse;
 };
 #endif

@@ -177,6 +177,13 @@ class Sprite : public Component{
         int GetFrameCount();
 
         /**
+         * @brief Get the Texture object
+         * 
+         * @return SDL_Texture* 
+         */
+        SDL_Texture* GetTexture();
+
+        /**
          * @brief Tell if texture is already loaded
          * 
          * @return true 

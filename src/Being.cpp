@@ -39,6 +39,7 @@ void Being::moveY(float motion, Rect colliderBox, TileMap* tileMap, TileSet* til
         // distance (and motion) here are negative values, thats why max
         motion = std::max(motion, distance);
     }
+    
     associated.box.y += motion;
 }
 

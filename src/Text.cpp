@@ -20,7 +20,7 @@ Text::~Text(){
 void Text::Update(float dt){
     if(fade > 0 and alpha < 255){
         SDL_SetTextureAlphaMod(texture, alpha);
-        alpha += 1;
+        alpha += 2;
     }
 }
 

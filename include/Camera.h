@@ -27,12 +27,15 @@ class Camera{
          * @param time 
          * @param intensity 
          */
-        static void TriggerShake(float time, float intensity);
+        static void TriggerShake(float time, Vec2 force);
         static Vec2 pos;
         static Rect window;
         static Rect panicBox;
+
+        static bool shake;
         static Timer shakeTimer;
-        static float shakeDur, shakeForce;
+        static Vec2 shakeForce;
+        static float shakeDur;
         static int shakeDir;
 
         // maybe use

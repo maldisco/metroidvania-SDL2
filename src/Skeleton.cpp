@@ -8,7 +8,7 @@
 #include "Camera.h"
 
 
-Skeleton::Skeleton(GameObject& associated) : Being(associated, {75, 0}, 1.0f, 100), cooldown(){
+Skeleton::Skeleton(GameObject& associated) : Being(associated, {75, 0}, 1.0f, 3), cooldown(){
     associated.AddComponent(new Sprite(SKELETON_IDLE_FILE, associated, 4, 0.05f));
     associated.AddComponent(new Collider(associated, {32/associated.box.w, 64/associated.box.h}));
 }
@@ -47,7 +47,7 @@ void Skeleton::Update(float dt){
             cooldown.Update(dt);
 
             // State change conditions
-            if(cooldown.Get() >= 2.0f){
+            if(cooldown.Get() >= 1.0f){
                 cooldown.Restart();
                 if(Player::player != nullptr){
                     if(Rect::Distance(Player::player->GetBox(), associated.box) <= 64){
@@ -99,7 +99,7 @@ void Skeleton::Update(float dt){
             // Actions
             if(sprite->GetCurrentFrame() == sprite->GetFrameCount()-9){
                 GameObject* damage = new GameObject();
-                damage->AddComponent(new Damage(*damage, 10, true, 0.3f));
+                damage->AddComponent(new Damage(*damage, 1, true, 0.3f));
                 damage->box.w = 48;
                 damage->box.h = 64;
                 damage->box.y = collider->box.y;
@@ -162,7 +162,7 @@ void Skeleton::NotifyCollision(GameObject& other){
             Sprite* sprite = (Sprite*)associated.GetComponent("Sprite");
             this->hp -= damage->GetDamage();
 
-            Camera::TriggerShake(0.4f, 3.0f);
+            Camera::TriggerShake(0.4f, {3.0f, 0});
             if(this->charState != ATTACKING){
                 this->charState = HURT;
                 sprite->Change(SKELETON_HURT_FILE, 0.05, 3);

@@ -11,9 +11,10 @@ Rect Camera::window = Rect(576, 400, 64, 150);
 Rect Camera::panicBox = Rect(0, 50, 0, 600);
 
 float Camera::shakeDur = -1;
-float Camera::shakeForce = 5.0f;
+Vec2  Camera::shakeForce;
 Timer Camera::shakeTimer;
 int Camera::shakeDir = -1;
+bool Camera::shake = false;
 
 GameObject* Camera::focus = nullptr;
 void Camera::Follow(GameObject* newFocus){
@@ -35,49 +36,51 @@ void Camera::Update(float dt){
         StageState state = (StageState&)Game::GetInstance().GetCurrentState();
         Rect mapBox = state.GetTileMap()->GetBox();
 
-        if(shakeDur <= 0){
+        if (Player::player->GetDir() >= 0){
+            window.x = 480;
 
-            if(Player::player->GetDir() >= 0) {
-                window.x = 480;
-                
-                // Update horizotal position if player gets out of the window
-                if(collider->box.x+collider->box.w > (pos.x+window.x+window.w)){
-                    float dist = ((collider->box.x+collider->box.w) - (pos.x+window.x+window.w));
-                    pos.x = std::min(pos.x + dist/16, mapBox.w - CAMERA_WIDTH); 
-                }
-            } else {
-                window.x = 672;
-
-                if (collider->box.x < (pos.x+window.x)){
-                    float dist = (collider->box.x - (pos.x+window.x));
-                    pos.x = std::max(pos.x + dist/16, 0.0f);
-                } 
+            // Update horizotal position if player gets out of the window
+            if (collider->box.x + collider->box.w > (pos.x + window.x + window.w)){
+                float dist = ((collider->box.x + collider->box.w) - (pos.x + window.x + window.w));
+                pos.x = std::min(pos.x + dist / 16, mapBox.w - CAMERA_WIDTH);
             }
+        }
+        else{
+            window.x = 672;
 
-            // Update vertical position when player lands in a platform
-            if(Player::player->Grounded()){
-                float dist = (collider->box.y - (pos.y+window.y));
-
-                // Only move if new position is inside map
-                if(pos.y + dist/16 > 0 and (pos.y + dist/16 + CAMERA_HEIGHT) < mapBox.h) {
-                    pos.y += dist/16;
-                }
-            } else if ((Player::player->GetBox().y < pos.y+panicBox.y) or (Player::player->GetBox().y + Player::player->GetBox().h > pos.y+panicBox.y+panicBox.h)){
-                float dist = (collider->box.y - (pos.y+window.y));
-
-                // Only move if new position is inside map
-                if(pos.y + dist/4 > 0 and (pos.y + dist/4 + CAMERA_HEIGHT) < mapBox.h){
-                    pos.y += dist/4;
-                } 
+            if (collider->box.x < (pos.x + window.x)){
+                float dist = (collider->box.x - (pos.x + window.x));
+                pos.x = std::max(pos.x + dist / 16, 0.0f);
             }
-        } else {
+        }
+
+        // Update vertical position when player lands in a platform
+        if (Player::player->Grounded()){
+            float dist = (collider->box.y - (pos.y + window.y));
+
+            // Only move if new position is inside map
+            if (pos.y + dist / 16 > 0 and (pos.y + dist / 16 + CAMERA_HEIGHT) < mapBox.h){
+                pos.y += dist / 16;
+            }
+        }
+        else if ((Player::player->GetBox().y < pos.y + panicBox.y) or (Player::player->GetBox().y + Player::player->GetBox().h > pos.y + panicBox.y + panicBox.h)){
+            float dist = (collider->box.y - (pos.y + window.y));
+
+            // Only move if new position is inside map
+            if (pos.y + dist / 4 > 0 and (pos.y + dist / 4 + CAMERA_HEIGHT) < mapBox.h){
+                pos.y += dist / 4;
+            }
+        }
+
+        if(shake){
             shakeTimer.Update(dt);
             if(shakeTimer.Get() < shakeDur){
-                pos.x += shakeForce*shakeDir;
+                pos = pos + shakeForce*shakeDir;
                 shakeDir = shakeDir*-1;
             } else {
                 shakeDur = -1;
                 shakeTimer.Restart();
+                shake = false;
             }
         }
     }
@@ -111,9 +114,10 @@ void Camera::Render(){
 #endif
 }
 
-void Camera::TriggerShake(float time, float force){
+void Camera::TriggerShake(float time, Vec2 force){
     shakeTimer.Restart();
     shakeDur = time;
     shakeForce = force;
     shakeDir = -1;
+    shake = true;
 }

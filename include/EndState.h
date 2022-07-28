@@ -3,20 +3,21 @@
 #include "State.h"
 #include "Music.h"
 
-class EndState : public State {
-    public:
-        EndState();
-        ~EndState();
+class EndState : public State
+{
+public:
+    EndState();
+    ~EndState();
 
-        void LoadAssets();
-        void Update(float dt);
-        void Render();
+    void LoadAssets();
+    void Update(float dt);
+    void Render();
 
-        void Start();
-        void Pause();
-        void Resume();
-    
-    private:
-        Music backgroundMusic;
+    void Start();
+    void Pause();
+    void Resume();
+
+private:
+    Music backgroundMusic;
 };
 #endif

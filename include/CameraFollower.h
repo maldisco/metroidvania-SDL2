@@ -5,22 +5,22 @@
 
 /**
  * @brief Flags a component. Follow the camera.
- * 
+ *
  */
-class CameraFollower : public Component {
-    public:
-        /**
-         * @brief Construct a new Camera Follower object
-         * 
-         * @param associated 
-         */
-        CameraFollower(GameObject& associated);
+class CameraFollower : public Component
+{
+public:
+    /**
+     * @brief Construct a new Camera Follower object
+     *
+     * @param associated
+     */
+    CameraFollower(GameObject &associated);
 
-        void Update(float dt);
-        void Render();
-        bool Is(std::string type);
-        void NotifyCollision(GameObject& other);
+    void Update(float dt);
+    void Render();
+    bool Is(std::string type);
+    void NotifyCollision(GameObject &other);
 };
 
 #endif
-

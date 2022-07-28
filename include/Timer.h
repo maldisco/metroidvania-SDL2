@@ -3,16 +3,17 @@
 
 /**
  * @brief Control time-related mechanics over game objects
- * 
+ *
  */
-class Timer{
-    public:
-        Timer();
-        void Update(float dt);
-        void Restart();
-        float Get();
-    
-    private:
-        float time;
+class Timer
+{
+public:
+    Timer();
+    void Update(float dt);
+    void Restart();
+    float Get();
+
+private:
+    float time;
 };
 #endif

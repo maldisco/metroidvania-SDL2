@@ -1,8 +1,9 @@
 #ifndef GAMEDATA_H
 #define GAMEDATA_H
 
-class GameData{
-    public:
-        static bool playerVictory;
+class GameData
+{
+public:
+    static bool playerVictory;
 };
 #endif

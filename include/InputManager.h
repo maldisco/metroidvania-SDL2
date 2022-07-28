@@ -4,61 +4,61 @@
 #define INCLUDE_SDL
 #include "SDL_include.h"
 
-#define LEFT_ARROW_KEY     SDLK_LEFT
-#define RIGHT_ARROW_KEY    SDLK_RIGHT
-#define UP_ARROW_KEY       SDLK_UP
-#define DOWN_ARROW_KEY     SDLK_DOWN
-#define ESCAPE_KEY         SDLK_ESCAPE
-#define LEFT_MOUSE_BUTTON  SDL_BUTTON_LEFT
+#define LEFT_ARROW_KEY SDLK_LEFT
+#define RIGHT_ARROW_KEY SDLK_RIGHT
+#define UP_ARROW_KEY SDLK_UP
+#define DOWN_ARROW_KEY SDLK_DOWN
+#define ESCAPE_KEY SDLK_ESCAPE
+#define LEFT_MOUSE_BUTTON SDL_BUTTON_LEFT
 #define RIGHT_MOUSE_BUTTON SDL_BUTTON_RIGHT
-#define W_KEY              SDLK_w
-#define S_KEY              SDLK_s
-#define A_KEY              SDLK_a
-#define D_KEY              SDLK_d
-#define Z_KEY              SDLK_z
-#define SPACE_KEY          SDLK_SPACE
+#define W_KEY SDLK_w
+#define S_KEY SDLK_s
+#define A_KEY SDLK_a
+#define D_KEY SDLK_d
+#define Z_KEY SDLK_z
+#define SPACE_KEY SDLK_SPACE
 
 #include "unordered_map"
 
 /**
  * @brief Encapsulates mouse and keyboard inputs
  */
-class InputManager{
-    public:
-        void Update();
+class InputManager
+{
+public:
+    void Update();
 
-        bool KeyPress(int key);
-        bool KeyRelease(int key);
-        bool IsKeyDown(int key);
+    bool KeyPress(int key);
+    bool KeyRelease(int key);
+    bool IsKeyDown(int key);
 
-        bool MousePress(int button);
-        bool MouseRelease(int button);
-        bool IsMouseDown(int button);
+    bool MousePress(int button);
+    bool MouseRelease(int button);
+    bool IsMouseDown(int button);
 
-        int GetMouseX();
-        int GetMouseY();
+    int GetMouseX();
+    int GetMouseY();
 
-        bool QuitRequested();
+    bool QuitRequested();
 
-        static InputManager& GetInstance();
-    
-    private:
-        InputManager();
-        ~InputManager();
+    static InputManager &GetInstance();
 
-        bool mouseState[6];
-        int mouseUpdate[6];
+private:
+    InputManager();
+    ~InputManager();
 
-        std::unordered_map<int, bool> keyState;
-        std::unordered_map<int, int> keyUpdate;
+    bool mouseState[6];
+    int mouseUpdate[6];
 
+    std::unordered_map<int, bool> keyState;
+    std::unordered_map<int, int> keyUpdate;
 
-        bool quitRequested;
+    bool quitRequested;
 
-        int updateCounter;
+    int updateCounter;
 
-        int mouseX;
-        int mouseY;
+    int mouseX;
+    int mouseY;
 };
 
 #endif

@@ -10,33 +10,34 @@
 /**
  * @brief Class responsible for controlling the screen and specific internal logics.
  */
-class StageState : public State{
-    private:
-        Music backgroundMusic;
-        TileSet* tileSet;     
-        TileMap* tileMap;
+class StageState : public State
+{
+private:
+    Music backgroundMusic;
+    TileSet *tileSet;
+    TileMap *tileMap;
 
-    public:
-        StageState(int stage = 0);
-        ~StageState();
+public:
+    StageState(int stage = 0);
+    ~StageState();
 
-        /**
-         * @brief Update game objects
-         * 
-         * @param dt 
-         */
-        void Update(float dt);
+    /**
+     * @brief Update game objects
+     *
+     * @param dt
+     */
+    void Update(float dt);
 
-        /**
-         * @brief Render game objects
-         */
-        void Render();
-        void LoadAssets();
-        void Start();
-        void Pause();
-        void Resume();
+    /**
+     * @brief Render game objects
+     */
+    void Render();
+    void LoadAssets();
+    void Start();
+    void Pause();
+    void Resume();
 
-        TileMap* GetTileMap();
-        TileSet* GetTileSet();
+    TileMap *GetTileMap();
+    TileSet *GetTileSet();
 };
 #endif

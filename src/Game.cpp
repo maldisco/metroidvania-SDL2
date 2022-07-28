@@ -8,10 +8,11 @@
 #include <ctime>
 #include <iostream>
 
-Game* Game::instance;
+Game *Game::instance;
 std::stack<std::unique_ptr<State>> Game::stateStack;
-State* Game::storedState;
-Game& Game::GetInstance(){
+State *Game::storedState;
+Game &Game::GetInstance()
+{
     if (instance == nullptr)
     {
         new Game("Filipe de Sousa Fernandes - 202065879", 1280, 720);
@@ -20,10 +21,11 @@ Game& Game::GetInstance(){
     return *instance;
 }
 
-Game::Game(std::string title, int width, int height) : frameStart(0), dt(0){
+Game::Game(std::string title, int width, int height) : frameStart(0), dt(0)
+{
     instance = this;
 
-    // Initialization of basic SDL functionalities 
+    // Initialization of basic SDL functionalities
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER) != 0)
     {
         SDL_Log("Cant initialize SDL: %s", SDL_GetError());
@@ -55,13 +57,15 @@ Game::Game(std::string title, int width, int height) : frameStart(0), dt(0){
     Mix_AllocateChannels(32);
 
     window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
-    if(window == nullptr){
+    if (window == nullptr)
+    {
         SDL_Log("Cant initialize window: %s", SDL_GetError());
         exit(EXIT_FAILURE);
     }
 
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    if(renderer == nullptr){
+    if (renderer == nullptr)
+    {
         SDL_Log("Cant initialize renderer: %s", SDL_GetError());
         exit(EXIT_FAILURE);
     }
@@ -72,8 +76,10 @@ Game::Game(std::string title, int width, int height) : frameStart(0), dt(0){
     srand(time(NULL));
 }
 
-Game::~Game(){   
-    if(storedState != nullptr){
+Game::~Game()
+{
+    if (storedState != nullptr)
+    {
         delete storedState;
     }
     SDL_DestroyRenderer(renderer);
@@ -85,35 +91,43 @@ Game::~Game(){
     SDL_Quit();
 }
 
-State& Game::GetCurrentState(){
-    State* cState = stateStack.top().get();
+State &Game::GetCurrentState()
+{
+    State *cState = stateStack.top().get();
     return *cState;
 }
 
-void Game::Push(State* state){
+void Game::Push(State *state)
+{
     storedState = state;
 }
 
-SDL_Renderer* Game::GetRenderer(){
+SDL_Renderer *Game::GetRenderer()
+{
     return renderer;
 }
 
-void Game::Run(){
+void Game::Run()
+{
     stateStack.emplace(storedState);
     stateStack.top()->Start();
     storedState = nullptr;
 
-    while (!(stateStack.empty()) and !(stateStack.top()->QuitRequested())){
-        if(stateStack.top()->PopRequested()){
+    while (!(stateStack.empty()) and !(stateStack.top()->QuitRequested()))
+    {
+        if (stateStack.top()->PopRequested())
+        {
             stateStack.pop();
             Resources::ClearImages();
 
-            if(!stateStack.empty()){
+            if (!stateStack.empty())
+            {
                 stateStack.top()->Resume();
             }
         }
 
-        if(storedState != nullptr){
+        if (storedState != nullptr)
+        {
             stateStack.top()->Pause();
             stateStack.emplace(storedState);
             stateStack.top()->Start();
@@ -127,18 +141,21 @@ void Game::Run(){
         SDL_RenderPresent(renderer);
         SDL_Delay(33);
     }
-    
-    while(!stateStack.empty()) {stateStack.pop();}
+
+    while (!stateStack.empty())
+    {
+        stateStack.pop();
+    }
     Resources::ClearImages();
     Resources::ClearMusics();
     Resources::ClearSounds();
     Resources::ClearFonts();
 }
 
-void Game::CalculateDeltaTime(){
+void Game::CalculateDeltaTime()
+{
     dt = (SDL_GetTicks() - frameStart);
     frameStart = SDL_GetTicks();
 }
 
-float Game::GetDeltaTime(){ return dt/1000; }
-
+float Game::GetDeltaTime() { return dt / 1000; }

@@ -8,46 +8,47 @@
 
 /**
  * @brief interface for parts of gameobjects
- * 
+ *
  */
-class Component{
-    public:
-        Component(GameObject& associated);
+class Component
+{
+public:
+    Component(GameObject &associated);
 
-        virtual ~Component();
+    virtual ~Component();
 
-        /**
-         * @brief update state (if it exists) of the component
-         * 
-         * @param dt 
-         */
-        virtual void Update(float dt) = 0;
+    /**
+     * @brief update state (if it exists) of the component
+     *
+     * @param dt
+     */
+    virtual void Update(float dt) = 0;
 
-        /**
-         * @brief render (if it can) component on game window
-         */
-        virtual void Render() = 0;
+    /**
+     * @brief render (if it can) component on game window
+     */
+    virtual void Render() = 0;
 
-        /**
-         * @brief check type of the component
-         * 
-         * @param type 
-         * @return true 
-         * @return false 
-         */
-        virtual bool Is(std::string type) = 0;
+    /**
+     * @brief check type of the component
+     *
+     * @param type
+     * @return true
+     * @return false
+     */
+    virtual bool Is(std::string type) = 0;
 
-        /**
-         * @brief preparatory actions
-         * 
-         */
-        virtual void Start();
+    /**
+     * @brief preparatory actions
+     *
+     */
+    virtual void Start();
 
-        virtual void NotifyCollision(GameObject& other);
+    virtual void NotifyCollision(GameObject &other);
 
-        virtual Rect GetBox();
-    
-    protected:
-        GameObject& associated;
+    virtual Rect GetBox();
+
+protected:
+    GameObject &associated;
 };
 #endif

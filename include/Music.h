@@ -10,55 +10,56 @@
 /**
  * @brief Class responsible for soundtrack management.
  */
-class Music{
-    private:
-        /**
-         * @brief Object that points to a music file 
-         */
-        std::shared_ptr<Mix_Music> music;
-    
-    public:
-        /**
-         * @brief Initializes music as nullptr
-         * 
-         */
-        Music();
+class Music
+{
+private:
+    /**
+     * @brief Object that points to a music file
+     */
+    std::shared_ptr<Mix_Music> music;
 
-        /**
-         * @brief Initializes music as file
-         * 
-         * @param file 
-         */
-        Music(std::string file);
-        ~Music();
+public:
+    /**
+     * @brief Initializes music as nullptr
+     *
+     */
+    Music();
 
-        /**
-         * @brief Play music a number of times (-1 for infinite)
-         * 
-         * @param times 
-         */
-        void Play(int times = -1);
+    /**
+     * @brief Initializes music as file
+     *
+     * @param file
+     */
+    Music(std::string file);
+    ~Music();
 
-        /**
-         * @brief Stop the music with a fade out
-         * 
-         * @param msToStop 
-         */
-        void Stop(int msToStop = 1500);
+    /**
+     * @brief Play music a number of times (-1 for infinite)
+     *
+     * @param times
+     */
+    void Play(int times = -1);
 
-        /**
-         * @brief Load file into music
-         * 
-         * @param file 
-         */
-        void Open(std::string file);
+    /**
+     * @brief Stop the music with a fade out
+     *
+     * @param msToStop
+     */
+    void Stop(int msToStop = 1500);
 
-        /**
-         * @brief Tell if music is already loaded
-         * 
-         * @return true 
-         * @return false 
-         */
-        bool IsOpen();
+    /**
+     * @brief Load file into music
+     *
+     * @param file
+     */
+    void Open(std::string file);
+
+    /**
+     * @brief Tell if music is already loaded
+     *
+     * @return true
+     * @return false
+     */
+    bool IsOpen();
 };
 #endif

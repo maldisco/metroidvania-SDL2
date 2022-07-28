@@ -10,40 +10,41 @@ class Component;
 
 /**
  * @brief represents an entity
- * 
+ *
  */
-class GameObject{
-    public:
-        Rect box;
-        bool started;
-        double angleDeg;
+class GameObject
+{
+public:
+    Rect box;
+    bool started;
+    double angleDeg;
 
-        GameObject();
+    GameObject();
 
-        ~GameObject();
+    ~GameObject();
 
-        void Start();
+    void Start();
 
-        void Update(float dt);
+    void Update(float dt);
 
-        void Render();
+    void Render();
 
-        bool IsDead();
+    bool IsDead();
 
-        // object died/destroyed
-        void RequestDelete();
-        
-        void AddComponent(Component* cpt);
+    // object died/destroyed
+    void RequestDelete();
 
-        void RemoveComponent(Component* cpt);
+    void AddComponent(Component *cpt);
 
-        void NotifyCollision(GameObject& other);
+    void RemoveComponent(Component *cpt);
 
-        Component* GetComponent(std::string type);
+    void NotifyCollision(GameObject &other);
 
-    private:
-        // every component is a part of the entity e.g sprite, sound...
-        std::vector<std::unique_ptr<Component>> components;
-        bool isDead;
+    Component *GetComponent(std::string type);
+
+private:
+    // every component is a part of the entity e.g sprite, sound...
+    std::vector<std::unique_ptr<Component>> components;
+    bool isDead;
 };
 #endif

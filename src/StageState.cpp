@@ -7,7 +7,7 @@
 #include "CameraFollower.h"
 #include "Player.h"
 #include "Skeleton.h"
-#include "Phoenix.h"
+#include "Samurai.h"
 #include "Slime.h"
 #include "Collision.cpp"
 #include "Collider.h"
@@ -76,6 +76,8 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 		sensor->box.w = tileSet->GetTileWidth() * 3;
 		sensor->box.h = tileSet->GetTileHeight();
 		AddObject(sensor);
+
+		Camera::pos = {0, 5*tileSet->GetTileHeight()};
 		break;
 
 	case 1:
@@ -121,6 +123,8 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 		sensor->box.w = tileSet->GetTileWidth();
 		sensor->box.h = tileSet->GetTileHeight() * 3;
 		AddObject(sensor);
+
+		Camera::pos = {30*tileSet->GetTileWidth(), 0};
 		break;
 
 	case 2:
@@ -131,7 +135,7 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 		AddObject(background);
 
 		enemy = new GameObject();
-		enemy->AddComponent(new Phoenix(*enemy));
+		enemy->AddComponent(new Samurai(*enemy));
 		enemy->box.x = 65 * tileSet->GetTileWidth();
 		enemy->box.y = 15 * tileSet->GetTileHeight();
 		AddObject(enemy);
@@ -145,6 +149,9 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 		map->box.x = 0;
 		map->box.y = 0;
 		AddObject(map);
+
+		Camera::pos = {0, 5*tileSet->GetTileHeight()};
+		break;
 	}
 
 	// make android as camera focus
@@ -153,7 +160,6 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 
 StageState::~StageState()
 {
-	std::cout << "Destroyed stagestate! --- \n ";
 	objectArray.clear();
 	backgroundMusic.Stop();
 }

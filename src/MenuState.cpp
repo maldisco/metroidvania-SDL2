@@ -6,7 +6,9 @@
 #include "Camera.h"
 #include "Game.h"
 
-MenuState::MenuState() : State(), selectedOption(0), options({"Start", "Options", "Exit"})
+#include <algorithm>
+
+MenuState::MenuState() : State(), selectedOption(0), options({"Start", "Exit"})
 {
     GameObject *bg = new GameObject();
     bg->AddComponent(new Sprite("assets/img/background.png", *bg, 1, 1.0f));
@@ -84,6 +86,8 @@ void MenuState::Update(float dt)
     else if (select)
         if (selectedOption == 0)
             Game::GetInstance().Push(new StageState(0));
+        else if (selectedOption == 1)
+            quitRequested = true;
 
     // check if quit was requested
     if (InputManager::GetInstance().KeyPress(ESCAPE_KEY) || InputManager::GetInstance().QuitRequested())

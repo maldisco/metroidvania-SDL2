@@ -1,4 +1,4 @@
-#include "Phoenix.h"
+#include "Samurai.h"
 #include "Collider.h"
 #include "Game.h"
 #include "Damage.h"
@@ -7,21 +7,21 @@
 #include "InputManager.h"
 #include "Camera.h"
 
-Phoenix::Phoenix(GameObject &associated) : Being(associated, {300, 0}, 1.0f, 10), cooldown(), hitCooldown(), dashCooldown(), dashTime()
+Samurai::Samurai(GameObject &associated) : Being(associated, {300, 0}, 1.0f, 10), cooldown(), hitCooldown(), dashCooldown(), dashTime()
 {
-    associated.AddComponent(new Sprite(PHOENIX_IDLE_FILE, associated, 5, 0.03f));
-    associated.AddComponent(new Collider(associated, {128 / associated.box.w, 160 / associated.box.h}, {0, 96}));
+    associated.AddComponent(new Sprite(SAMURAI_IDLE_FILE, associated, 7, 0.05f));
+    associated.AddComponent(new Collider(associated, {47 / associated.box.w, 85 / associated.box.h}, {0, 0}));
 }
 
-Phoenix::~Phoenix()
-{
-}
-
-void Phoenix::Start()
+Samurai::~Samurai()
 {
 }
 
-void Phoenix::Update(float dt)
+void Samurai::Start()
+{
+}
+
+void Samurai::Update(float dt)
 {
     // Useful objects
     TileMap *tileMap = ((StageState &)Game::GetInstance().GetCurrentState()).GetTileMap();
@@ -62,7 +62,7 @@ void Phoenix::Update(float dt)
             {
                 if (dash)
                 {
-                    sprite->Change(PHOENIX_DASH_FILE, 0.05f, 3, 2);
+                    sprite->Change(SAMURAI_DASH_FILE, 0.05f, 10, 7);
                     charState = DASHING;
                     if ((Player::player->GetBox().Center() - associated.box.Center()).x >= 0)
                         dir = 1;
@@ -71,7 +71,7 @@ void Phoenix::Update(float dt)
                 }
                 else if (Rect::Distance(Player::player->GetBox(), associated.box) <= 1800)
                 {
-                    sprite->Change(PHOENIX_MOVE_FILE, 0.05f, 3);
+                    sprite->Change(SAMURAI_MOVE_FILE, 0.05f, 6);
                     charState = WALKING;
                 }
             }
@@ -100,7 +100,7 @@ void Phoenix::Update(float dt)
         {
             if (dash)
             {
-                sprite->Change(PHOENIX_DASH_FILE, 0.05f, 3, 2);
+                sprite->Change(SAMURAI_DASH_FILE, 0.05f, 10, 7);
                 charState = DASHING;
                 if ((Player::player->GetBox().Center() - associated.box.Center()).x >= 0)
                     dir = 1;
@@ -113,13 +113,13 @@ void Phoenix::Update(float dt)
                 // after 3 seconds enemy has a chance of idling or walking the other way
                 if (rand() % 10 > 6)
                 {
-                    sprite->Change(PHOENIX_IDLE_FILE, 0.03f, 5);
+                    sprite->Change(SAMURAI_IDLE_FILE, 0.05f, 7);
                     charState = IDLE;
                 }
             }
             else if (Rect::Distance(Player::player->GetBox(), associated.box) > 1800)
             {
-                sprite->Change(PHOENIX_IDLE_FILE, 0.03f, 5);
+                sprite->Change(SAMURAI_IDLE_FILE, 0.05f, 7);
                 charState = IDLE;
                 cooldown.Restart();
             }
@@ -134,7 +134,7 @@ void Phoenix::Update(float dt)
         dashTime.Update(dt);
         if (dashTime.Get() >= 2.0f)
         {
-            sprite->Change(PHOENIX_IDLE_FILE, 0.03f, 5);
+            sprite->Change(SAMURAI_IDLE_FILE, 0.05f, 7);
             charState = IDLE;
             dashCooldown.Restart();
             dashTime.Restart();
@@ -147,7 +147,7 @@ void Phoenix::Update(float dt)
         // State change conditions
         if (sprite->GetCurrentFrame() == sprite->GetFrameCount() - 1)
         {
-            sprite->Change(PHOENIX_IDLE_FILE, 0.03f, 5);
+            sprite->Change(SAMURAI_IDLE_FILE, 0.05f, 7);
             charState = IDLE;
         }
         break;
@@ -169,13 +169,13 @@ void Phoenix::Update(float dt)
     sprite->SetDir(dir);
 }
 
-void Phoenix::Render()
+void Samurai::Render()
 {
 }
 
-bool Phoenix::Is(std::string type)
+bool Samurai::Is(std::string type)
 {
-    if (type.compare("Phoenix") == 0)
+    if (type.compare("Samurai") == 0)
     {
         return true;
     }
@@ -183,7 +183,7 @@ bool Phoenix::Is(std::string type)
     return false;
 }
 
-void Phoenix::NotifyCollision(GameObject &other)
+void Samurai::NotifyCollision(GameObject &other)
 {
     if (other.GetComponent("Damage") != nullptr)
     {
@@ -198,13 +198,13 @@ void Phoenix::NotifyCollision(GameObject &other)
             if (this->charState != DASHING)
             {
                 this->charState = HURT;
-                sprite->Change(PHOENIX_HURT_FILE, 0.05, 3);
+                sprite->Change(SAMURAI_HURT_FILE, 0.05f, 5);
             }
 
             if (this->hp <= 0)
             {
                 this->charState = DEAD;
-                sprite->Change(PHOENIX_DEAD_FILE, 0.05, 3);
+                sprite->Change(SAMURAI_DEAD_FILE, 0.05f, 17);
             }
         }
     }

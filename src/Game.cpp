@@ -15,7 +15,7 @@ Game &Game::GetInstance()
 {
     if (instance == nullptr)
     {
-        new Game("A moça e os esqueletos", 1600, 900);
+        new Game("The lady", 1600, 900);
     }
 
     return *instance;
@@ -82,9 +82,6 @@ Game::~Game()
     {
         delete storedState;
     }
-    while(!stateStack.empty()){
-        stateStack.pop();
-    }
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     TTF_Quit();
@@ -116,22 +113,27 @@ void Game::Run()
     stateStack.top()->Start();
     storedState = nullptr;
 
-    while (!(stateStack.empty()) and !(stateStack.top()->QuitRequested()))
+    while (not stateStack.empty() and not stateStack.top()->QuitRequested())
     {
         if (stateStack.top()->PopRequested())
         {
             stateStack.pop();
+
+            // liberating resources
             Resources::ClearImages();
+            Resources::ClearMusics();
+            Resources::ClearSounds();
+            Resources::ClearFonts();
 
             if (!stateStack.empty())
-            {
                 stateStack.top()->Resume();
-            }
         }
 
         if (storedState != nullptr)
         {
-            stateStack.top()->Pause();
+            if (not stateStack.empty())
+                stateStack.top()->Pause();
+
             stateStack.emplace(storedState);
             stateStack.top()->Start();
             storedState = nullptr;
@@ -144,11 +146,8 @@ void Game::Run()
         SDL_RenderPresent(renderer);
         SDL_Delay(33);
     }
-
-    while (!stateStack.empty())
-    {
+    while (not stateStack.empty())
         stateStack.pop();
-    }
     Resources::ClearImages();
     Resources::ClearMusics();
     Resources::ClearSounds();

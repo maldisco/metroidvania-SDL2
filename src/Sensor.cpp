@@ -31,6 +31,5 @@ void Sensor::NotifyCollision(GameObject &other)
     {
         Game::GetInstance().GetCurrentState().PopRequested();
         Game::GetInstance().Push(new StageState(destiny));
-        Camera::Reset();
     }
 }

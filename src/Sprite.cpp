@@ -6,12 +6,18 @@
 #define INCLUDE_SDL_IMAGE
 #include "SDL_include.h"
 
-Sprite::Sprite(GameObject &associated, int frameCount, float frameTime, float secondsToSelfDestruct, int restart) : Component(associated), texture(nullptr), selfDestructCount(),
-                                                                                                                    frameCount(frameCount), currentFrame(0), timeElapsed(0), frameTime(frameTime), secondsToSelfDestruct(secondsToSelfDestruct), dir(0), restart(restart) {}
+Sprite::Sprite(GameObject &associated, int frameCount, float frameTime, float secondsToSelfDestruct, int restart, float renderWidth) : Component(associated), texture(nullptr),
+                                                                                                                                       selfDestructCount(), frameCount(frameCount), currentFrame(0),
+                                                                                                                                       timeElapsed(0), frameTime(frameTime), renderWidth(renderWidth),
+                                                                                                                                       secondsToSelfDestruct(secondsToSelfDestruct),
+                                                                                                                                       dir(0), restart(restart) {}
 
-Sprite::Sprite(std::string file, GameObject &associated, int frameCount, float frameTime, float secondsToSelfDestruct, int restart) : Component(associated), texture(nullptr),
-                                                                                                                                      selfDestructCount(), scale({1, 1}), frameCount(frameCount), currentFrame(0), timeElapsed(0), frameTime(frameTime), secondsToSelfDestruct(secondsToSelfDestruct), dir(0),
-                                                                                                                                      restart(restart)
+Sprite::Sprite(std::string file, GameObject &associated, int frameCount, float frameTime, float secondsToSelfDestruct, int restart, float renderWidth) : Component(associated), texture(nullptr),
+                                                                                                                                      selfDestructCount(), scale({1, 1}),
+                                                                                                                                      frameCount(frameCount), currentFrame(0),
+                                                                                                                                      timeElapsed(0), frameTime(frameTime), renderWidth(renderWidth),
+                                                                                                                                      secondsToSelfDestruct(secondsToSelfDestruct),
+                                                                                                                                      dir(0), restart(restart)
 {
     Open(file);
 }
@@ -73,7 +79,7 @@ void Sprite::Update(float dt)
         {
             currentFrame = restart;
         }
-        SetClip((currentFrame)*GetWidth(), 0, GetWidth(), GetHeight());
+        SetClip((currentFrame)*GetWidth(), 0, GetWidth()*renderWidth, GetHeight());
     }
 
     if (secondsToSelfDestruct > 0)
@@ -161,6 +167,11 @@ void Sprite::SetFrameCount(int frameCount)
 void Sprite::SetFrameTime(float frameTime)
 {
     this->frameTime = frameTime;
+}
+
+void Sprite::SetRenderWidth(float renderWidth)
+{
+    this->renderWidth = renderWidth;
 }
 
 void Sprite::SetRestart(int restart)

@@ -462,7 +462,7 @@ void Player::NotifyCollision(GameObject &other)
             }
         }
     }
-    else if (other.GetComponent("Phoenix") != nullptr)
+    else if (other.GetComponent("Samurai") != nullptr)
     {
         if (not(charState == DEAD or charState == DASHING or invincible))
         {

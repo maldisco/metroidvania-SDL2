@@ -6,6 +6,7 @@
 #include "StageState.h"
 
 Vec2 Camera::pos = Vec2(448, 2469);
+Vec2 Camera::dest = Vec2(0, 0);
 
 Rect Camera::window = Rect(576, 300, 384, 250);
 Rect Camera::panicBox = Rect(0, 50, 0, 600);

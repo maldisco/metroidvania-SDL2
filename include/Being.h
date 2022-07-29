@@ -26,7 +26,6 @@ public:
      * @param colliderBox 
      * @param tileMap 
      * @param tileSet 
-     * @return float 
      */
     virtual void moveX(float motion, Rect colliderBox, TileMap *tileMap, TileSet *tileSet);
 
@@ -53,6 +52,13 @@ public:
      * @return Vec2
      */
     virtual Vec2 GetSpeed();
+
+    /**
+     * @brief Get the Hp object
+     * 
+     * @return int 
+     */
+    virtual int GetHp();
 
     virtual bool Grounded();
 

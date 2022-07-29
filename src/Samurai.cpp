@@ -47,6 +47,13 @@ void Samurai::Update(float dt)
     if (dashCooldown.Get() >= 5.0f)
         dash = true;
 
+    bool attack = false;
+    hitCooldown.Update(dt);
+    if(Player::player != nullptr){
+        if(hitCooldown.Get() >= 3.0f and Rect::Distance(Player::player->GetBox(), associated.box) <= 64)
+            attack = true;
+    }
+
     speed.y = speed.y + GRAVITY;
     switch (charState)
     {
@@ -64,6 +71,15 @@ void Samurai::Update(float dt)
                 {
                     sprite->Change(SAMURAI_DASH_FILE, 0.05f, 10, 7);
                     charState = DASHING;
+                    if ((Player::player->GetBox().Center() - associated.box.Center()).x >= 0)
+                        dir = 1;
+                    else
+                        dir = -1;
+                }
+                else if (attack)
+                {
+                    sprite->Change(SAMURAI_ATTACK_FILE, 0.05f, 6);
+                    charState = ATTACKING;
                     if ((Player::player->GetBox().Center() - associated.box.Center()).x >= 0)
                         dir = 1;
                     else
@@ -89,11 +105,14 @@ void Samurai::Update(float dt)
         else
             dir = -1;
 
-        if ((Player::player->GetBox().Center() - associated.box.Center()).x >= 0)
-            speed.x = fabs(speed.x);
-        else
-            speed.x = -fabs(speed.x);
-        moveX(speed.x * dt, collider->box, tileMap, tileSet);
+        if(Player::player != nullptr)
+        {
+            if ((Player::player->GetBox().Center() - associated.box.Center()).x >= 0)
+                speed.x = fabs(speed.x);
+            else
+                speed.x = -fabs(speed.x);
+            moveX(speed.x * dt, collider->box, tileMap, tileSet);
+        }        
 
         // State change conditions
         if (Player::player != nullptr)
@@ -107,6 +126,15 @@ void Samurai::Update(float dt)
                 else
                     dir = -1;
             }
+            else if (attack)
+                {
+                    sprite->Change(SAMURAI_ATTACK_FILE, 0.05f, 6);
+                    charState = ATTACKING;
+                    if ((Player::player->GetBox().Center() - associated.box.Center()).x >= 0)
+                        dir = 1;
+                    else
+                        dir = -1;
+                }
             else if (cooldown.Get() >= 3.0f)
             {
                 cooldown.Restart();
@@ -126,9 +154,37 @@ void Samurai::Update(float dt)
         }
         break;
 
+    case ATTACKING:
+        // Actions
+        if (sprite->GetCurrentFrame() == 1)
+        {
+            GameObject *damage = new GameObject();
+            damage->AddComponent(new Damage(*damage, 2, true, 0.3f));
+            damage->box.w = 16;
+            damage->box.h = 85;
+            damage->box.y = collider->box.y;
+            if (dir >= 0)
+                damage->box.x = collider->box.x + collider->box.w;
+            else
+                damage->box.x = collider->box.x - damage->box.w;
+
+            Game::GetInstance().GetCurrentState().AddObject(damage);
+        }
+
+        // State change conditions  
+        if(sprite->GetCurrentFrame() >= sprite->GetFrameCount()-1)
+        {
+            sprite->Change(SAMURAI_IDLE_FILE, 0.05f, 7);
+            charState = IDLE;
+            cooldown.Restart();
+        }
+        break;
+
+
     case DASHING:
         // Actions
-        moveX(speed.x * 2 * dt, collider->box, tileMap, tileSet);
+        if(sprite->GetCurrentFrame() >= 6)
+            moveX(speed.x * 3 * dt, collider->box, tileMap, tileSet);
 
         // State change conditions
         dashTime.Update(dt);

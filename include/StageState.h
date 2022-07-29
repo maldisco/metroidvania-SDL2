@@ -6,6 +6,7 @@
 #include "Sprite.h"
 #include "TileSet.h"
 #include "TileMap.h"
+#include "Hud.h"
 
 /**
  * @brief Class responsible for controlling the screen and specific internal logics.

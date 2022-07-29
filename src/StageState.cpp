@@ -16,6 +16,8 @@
 #include "Resources.h"
 #include "GameData.h"
 #include "Sensor.h"
+#include "Hud.h"
+#include "BossHud.h"
 #include "Text.h"
 
 StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinnabar.mp3")
@@ -28,9 +30,14 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 	GameObject *player = new GameObject();
 	player->AddComponent(new Player(*player));
 
+	// all stages have HUD
+	GameObject *hud = new GameObject();
+	hud->AddComponent(new Hud(*hud, 5));
+
 	GameObject *enemy = new GameObject();
 	GameObject *sensor = new GameObject();
 	GameObject *background = new GameObject();
+	GameObject *bosshud = new GameObject();
 	switch (stage)
 	{
 	case 0:
@@ -140,6 +147,9 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 		enemy->box.y = 15 * tileSet->GetTileHeight();
 		AddObject(enemy);
 
+		bosshud = new GameObject();
+		bosshud->AddComponent(new BossHud(*bosshud, enemy, 10));
+
 		player->box.x = tileSet->GetTileWidth();
 		player->box.y = 15 * tileSet->GetTileHeight();
 		AddObject(player);
@@ -150,9 +160,14 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 		map->box.y = 0;
 		AddObject(map);
 
+		AddObject(bosshud);
+
 		Camera::pos = {0, 5*tileSet->GetTileHeight()};
 		break;
 	}
+
+	// Add hud in front of everything onscreen
+	AddObject(hud);
 
 	// make android as camera focus
 	Camera::Follow(player);
@@ -214,7 +229,10 @@ void StageState::Resume()
 }
 
 void StageState::Update(float dt)
-{
+{	
+	// update camera
+	Camera::Update(dt);
+
 	// check if quit was requested
 	if (InputManager::GetInstance().QuitRequested())
 	{
@@ -261,9 +279,6 @@ void StageState::Update(float dt)
 			objectArray.erase(objectArray.begin() + i);
 		}
 	}
-
-	// update camera
-	Camera::Update(dt);
 }
 
 void StageState::Render()

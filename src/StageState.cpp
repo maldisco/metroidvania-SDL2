@@ -19,7 +19,6 @@
 
 StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinnabar.mp3")
 {
-
 	// all stages have a map (with the same tileset)
 	GameObject *map = new GameObject();
 	tileSet = new TileSet(*map, 64, 64, "assets/img/foresTileset.png");
@@ -121,6 +120,7 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 
 StageState::~StageState()
 {
+	std::cout << "Destroyed stagestate! --- \n ";
 	objectArray.clear();
 	backgroundMusic.Stop();
 }

@@ -7,7 +7,7 @@
 #include "InputManager.h"
 #include "Camera.h"
 
-Skeleton::Skeleton(GameObject &associated) : Being(associated, {75, 0}, 1.0f, 5), cooldown()
+Skeleton::Skeleton(GameObject &associated) : Being(associated, {300, 0}, 1.0f, 5), cooldown()
 {
     associated.AddComponent(new Sprite(SKELETON_IDLE_FILE, associated, 4, 0.05f));
     associated.AddComponent(new Collider(associated, {64 / associated.box.w, 128 / associated.box.h}));
@@ -24,9 +24,8 @@ void Skeleton::Start()
 void Skeleton::Update(float dt)
 {
     // Useful objects
-    StageState state = (StageState &)Game::GetInstance().GetCurrentState();
-    TileMap *tileMap = state.GetTileMap();
-    TileSet *tileSet = state.GetTileSet();
+    TileMap *tileMap = ((StageState &)Game::GetInstance().GetCurrentState()).GetTileMap();
+    TileSet *tileSet = ((StageState &)Game::GetInstance().GetCurrentState()).GetTileSet();
     Sprite *sprite = (Sprite *)associated.GetComponent("Sprite");
     Collider *collider = (Collider *)associated.GetComponent("Collider");
     InputManager &inputManager = InputManager::GetInstance();
@@ -64,7 +63,7 @@ void Skeleton::Update(float dt)
                     else
                         dir = -1;
                 }
-                else if (Rect::Distance(Player::player->GetBox(), associated.box) <= 640)
+                else if (Rect::Distance(Player::player->GetBox(), associated.box) <= 900)
                 {
                     sprite->Change(SKELETON_RUN_FILE, 0.05f, 12);
                     charState = WALKING;
@@ -91,7 +90,7 @@ void Skeleton::Update(float dt)
             if (cooldown.Get() >= 3.0f)
             {
                 // after 3 seconds enemy has a chanch of idling or walking the other way
-                if(rand()%10 > 6)
+                if (rand() % 10 > 4)
                 {
                     speed.x = speed.x * -1;
                     cooldown.Restart();
@@ -104,7 +103,7 @@ void Skeleton::Update(float dt)
                     cooldown.Restart();
                 }
             }
-            else if (Rect::Distance(Player::player->GetBox(), associated.box) > 640)
+            else if (Rect::Distance(Player::player->GetBox(), associated.box) > 900)
             {
                 sprite->Change(SKELETON_IDLE_FILE, 0.05f, 4);
                 charState = IDLE;

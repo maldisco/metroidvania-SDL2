@@ -54,12 +54,20 @@ public:
     bool IsSolid(int x, int y);
 
     /**
-     * @brief Scan xAxis for obstacle
+     * @brief Scan xAxis (righ-left) for obstacle
      *
      * @param yAxis
-     * @return float
+     * @return int
      */
-    float ScanX(std::set<int> yAxis);
+    int ScanLeft(std::set<int> yAxis, int x);
+
+    /**
+     * @brief Scan xAxis (left-right) for obstacle
+     *
+     * @param yAxis
+     * @return int
+     */
+    int ScanRight(std::set<int> yAxis, int x);
 
     /**
      * @brief scan yAxis (top-down) for obstacle

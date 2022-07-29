@@ -7,7 +7,7 @@
 #include "InputManager.h"
 #include "Camera.h"
 
-Slime::Slime(GameObject &associated) : Being(associated, {75, 0}, 1.0f, 3), cooldown()
+Slime::Slime(GameObject &associated) : Being(associated, {200, 0}, 1.0f, 3), cooldown()
 {
     associated.AddComponent(new Sprite(SLIME_IDLE_FILE, associated, 4, 0.1f));
     associated.AddComponent(new Collider(associated, {128 / associated.box.w, 128 / associated.box.h}));
@@ -24,9 +24,8 @@ void Slime::Start()
 void Slime::Update(float dt)
 {
     // Useful objects
-    StageState state = (StageState &)Game::GetInstance().GetCurrentState();
-    TileMap *tileMap = state.GetTileMap();
-    TileSet *tileSet = state.GetTileSet();
+    TileMap *tileMap = ((StageState &)Game::GetInstance().GetCurrentState()).GetTileMap();
+    TileSet *tileSet = ((StageState &)Game::GetInstance().GetCurrentState()).GetTileSet();
     Sprite *sprite = (Sprite *)associated.GetComponent("Sprite");
     Collider *collider = (Collider *)associated.GetComponent("Collider");
     InputManager &inputManager = InputManager::GetInstance();
@@ -64,7 +63,7 @@ void Slime::Update(float dt)
                     else
                         dir = -1;
                 }
-                else if (Rect::Distance(Player::player->GetBox(), associated.box) <= 640)
+                else if (Rect::Distance(Player::player->GetBox(), associated.box) <= 900)
                 {
                     sprite->Change(SLIME_MOVE_FILE, 0.1f, 4);
                     charState = WALKING;
@@ -95,7 +94,7 @@ void Slime::Update(float dt)
         // State change conditions
         if (Player::player != nullptr)
         {
-            if (Rect::Distance(Player::player->GetBox(), associated.box) > 640)
+            if (Rect::Distance(Player::player->GetBox(), associated.box) > 900)
             {
                 sprite->Change(SLIME_IDLE_FILE, 0.1f, 4);
                 charState = IDLE;

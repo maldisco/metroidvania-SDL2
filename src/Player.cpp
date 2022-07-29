@@ -12,7 +12,7 @@
 #include "Text.h"
 
 Player *Player::player;
-Player::Player(GameObject &associated) : Being(associated, {100, 150}, 1, 5), combo(0), jumpCounter(0), invincible(false), invincibleTime(), jumpImpulse()
+Player::Player(GameObject &associated) : Being(associated, {100, 150}, 1, 5), combo(0), jumpCounter(0), invincible(false), invincibleTime(), jumpImpulse(), wallSlideCooldown()
 {
     player = this;
     associated.AddComponent(new Sprite(PLAYER_IDLE_FILE, associated, 6, 0.05f));
@@ -31,9 +31,8 @@ void Player::Start()
 void Player::Update(float dt)
 {
     // Useful objects
-    StageState state = (StageState &)Game::GetInstance().GetCurrentState();
-    TileMap *tileMap = state.GetTileMap();
-    TileSet *tileSet = state.GetTileSet();
+    TileMap *tileMap = ((StageState &)Game::GetInstance().GetCurrentState()).GetTileMap();
+    TileSet *tileSet = ((StageState &)Game::GetInstance().GetCurrentState()).GetTileSet();
     Sprite *sprite = (Sprite *)associated.GetComponent("Sprite");
     Collider *collider = (Collider *)associated.GetComponent("Collider");
     InputManager &inputManager = InputManager::GetInstance();
@@ -54,13 +53,25 @@ void Player::Update(float dt)
     int tileLeftX = collider->box.x / tileSet->GetTileWidth();
     int tileRightX = (collider->box.x + collider->box.w) / tileSet->GetTileWidth();
     int tileBottomY = (collider->box.y + collider->box.h + 1) / tileSet->GetTileHeight();
-    if (tileMap->IsSolid(tileLeftX, tileBottomY) or tileMap->IsSolid(tileRightX, tileBottomY))
+    if ((tileMap->IsSolid(tileLeftX, tileBottomY) or tileMap->IsSolid(tileRightX, tileBottomY)))
     {
         grounded = true;
         jumpCounter = 0;
         speed.y = 0;
     }
 
+    // check if adjacent to a wall
+    bool leftWalled = false, rightWalled = false;
+    // - check if adjacent to a wall
+    wallSlideCooldown.Update(dt);
+    if(wallSlideCooldown.Get() > 0.1f)
+    {
+        if (tileMap->IsSolid((collider->box.x - 1) / tileSet->GetTileWidth(), collider->box.y / tileSet->GetTileHeight()))
+            leftWalled = true;
+        if (tileMap->IsSolid((collider->box.x + collider->box.w + 1) / tileSet->GetTileWidth(), collider->box.y / tileSet->GetTileHeight()))
+            rightWalled = true;
+    }
+    
     if (not grounded and (charState != DASHING))
         speed.y = speed.y + GRAVITY;
     int left = inputManager.IsKeyDown(A_KEY) ? 1 : 0;
@@ -69,7 +80,6 @@ void Player::Update(float dt)
     int attack = inputManager.KeyPress(Z_KEY) ? 1 : 0;
     int dash = inputManager.KeyPress(SPACE_KEY) ? 1 : 0;
 
-    float motionX;
     // State machine
     switch (charState)
     {
@@ -102,15 +112,15 @@ void Player::Update(float dt)
     case WALKING:
         // Actions
         // - update horizontal speed
-        motionX = (right - left) * (MAX_SPEEDH * dt);
-        if (motionX)
+        speed.x = (right - left) * (MAX_SPEEDH);
+        if (speed.x)
         {
             this->dir = right - left;
-            moveX(motionX, collider->box, tileMap, tileSet);
+            moveX(speed.x * dt, collider->box, tileMap, tileSet);
         }
 
         // State change conditions
-        if (not motionX)
+        if (not speed.x)
         {
             Idle();
         }
@@ -145,17 +155,28 @@ void Player::Update(float dt)
         }
 
         // - update horizontal speed
-        motionX = (right - left) * (MAX_SPEEDH * dt);
-        if (motionX)
+        speed.x = (right - left) * (MAX_SPEEDH);
+        if (speed.x)
         {
             this->dir = right - left;
-            moveX(motionX, collider->box, tileMap, tileSet);
+            moveX(speed.x * dt, collider->box, tileMap, tileSet);
         }
 
         // State change conditions
         if (speed.y > 0)
         {
             Fall();
+        }
+        else if (grounded)
+        {
+            if (inputManager.IsKeyDown(A_KEY) or inputManager.IsKeyDown(D_KEY))
+            {
+                Walk();
+            }
+            else
+            {
+                Idle();
+            }
         }
         else if (dash)
         {
@@ -170,16 +191,26 @@ void Player::Update(float dt)
         {
             Attack();
         }
+        else if (rightWalled)
+        {
+            WallSlide();
+            jumpCounter = 0;
+        }
+        else if (leftWalled)
+        {
+            WallSlide();
+            jumpCounter = 0;
+        }
         break;
 
     case FALLING:
         // Actions
         // - update horizontal speed
-        motionX = (right - left) * (MAX_SPEEDH * dt);
-        if (motionX)
+        speed.x = (right - left) * (MAX_SPEEDH);
+        if (speed.x)
         {
             this->dir = right - left;
-            moveX(motionX, collider->box, tileMap, tileSet);
+            moveX(speed.x * dt, collider->box, tileMap, tileSet);
         }
 
         // State change conditions
@@ -201,6 +232,16 @@ void Player::Update(float dt)
         else if (jump and jumpCounter < 2)
         {
             Jump();
+        }
+        else if (rightWalled)
+        {
+            WallSlide();
+            jumpCounter = 0;
+        }
+        else if (leftWalled)
+        {
+            WallSlide();
+            jumpCounter = 0;
         }
         break;
 
@@ -231,11 +272,11 @@ void Player::Update(float dt)
             }
         }
         // - update horizontal speed
-        motionX = (right - left) * (MAX_SPEEDH * dt);
-        if (motionX)
+        speed.x = (right - left) * (MAX_SPEEDH);
+        if (speed.x)
         {
             this->dir = right - left;
-            moveX(motionX, collider->box, tileMap, tileSet);
+            moveX(speed.x * dt, collider->box, tileMap, tileSet);
         }
 
         // Stage change conditions
@@ -267,8 +308,7 @@ void Player::Update(float dt)
     case DASHING:
         // Actions
         // - update horizontal speed
-        motionX = speed.x * dt;
-        moveX(motionX, collider->box, tileMap, tileSet);
+        moveX(speed.x * dt, collider->box, tileMap, tileSet);
 
         // State change conditions
         if (sprite->GetCurrentFrame() >= sprite->GetFrameCount() - 1)
@@ -289,6 +329,36 @@ void Player::Update(float dt)
             {
                 Idle();
             }
+        }
+        break;
+
+    case WALLSLIDING:
+        // Actions
+        this->speed.y = 16;
+
+        // State change conditions
+        if (grounded)
+        {
+            if (inputManager.IsKeyDown(A_KEY) or inputManager.IsKeyDown(D_KEY))
+            {
+                Walk();
+            }
+            else
+            {
+                Idle();
+            }
+            wallSlideCooldown.Restart();
+        }
+        else if (dash)
+        {
+            dir = right - left;
+            Dash(dir);
+            wallSlideCooldown.Restart();
+        }
+        else if (jump)
+        {
+            Jump();
+            wallSlideCooldown.Restart();
         }
         break;
 
@@ -439,6 +509,14 @@ void Player::Dash(int dir)
         speed.x = MAX_SPEEDH * 3;
     else
         speed.x = -MAX_SPEEDH * 3;
+}
+
+void Player::WallSlide()
+{
+    Sprite *sprite = (Sprite *)associated.GetComponent("Sprite");
+
+    sprite->Change(PLAYER_WALLSLIDE_FILE, 0.04f, 3);
+    charState = WALLSLIDING;
 }
 
 bool Player::Is(std::string type)

@@ -17,6 +17,7 @@
 #define PLAYER_DEATH_FILE "assets/img/warrior-death.png"
 #define PLAYER_SLIDE_FILE "assets/img/warrior-slide.png"
 #define PLAYER_HURT_FILE "assets/img/warrior-hurt.png"
+#define PLAYER_WALLSLIDE_FILE "assets/img/warrior-wallslide.png"
 
 #include "Being.h"
 #include "Timer.h"
@@ -44,6 +45,7 @@ public:
     void Jump();
     void Walk();
     void Dash(int dir);
+    void WallSlide();
     void Fall();
 
     static Player *player;
@@ -51,7 +53,6 @@ public:
 private:
     int combo, jumpCounter;
     bool invincible;
-    Timer invincibleTime;
-    Timer jumpImpulse;
+    Timer invincibleTime, jumpImpulse, wallSlideCooldown;
 };
 #endif

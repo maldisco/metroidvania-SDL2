@@ -71,8 +71,36 @@ bool TileMap::IsSolid(int x, int y)
     return At(x, y, 0) != -1;
 }
 
-float TileMap::ScanX(std::set<int> yAxis)
+int TileMap::ScanLeft(std::set<int> yAxis, int x)
 {
+    for(int i = x; i >= 0; i--)
+    {
+        for(auto y : yAxis)
+        {
+            if(IsSolid(i, y))
+            {
+                return i;
+            }
+        }
+    }
+
+    return 0;
+}
+
+int TileMap::ScanRight(std::set<int> yAxis, int x)
+{
+    for(int i = x; i < mapWidth; i++)
+    {
+        for(auto y : yAxis)
+        {
+            if(IsSolid(i, y))
+            {
+                return i;
+            }
+        }
+    }
+
+    return mapWidth;
 }
 
 float TileMap::ScanDown(std::set<int> xAxis, float height)

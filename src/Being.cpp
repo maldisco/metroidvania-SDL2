@@ -8,26 +8,29 @@ Being::~Being()
 {
 }
 
-void Being::moveX(float motion, Rect colliderBox, TileMap *tileMap, TileSet *tileSet)
+void Being::moveX(float motionX, Rect colliderBox, TileMap *tileMap, TileSet *tileSet)
 {
-    std::set<std::pair<int, int>> tiles;
+    float distance, closestObstacleX;
+    std::set<int> yAxis;
     for (int i = colliderBox.y; i < colliderBox.y + colliderBox.h; i++)
     {
-        if (motion >= 0)
-            tiles.emplace((colliderBox.x + colliderBox.w + motion) / tileSet->GetTileWidth(), i / tileSet->GetTileHeight());
-        else
-            tiles.emplace((colliderBox.x + motion) / tileSet->GetTileWidth(), i / tileSet->GetTileHeight());
+        yAxis.emplace(i / tileSet->GetTileHeight());
     }
 
-    for (auto tile : tiles)
+    if (motionX >= 0)
     {
-        if (tileMap->IsSolid(tile.first, tile.second))
-        {
-            motion = 0;
-        }
+        closestObstacleX = tileMap->ScanRight(yAxis, (colliderBox.x + colliderBox.w) / tileSet->GetTileWidth());
+        distance = (closestObstacleX * tileSet->GetTileWidth() - 1) - (colliderBox.x + colliderBox.w);
+        motionX = std::min(motionX, distance);
+    }
+    else
+    {
+        closestObstacleX = tileMap->ScanLeft(yAxis, colliderBox.x / tileSet->GetTileWidth());
+        distance = (closestObstacleX * tileSet->GetTileWidth() + tileSet->GetTileWidth()) - colliderBox.x;
+        motionX = std::max(motionX, distance);
     }
 
-    associated.box.x += motion;
+    associated.box.x += motionX;
 }
 
 void Being::moveY(float motion, Rect colliderBox, TileMap *tileMap, TileSet *tileSet)
@@ -39,7 +42,7 @@ void Being::moveY(float motion, Rect colliderBox, TileMap *tileMap, TileSet *til
     if (motion >= 0)
     {
         closestObstacleY = tileMap->ScanDown(xAxis, (colliderBox.y + colliderBox.h) / tileSet->GetTileHeight());
-        distance = closestObstacleY * tileSet->GetTileHeight() - (colliderBox.y + colliderBox.h);
+        distance = (closestObstacleY * tileSet->GetTileHeight() - 1) - (colliderBox.y + colliderBox.h);
         motion = std::min(motion, distance);
     }
     else

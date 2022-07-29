@@ -20,12 +20,13 @@ public:
     virtual ~Being();
 
     /**
-     * @brief Move in X axis (if possible)
-     *
-     * @param motion
-     * @param colliderBox
-     * @param tileMap
-     * @param tileSet
+     * @brief Move in x axis (if possible)
+     * 
+     * @param motion 
+     * @param colliderBox 
+     * @param tileMap 
+     * @param tileSet 
+     * @return float 
      */
     virtual void moveX(float motion, Rect colliderBox, TileMap *tileMap, TileSet *tileSet);
 
@@ -69,7 +70,8 @@ protected:
         ATTACKING,
         DASHING,
         HURT,
-        DEAD
+        DEAD,
+        WALLSLIDING
     };
     STATE charState;
 };

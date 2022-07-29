@@ -64,14 +64,14 @@ void Player::Update(float dt)
     bool leftWalled = false, rightWalled = false;
     // - check if adjacent to a wall
     wallSlideCooldown.Update(dt);
-    if(wallSlideCooldown.Get() > 0.1f)
+    if (wallSlideCooldown.Get() > 0.1f)
     {
         if (tileMap->IsSolid((collider->box.x - 1) / tileSet->GetTileWidth(), collider->box.y / tileSet->GetTileHeight()))
             leftWalled = true;
         if (tileMap->IsSolid((collider->box.x + collider->box.w + 1) / tileSet->GetTileWidth(), collider->box.y / tileSet->GetTileHeight()))
             rightWalled = true;
     }
-    
+
     if (not grounded and (charState != DASHING))
         speed.y = speed.y + GRAVITY;
     int left = inputManager.IsKeyDown(A_KEY) ? 1 : 0;
@@ -144,8 +144,12 @@ void Player::Update(float dt)
 
     case JUMPING:
         // Actions
+        // - if release jump key, cant impulse anymore
+        if (inputManager.KeyRelease(W_KEY))
+            canImpulse = false;
+
         // - keep the impulse holding jump
-        if (inputManager.IsKeyDown(W_KEY))
+        if (inputManager.IsKeyDown(W_KEY) and canImpulse)
         {
             jumpImpulse.Update(dt);
             if (jumpImpulse.Get() <= 0.2f)
@@ -184,7 +188,7 @@ void Player::Update(float dt)
         }
         else if (jump and jumpCounter < 2)
         {
-            Jump();
+            Jump2();
             sprite->SetFrame(0);
         }
         else if (attack)
@@ -231,7 +235,8 @@ void Player::Update(float dt)
         }
         else if (jump and jumpCounter < 2)
         {
-            Jump();
+            Jump2();
+            sprite->SetFrame(0);
         }
         else if (rightWalled)
         {
@@ -335,6 +340,7 @@ void Player::Update(float dt)
     case WALLSLIDING:
         // Actions
         this->speed.y = 16;
+        this->jumpCounter = 1;
 
         // State change conditions
         if (grounded)
@@ -359,6 +365,10 @@ void Player::Update(float dt)
         {
             Jump();
             wallSlideCooldown.Restart();
+        }
+        else if (not grounded and not(leftWalled or rightWalled))
+        {
+            Fall();
         }
         break;
 
@@ -435,6 +445,35 @@ void Player::NotifyCollision(GameObject &other)
             Camera::TriggerShake(0.5f, {5.0f, 0});
             invincible = true;
 
+            // knockback
+            if (damage->GetBox().x > associated.box.x)
+            {
+                associated.box.x -= 5;
+            }
+            else
+            {
+                associated.box.x += 5;
+            }
+
+            if (this->hp <= 0)
+            {
+                this->charState = DEAD;
+                sprite->Change(PLAYER_DEATH_FILE, 0.1, 11);
+            }
+        }
+    }
+    else if (other.GetComponent("Phoenix") != nullptr)
+    {
+        if (not(charState == DEAD or charState == DASHING or invincible))
+        {
+            Sprite *sprite = (Sprite *)associated.GetComponent("Sprite");
+            this->hp -= 1;
+
+            this->charState = HURT;
+            sprite->Change(PLAYER_HURT_FILE, 0.05, 4);
+            Camera::TriggerShake(0.5f, {5.0f, 0});
+            invincible = true;
+
             if (this->hp <= 0)
             {
                 this->charState = DEAD;
@@ -480,6 +519,19 @@ void Player::Jump()
     charState = JUMPING;
     jumpCounter++;
     jumpImpulse.Restart();
+    canImpulse = true;
+}
+
+void Player::Jump2()
+{
+    Sprite *sprite = (Sprite *)associated.GetComponent("Sprite");
+
+    sprite->Change(PLAYER_JUMP_FILE, 0.05f, 3);
+    speed.y = -(JUMP_FORCE * 3) / mass;
+    charState = JUMPING;
+    jumpCounter++;
+    jumpImpulse.Restart();
+    canImpulse = false;
 }
 
 void Player::Fall()

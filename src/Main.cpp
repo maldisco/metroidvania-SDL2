@@ -1,10 +1,10 @@
 #include "Game.h"
-#include "TitleState.h"
+#include "MenuState.h"
 
 int main(int argc, char **argv)
 {
     Game game = Game::GetInstance();
-    State *initialState = new TitleState();
+    State *initialState = new MenuState();
     game.Push(initialState);
     game.Run();
 

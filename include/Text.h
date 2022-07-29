@@ -48,6 +48,7 @@ private:
     float fade;
     float alpha;
 
+    void MakeTexture();
     void RemakeTexture();
 };
 #endif

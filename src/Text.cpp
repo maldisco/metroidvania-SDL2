@@ -5,7 +5,7 @@
 
 Text::Text(GameObject &associated, std::string fontFile, int fontSize, TextStyle style, std::string text, SDL_Color color, float fade) : Component(associated), fontFile(fontFile), fontSize(fontSize), style(style), text(text), color(color), texture(nullptr), cooldown(), showText(true), fade(fade), alpha(0)
 {
-    RemakeTexture();
+    MakeTexture();
     if (fade > 0)
     {
         SDL_SetTextureAlphaMod(texture, alpha);
@@ -86,7 +86,8 @@ void Text::SetFontSize(int fontSize)
     RemakeTexture();
 }
 
-void Text::RemakeTexture()
+
+void Text::MakeTexture()
 {
     if (texture != nullptr)
     {
@@ -98,5 +99,19 @@ void Text::RemakeTexture()
     associated.box.w = surf->w;
     associated.box.h = surf->h;
     associated.box.x -= surf->w / 2;
+    SDL_FreeSurface(surf);
+}
+
+void Text::RemakeTexture()
+{
+    if (texture != nullptr)
+    {
+        SDL_DestroyTexture(texture);
+    }
+    font = Resources::GetFont(fontFile, fontSize);
+    SDL_Surface *surf = TTF_RenderText_Blended(font.get(), text.c_str(), color);
+    texture = SDL_CreateTextureFromSurface(Game::GetInstance().GetRenderer(), surf);
+    associated.box.w = surf->w;
+    associated.box.h = surf->h;
     SDL_FreeSurface(surf);
 }

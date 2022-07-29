@@ -7,6 +7,7 @@
 #include "CameraFollower.h"
 #include "Player.h"
 #include "Skeleton.h"
+#include "Phoenix.h"
 #include "Slime.h"
 #include "Collision.cpp"
 #include "Collider.h"
@@ -71,7 +72,7 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 		sensor->AddComponent(new Sensor(*sensor, 1));
 		sensor->AddComponent(new Collider(*sensor));
 		sensor->box.x = 67 * tileSet->GetTileWidth();
-		sensor->box.y = 20 * tileSet->GetTileHeight();
+		sensor->box.y = 19 * tileSet->GetTileHeight();
 		sensor->box.w = tileSet->GetTileWidth() * 3;
 		sensor->box.h = tileSet->GetTileHeight();
 		AddObject(sensor);
@@ -111,7 +112,39 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 		map->box.x = 0;
 		map->box.y = 0;
 		AddObject(map);
+
+		sensor = new GameObject();
+		sensor->AddComponent(new Sensor(*sensor, 2));
+		sensor->AddComponent(new Collider(*sensor));
+		sensor->box.x = 74 * tileSet->GetTileWidth();
+		sensor->box.y = 10 * tileSet->GetTileHeight();
+		sensor->box.w = tileSet->GetTileWidth();
+		sensor->box.h = tileSet->GetTileHeight() * 3;
+		AddObject(sensor);
 		break;
+
+	case 2:
+		background = new GameObject();
+		background->AddComponent(new TileMap(*background, "assets/map/background.tmj", tileSet, true));
+		background->box.x = 0;
+		background->box.y = 0;
+		AddObject(background);
+
+		enemy = new GameObject();
+		enemy->AddComponent(new Phoenix(*enemy));
+		enemy->box.x = 65 * tileSet->GetTileWidth();
+		enemy->box.y = 15 * tileSet->GetTileHeight();
+		AddObject(enemy);
+
+		player->box.x = tileSet->GetTileWidth();
+		player->box.y = 15 * tileSet->GetTileHeight();
+		AddObject(player);
+
+		tileMap = new TileMap(*map, "assets/map/room2.tmj", tileSet);
+		map->AddComponent(tileMap);
+		map->box.x = 0;
+		map->box.y = 0;
+		AddObject(map);
 	}
 
 	// make android as camera focus

@@ -3,7 +3,7 @@
 
 #define MAX_SPEEDH 400
 #define JUMP_FORCE 250
-#define JUMP_HOLD 150
+#define JUMP_HOLD 175
 
 #define PLAYER_JUMP_FILE "assets/img/warrior-jump.png"
 #define PLAYER_RUN_FILE "assets/img/warrior-run.png"
@@ -43,6 +43,7 @@ public:
     void Attack();
     void Attack2();
     void Jump();
+    void Jump2();
     void Walk();
     void Dash(int dir);
     void WallSlide();
@@ -52,7 +53,7 @@ public:
 
 private:
     int combo, jumpCounter;
-    bool invincible;
+    bool invincible, canImpulse;
     Timer invincibleTime, jumpImpulse, wallSlideCooldown;
 };
 #endif

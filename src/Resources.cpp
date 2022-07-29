@@ -25,9 +25,9 @@ std::shared_ptr<SDL_Texture> Resources::GetImage(std::string file)
 void Resources::ClearImages()
 {
     for (auto &image : imageTable)
-    {
+    {   
         if (image.second.unique())
-        {
+        {           
             imageTable.erase(image.first);
         }
     }
@@ -65,7 +65,7 @@ std::shared_ptr<Mix_Chunk> Resources::GetSound(std::string file)
         return soundTable[file];
     }
 
-    std::cout << "Carregou " << file << "\n";
+    std::cout << " - Carregou " << file << "\n";
     Mix_Chunk *sound = Mix_LoadWAV(file.c_str());
     soundTable[file] = std::shared_ptr<Mix_Chunk>(sound, [](Mix_Chunk *ptr)
                                                   { Mix_FreeChunk(ptr); });

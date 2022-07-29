@@ -7,6 +7,7 @@
 #include "CameraFollower.h"
 #include "Player.h"
 #include "Skeleton.h"
+#include "Slime.h"
 #include "Collision.cpp"
 #include "Collider.h"
 #include "TitleState.h"
@@ -21,7 +22,7 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 
 	// all stages have a map (with the same tileset)
 	GameObject *map = new GameObject();
-	tileSet = new TileSet(*map, 32, 32, "assets/img/foresTileset.png");
+	tileSet = new TileSet(*map, 64, 64, "assets/img/foresTileset.png");
 
 	// all stages have a player
 	GameObject *player = new GameObject();
@@ -29,14 +30,15 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 
 	GameObject *enemy = new GameObject();
 	GameObject *sensor = new GameObject();
+	GameObject *background = new GameObject();
 	switch (stage)
 	{
 	case 0:
-		tileMap = new TileMap(*map, "assets/map/room0.txt", tileSet);
-		map->AddComponent(tileMap);
-		map->box.x = 0;
-		map->box.y = 0;
-		AddObject(map);
+		background = new GameObject();
+		background->AddComponent(new TileMap(*background, "assets/map/background.tmj", tileSet, true));
+		background->box.x = 0;
+		background->box.y = 0;
+		AddObject(background);
 
 		enemy = new GameObject();
 		enemy->AddComponent(new Skeleton(*enemy));
@@ -45,7 +47,7 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 		AddObject(enemy);
 
 		enemy = new GameObject();
-		enemy->AddComponent(new Skeleton(*enemy));
+		enemy->AddComponent(new Slime(*enemy));
 		enemy->box.x = 700;
 		enemy->box.y = 50;
 		AddObject(enemy);
@@ -56,48 +58,60 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 		enemy->box.y = 50;
 		AddObject(enemy);
 
-		player->box.x = 300;
-		player->box.y = 50;
+		player->box.x = 5*tileSet->GetTileWidth();
+		player->box.y = 12*tileSet->GetTileHeight();
 		AddObject(player);
+
+		tileMap = new TileMap(*map, "assets/map/room0.tmj", tileSet);
+		map->AddComponent(tileMap);
+		map->box.x = 0;
+		map->box.y = 0;
+		AddObject(map);
 
 		sensor = new GameObject();
 		sensor->AddComponent(new Sensor(*sensor, 1));
 		sensor->AddComponent(new Collider(*sensor));
-		sensor->box.x = 70 * tileSet->GetTileWidth();
-		sensor->box.y = 47 * tileSet->GetTileHeight();
+		sensor->box.x = 67 * tileSet->GetTileWidth();
+		sensor->box.y = 20 * tileSet->GetTileHeight();
 		sensor->box.w = tileSet->GetTileWidth() * 3;
 		sensor->box.h = tileSet->GetTileHeight();
 		AddObject(sensor);
 		break;
 
 	case 1:
-		tileMap = new TileMap(*map, "assets/map/room1.txt", tileSet);
-		map->AddComponent(tileMap);
-		map->box.x = 0;
-		map->box.y = 0;
-		AddObject(map);
+		background = new GameObject();
+		background->AddComponent(new TileMap(*background, "assets/map/background.tmj", tileSet, true));
+		background->box.x = 0;
+		background->box.y = 0;
+		AddObject(background);
 
 		enemy = new GameObject();
-		enemy->AddComponent(new Skeleton(*enemy));
+		enemy->AddComponent(new Slime(*enemy));
 		enemy->box.x = 500;
-		enemy->box.y = 50;
+		enemy->box.y = 80;
 		AddObject(enemy);
 
 		enemy = new GameObject();
 		enemy->AddComponent(new Skeleton(*enemy));
 		enemy->box.x = 700;
-		enemy->box.y = 50;
+		enemy->box.y = 80;
 		AddObject(enemy);
 
 		enemy = new GameObject();
-		enemy->AddComponent(new Skeleton(*enemy));
+		enemy->AddComponent(new Slime(*enemy));
 		enemy->box.x = 100;
-		enemy->box.y = 50;
+		enemy->box.y = 80;
 		AddObject(enemy);
 
-		player->box.x = 30 * tileSet->GetTileWidth();
-		player->box.y = tileSet->GetTileHeight();
+		player->box.x = 35 * tileSet->GetTileWidth();
+		player->box.y = 0 * tileSet->GetTileHeight();
 		AddObject(player);
+
+		tileMap = new TileMap(*map, "assets/map/room1.tmj", tileSet);
+		map->AddComponent(tileMap);
+		map->box.x = 0;
+		map->box.y = 0;
+		AddObject(map);
 		break;
 	}
 
@@ -140,6 +154,12 @@ void StageState::LoadAssets()
 	Resources::GetImage(SKELETON_HURT_FILE);
 	Resources::GetImage(SKELETON_DEATH_FILE);
 	Resources::GetImage(SKELETON_ATTACK_FILE);
+	std::cout << "Carregando sprites do inimigo numero2...";
+	Resources::GetImage(SLIME_IDLE_FILE);
+	Resources::GetImage(SLIME_MOVE_FILE);
+	Resources::GetImage(SLIME_HURT_FILE);
+	Resources::GetImage(SLIME_DEATH_FILE);
+	Resources::GetImage(SLIME_ATTACK_FILE);
 	std::cout << "Carregando fonte...\n";
 	Resources::GetFont(PEABERRY_FONT, 150);
 }

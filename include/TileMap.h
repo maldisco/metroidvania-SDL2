@@ -17,7 +17,7 @@ public:
      * @param file
      * @param tileSet
      */
-    TileMap(GameObject &associated, std::string file, TileSet *tileSet);
+    TileMap(GameObject &associated, std::string file, TileSet *tileSet, bool background = false);
 
     /**
      * @brief Load a txt file representing game map and parse it into a matrix
@@ -112,5 +112,6 @@ private:
     int mapWidth;
     int mapHeight;
     int mapDepth;
+    bool background;
 };
 #endif

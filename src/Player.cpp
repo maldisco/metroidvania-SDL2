@@ -16,7 +16,7 @@ Player::Player(GameObject &associated) : Being(associated, {100, 150}, 1, 5), co
 {
     player = this;
     associated.AddComponent(new Sprite(PLAYER_IDLE_FILE, associated, 6, 0.05f));
-    associated.AddComponent(new Collider(associated, {32 / associated.box.w, 64 / associated.box.h}, {0, 12}));
+    associated.AddComponent(new Collider(associated, {64 / associated.box.w, 128 / associated.box.h}, {0, 20}));
 }
 
 Player::~Player()
@@ -138,7 +138,7 @@ void Player::Update(float dt)
         if (inputManager.IsKeyDown(W_KEY))
         {
             jumpImpulse.Update(dt);
-            if (jumpImpulse.Get() <= 1.0f)
+            if (jumpImpulse.Get() <= 0.2f)
             {
                 speed.y += -JUMP_HOLD / mass;
             }
@@ -164,6 +164,7 @@ void Player::Update(float dt)
         else if (jump and jumpCounter < 2)
         {
             Jump();
+            sprite->SetFrame(0);
         }
         else if (attack)
         {
@@ -210,8 +211,8 @@ void Player::Update(float dt)
         {
             GameObject *damage = new GameObject();
             damage->AddComponent(new Damage(*damage, 1, false, 0.15f));
-            damage->box.w = 48;
-            damage->box.h = 64;
+            damage->box.w = 96;
+            damage->box.h = 128;
             damage->box.y = collider->box.y;
             if (dir >= 0)
                 damage->box.x = collider->box.x + collider->box.w;

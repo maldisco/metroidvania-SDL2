@@ -15,7 +15,7 @@ Game &Game::GetInstance()
 {
     if (instance == nullptr)
     {
-        new Game("Filipe de Sousa Fernandes - 202065879", 1280, 720);
+        new Game("A moça e os esqueletos", 1600, 900);
     }
 
     return *instance;
@@ -81,6 +81,9 @@ Game::~Game()
     if (storedState != nullptr)
     {
         delete storedState;
+    }
+    while(!stateStack.empty()){
+        stateStack.pop();
     }
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);

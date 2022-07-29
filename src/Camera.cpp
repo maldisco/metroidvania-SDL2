@@ -5,9 +5,9 @@
 #include "Game.h"
 #include "StageState.h"
 
-Vec2 Camera::pos = Vec2(0, 0);
+Vec2 Camera::pos = Vec2(448, 2469);
 
-Rect Camera::window = Rect(576, 400, 64, 150);
+Rect Camera::window = Rect(576, 300, 384, 250);
 Rect Camera::panicBox = Rect(0, 50, 0, 600);
 
 float Camera::shakeDur = -1;
@@ -43,46 +43,33 @@ void Camera::Update(float dt)
 
         if (Player::player->GetDir() >= 0)
         {
-            window.x = 480;
+            window.x = 288;
 
             // Update horizotal position if player gets out of the window
             if (collider->box.x + collider->box.w > (pos.x + window.x + window.w))
             {
                 float dist = ((collider->box.x + collider->box.w) - (pos.x + window.x + window.w));
-                pos.x = std::min(pos.x + dist / 16, mapBox.w - CAMERA_WIDTH);
+                pos.x = std::min(pos.x + dist / 4, mapBox.w - CAMERA_WIDTH);
             }
         }
         else
         {
-            window.x = 672;
+            window.x = 736;
 
             if (collider->box.x < (pos.x + window.x))
             {
                 float dist = (collider->box.x - (pos.x + window.x));
-                pos.x = std::max(pos.x + dist / 16, 0.0f);
+                pos.x = std::max(pos.x + dist / 4, 0.0f);
             }
         }
 
         // Update vertical position when player lands in a platform
-        if (Player::player->Grounded())
-        {
-            float dist = (collider->box.y - (pos.y + window.y));
+        float dist = (collider->box.y - (pos.y + window.y));
 
-            // Only move if new position is inside map
-            if (pos.y + dist / 16 > 0 and (pos.y + dist / 16 + CAMERA_HEIGHT) < mapBox.h)
-            {
-                pos.y += dist / 16;
-            }
-        }
-        else if ((Player::player->GetBox().y < pos.y + panicBox.y) or (Player::player->GetBox().y + Player::player->GetBox().h > pos.y + panicBox.y + panicBox.h))
+        // Only move if new position is inside map
+        if (pos.y + dist / 8 > 0 and (pos.y + dist / 8 + CAMERA_HEIGHT) < mapBox.h)
         {
-            float dist = (collider->box.y - (pos.y + window.y));
-
-            // Only move if new position is inside map
-            if (pos.y + dist / 4 > 0 and (pos.y + dist / 4 + CAMERA_HEIGHT) < mapBox.h)
-            {
-                pos.y += dist / 4;
-            }
+            pos.y += dist / 8;
         }
 
         if (shake)

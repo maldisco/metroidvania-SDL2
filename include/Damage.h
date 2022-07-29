@@ -12,10 +12,11 @@ class Damage : public Component
 public:
     /**
      * @brief Construct a new Damage object
-     *
-     * @param associated
-     * @param damage
-     * @param targetsPlayer
+     * 
+     * @param associated 
+     * @param damage 
+     * @param targetsPlayer 
+     * @param msToSelfDestruct 
      */
     Damage(GameObject &associated, int damage, bool targetsPlayer, float msToSelfDestruct = 0.1f);
     void Update(float dt);

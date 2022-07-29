@@ -1,4 +1,4 @@
-#include "Skeleton.h"
+#include "Slime.h"
 #include "Collider.h"
 #include "Game.h"
 #include "Damage.h"
@@ -7,21 +7,21 @@
 #include "InputManager.h"
 #include "Camera.h"
 
-Skeleton::Skeleton(GameObject &associated) : Being(associated, {75, 0}, 1.0f, 5), cooldown()
+Slime::Slime(GameObject &associated) : Being(associated, {75, 0}, 1.0f, 3), cooldown()
 {
-    associated.AddComponent(new Sprite(SKELETON_IDLE_FILE, associated, 4, 0.05f));
-    associated.AddComponent(new Collider(associated, {64 / associated.box.w, 128 / associated.box.h}));
+    associated.AddComponent(new Sprite(SLIME_IDLE_FILE, associated, 4, 0.1f));
+    associated.AddComponent(new Collider(associated, {128 / associated.box.w, 128 / associated.box.h}));
 }
 
-Skeleton::~Skeleton()
-{
-}
-
-void Skeleton::Start()
+Slime::~Slime()
 {
 }
 
-void Skeleton::Update(float dt)
+void Slime::Start()
+{
+}
+
+void Slime::Update(float dt)
 {
     // Useful objects
     StageState state = (StageState &)Game::GetInstance().GetCurrentState();
@@ -57,7 +57,7 @@ void Skeleton::Update(float dt)
             {
                 if (Rect::Distance(Player::player->GetBox(), associated.box) <= 64)
                 {
-                    sprite->Change(SKELETON_ATTACK_FILE, 0.05f, 13);
+                    sprite->Change(SLIME_ATTACK_FILE, 0.1f, 5);
                     charState = ATTACKING;
                     if ((Player::player->GetBox().Center() - associated.box.Center()).x >= 0)
                         dir = 1;
@@ -66,7 +66,7 @@ void Skeleton::Update(float dt)
                 }
                 else if (Rect::Distance(Player::player->GetBox(), associated.box) <= 640)
                 {
-                    sprite->Change(SKELETON_RUN_FILE, 0.05f, 12);
+                    sprite->Change(SLIME_MOVE_FILE, 0.1f, 4);
                     charState = WALKING;
                 }
             }
@@ -85,34 +85,25 @@ void Skeleton::Update(float dt)
             dir = -1;
         moveX(speed.x * dt, collider->box, tileMap, tileSet);
 
+        // - update direction
+        if (cooldown.Get() >= 3.0f)
+        {
+            speed.x = speed.x * -1;
+            cooldown.Restart();
+        }
+
         // State change conditions
         if (Player::player != nullptr)
         {
-            if (cooldown.Get() >= 3.0f)
+            if (Rect::Distance(Player::player->GetBox(), associated.box) > 640)
             {
-                // after 3 seconds enemy has a chanch of idling or walking the other way
-                if(rand()%10 > 6)
-                {
-                    speed.x = speed.x * -1;
-                    cooldown.Restart();
-                }
-                else
-                {
-                    sprite->Change(SKELETON_IDLE_FILE, 0.05f, 4);
-                    charState = IDLE;
-                    speed.x = speed.x * -1;
-                    cooldown.Restart();
-                }
-            }
-            else if (Rect::Distance(Player::player->GetBox(), associated.box) > 640)
-            {
-                sprite->Change(SKELETON_IDLE_FILE, 0.05f, 4);
+                sprite->Change(SLIME_IDLE_FILE, 0.1f, 4);
                 charState = IDLE;
                 cooldown.Restart();
             }
             else if (Rect::Distance(Player::player->GetBox(), associated.box) < 64)
             {
-                sprite->Change(SKELETON_ATTACK_FILE, 0.05f, 13);
+                sprite->Change(SLIME_ATTACK_FILE, 0.1f, 5);
                 charState = ATTACKING;
                 cooldown.Restart();
                 if ((Player::player->GetBox().Center() - associated.box.Center()).x >= 0)
@@ -125,12 +116,12 @@ void Skeleton::Update(float dt)
 
     case ATTACKING:
         // Actions
-        if (sprite->GetCurrentFrame() == sprite->GetFrameCount() - 9)
+        if (sprite->GetCurrentFrame() == 2)
         {
             GameObject *damage = new GameObject();
             damage->AddComponent(new Damage(*damage, 1, true, 0.3f));
             damage->box.w = 96;
-            damage->box.h = 128;
+            damage->box.h = 96;
             damage->box.y = collider->box.y;
             if (dir >= 0)
                 damage->box.x = collider->box.x + collider->box.w;
@@ -143,7 +134,7 @@ void Skeleton::Update(float dt)
         // State change conditions
         if (sprite->GetCurrentFrame() == sprite->GetFrameCount() - 1)
         {
-            sprite->Change(SKELETON_IDLE_FILE, 0.05f, 4);
+            sprite->Change(SLIME_IDLE_FILE, 0.1f, 4);
             charState = IDLE;
         }
         break;
@@ -154,7 +145,7 @@ void Skeleton::Update(float dt)
         // State change conditions
         if (sprite->GetCurrentFrame() == sprite->GetFrameCount() - 1)
         {
-            sprite->Change(SKELETON_IDLE_FILE, 0.05f, 4);
+            sprite->Change(SLIME_IDLE_FILE, 0.1f, 4);
             charState = IDLE;
         }
         break;
@@ -176,13 +167,13 @@ void Skeleton::Update(float dt)
     sprite->SetDir(dir);
 }
 
-void Skeleton::Render()
+void Slime::Render()
 {
 }
 
-bool Skeleton::Is(std::string type)
+bool Slime::Is(std::string type)
 {
-    if (type.compare("Skeleton") == 0)
+    if (type.compare("Slime") == 0)
     {
         return true;
     }
@@ -190,7 +181,7 @@ bool Skeleton::Is(std::string type)
     return false;
 }
 
-void Skeleton::NotifyCollision(GameObject &other)
+void Slime::NotifyCollision(GameObject &other)
 {
     if (other.GetComponent("Damage") != nullptr)
     {
@@ -205,13 +196,13 @@ void Skeleton::NotifyCollision(GameObject &other)
             if (this->charState != ATTACKING)
             {
                 this->charState = HURT;
-                sprite->Change(SKELETON_HURT_FILE, 0.05, 3);
+                sprite->Change(SLIME_HURT_FILE, 0.05, 4);
             }
 
             if (this->hp <= 0)
             {
                 this->charState = DEAD;
-                sprite->Change(SKELETON_DEATH_FILE, 0.05, 13);
+                sprite->Change(SLIME_DEATH_FILE, 0.05, 5);
             }
         }
     }

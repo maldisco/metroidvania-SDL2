@@ -4,7 +4,7 @@
 #include "fstream"
 #include "sstream"
 
-TileMap::TileMap(GameObject &associated, std::string file, TileSet *tileSet) : Component(associated), tileSet(tileSet)
+TileMap::TileMap(GameObject &associated, std::string file, TileSet *tileSet, bool background) : Component(associated), tileSet(tileSet), background(background)
 {
     Load(file);
 }
@@ -68,7 +68,7 @@ int &TileMap::At(int x, int y, int z)
 
 bool TileMap::IsSolid(int x, int y)
 {
-    return At(x, y, 4) != -1;
+    return At(x, y, 0) != -1;
 }
 
 float TileMap::ScanX(std::set<int> yAxis)
@@ -116,7 +116,7 @@ void TileMap::RenderLayer(int layer, int cameraX, int cameraY)
         // i / mapHeight = Posição Y
         // Multiplica-se o tileWidth e tileHeight pois as tiles não tem tamanho 1
         int x, y;
-        if (layer < mapDepth - 1)
+        if (background)
         {
             float parallax = 1 - 1 / pow(2, layer + 1);
             x = (i % mapWidth) * tileSet->GetTileWidth() - (cameraX * parallax);

@@ -1,9 +1,8 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#define CAMERA_WIDTH 1280
-#define CAMERA_HEIGHT 720
-#define CAMERA_SPEED 10.0f
+#define CAMERA_WIDTH 1600
+#define CAMERA_HEIGHT 900
 #define SHAKE 3.0f
 
 #include "Vec2.h"

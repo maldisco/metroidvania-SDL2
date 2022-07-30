@@ -17,6 +17,8 @@
 #define D_KEY SDLK_d
 #define Z_KEY SDLK_z
 #define E_KEY SDLK_e
+#define X_KEY SDLK_x
+#define C_KEY SDLK_c
 #define SPACE_KEY SDLK_SPACE
 
 #include "unordered_map"

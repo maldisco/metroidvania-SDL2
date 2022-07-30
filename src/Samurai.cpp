@@ -1,6 +1,7 @@
 #include "Samurai.h"
 #include "Collider.h"
 #include "Game.h"
+#include "GameData.h"
 #include "Damage.h"
 #include "StageState.h"
 #include "Player.h"
@@ -215,6 +216,7 @@ void Samurai::Update(float dt)
         if (sprite->GetCurrentFrame() == sprite->GetFrameCount() - 1)
         {
             associated.RequestDelete();
+            
         }
         break;
     }
@@ -261,6 +263,7 @@ void Samurai::NotifyCollision(GameObject &other)
             {
                 this->charState = DEAD;
                 sprite->Change(SAMURAI_DEAD_FILE, 0.05f, 17);
+                GameData::samuraiSlain = true;
             }
         }
     }

@@ -74,11 +74,11 @@ void Player::Update(float dt)
 
     if (not grounded and (charState != DASHING))
         speed.y = speed.y + GRAVITY;
-    int left = inputManager.IsKeyDown(A_KEY) ? 1 : 0;
-    int right = inputManager.IsKeyDown(D_KEY) ? 1 : 0;
-    int jump = inputManager.KeyPress(W_KEY) ? 1 : 0;
+    int left = inputManager.IsKeyDown(LEFT_ARROW_KEY) ? 1 : 0;
+    int right = inputManager.IsKeyDown(RIGHT_ARROW_KEY) ? 1 : 0;
+    int jump = inputManager.KeyPress(C_KEY) ? 1 : 0;
     int attack = inputManager.KeyPress(Z_KEY) ? 1 : 0;
-    int dash = inputManager.KeyPress(SPACE_KEY) ? 1 : 0;
+    int dash = inputManager.KeyPress(X_KEY) ? 1 : 0;
 
     // State machine
     switch (charState)
@@ -87,7 +87,7 @@ void Player::Update(float dt)
         // Actions
 
         // State change conditions
-        if (inputManager.KeyPress(A_KEY) or inputManager.KeyPress(D_KEY))
+        if (inputManager.KeyPress(LEFT_ARROW_KEY) or inputManager.KeyPress(RIGHT_ARROW_KEY))
         {
             Walk();
         }
@@ -145,11 +145,11 @@ void Player::Update(float dt)
     case JUMPING:
         // Actions
         // - if release jump key, cant impulse anymore
-        if (inputManager.KeyRelease(W_KEY))
+        if (inputManager.KeyRelease(C_KEY))
             canImpulse = false;
 
         // - keep the impulse holding jump
-        if (inputManager.IsKeyDown(W_KEY) and canImpulse)
+        if (inputManager.IsKeyDown(C_KEY) and canImpulse)
         {
             jumpImpulse.Update(dt);
             if (jumpImpulse.Get() <= 0.2f)
@@ -173,7 +173,7 @@ void Player::Update(float dt)
         }
         else if (grounded)
         {
-            if (inputManager.IsKeyDown(A_KEY) or inputManager.IsKeyDown(D_KEY))
+            if (inputManager.IsKeyDown(LEFT_ARROW_KEY) or inputManager.IsKeyDown(RIGHT_ARROW_KEY))
             {
                 Walk();
             }
@@ -220,7 +220,7 @@ void Player::Update(float dt)
         // State change conditions
         if (grounded)
         {
-            if (inputManager.IsKeyDown(A_KEY) or inputManager.IsKeyDown(D_KEY))
+            if (inputManager.IsKeyDown(LEFT_ARROW_KEY) or inputManager.IsKeyDown(RIGHT_ARROW_KEY))
             {
                 Walk();
             }
@@ -318,11 +318,11 @@ void Player::Update(float dt)
         // State change conditions
         if (sprite->GetCurrentFrame() >= sprite->GetFrameCount() - 1)
         {
-            if (inputManager.IsKeyDown(W_KEY) and jumpCounter < 2)
+            if (inputManager.IsKeyDown(C_KEY) and jumpCounter < 2)
             {
                 Jump();
             }
-            else if (inputManager.IsKeyDown(A_KEY) or inputManager.IsKeyDown(D_KEY))
+            else if (inputManager.IsKeyDown(LEFT_ARROW_KEY) or inputManager.IsKeyDown(RIGHT_ARROW_KEY))
             {
                 Walk();
             }
@@ -345,7 +345,7 @@ void Player::Update(float dt)
         // State change conditions
         if (grounded)
         {
-            if (inputManager.IsKeyDown(A_KEY) or inputManager.IsKeyDown(D_KEY))
+            if (inputManager.IsKeyDown(LEFT_ARROW_KEY) or inputManager.IsKeyDown(RIGHT_ARROW_KEY))
             {
                 Walk();
             }
@@ -378,7 +378,7 @@ void Player::Update(float dt)
         // State change conditions
         if (sprite->GetCurrentFrame() >= sprite->GetFrameCount() - 1)
         {
-            if (inputManager.IsKeyDown(A_KEY) or inputManager.IsKeyDown(D_KEY))
+            if (inputManager.IsKeyDown(LEFT_ARROW_KEY) or inputManager.IsKeyDown(RIGHT_ARROW_KEY))
             {
                 Walk();
             }

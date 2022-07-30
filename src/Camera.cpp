@@ -123,3 +123,9 @@ void Camera::TriggerShake(float time, Vec2 force)
     shakeDir = -1;
     shake = true;
 }
+
+void Camera::SetPos(float x, float y, Rect mapBox)
+{
+    pos.x = std::min(std::max(x, 0.0f), mapBox.w - CAMERA_WIDTH);
+    pos.y = std::min(std::max(y, 0.0f), mapBox.h - CAMERA_HEIGHT);
+}

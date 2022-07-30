@@ -28,6 +28,9 @@ public:
      * @param intensity
      */
     static void TriggerShake(float time, Vec2 force);
+    static void SetPos(float x, float y, Rect mapBox);
+
+
     static Vec2 pos, dest;
     static Rect window;
     static Rect panicBox;

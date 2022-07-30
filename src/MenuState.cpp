@@ -85,7 +85,7 @@ void MenuState::Update(float dt)
         selectedOption = std::min((int)options.size() - 1, selectedOption + 1);
     else if (select)
         if (selectedOption == 0)
-            Game::GetInstance().Push(new StageState(2));
+            Game::GetInstance().Push(new StageState(0));
         else if (selectedOption == 1)
             quitRequested = true;
 

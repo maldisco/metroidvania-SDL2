@@ -18,6 +18,7 @@
 #include "Sensor.h"
 #include "Hud.h"
 #include "BossHud.h"
+#include "Npc.h"
 #include "Text.h"
 
 StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinnabar.mp3")
@@ -29,6 +30,8 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 	// all stages have a player
 	GameObject *player = new GameObject();
 	player->AddComponent(new Player(*player));
+	player->box.x = GameData::playerPos.x;
+	player->box.y = GameData::playerPos.y;
 
 	// all stages have HUD
 	GameObject *hud = new GameObject();
@@ -37,7 +40,9 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 	GameObject *enemy = new GameObject();
 	GameObject *sensor = new GameObject();
 	GameObject *background = new GameObject();
+	GameObject *boss = new GameObject();
 	GameObject *bosshud = new GameObject();
+	GameObject *npc = new GameObject();
 	switch (stage)
 	{
 	case 0:
@@ -47,26 +52,12 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 		background->box.y = 0;
 		AddObject(background);
 
-		enemy = new GameObject();
-		enemy->AddComponent(new Skeleton(*enemy));
-		enemy->box.x = 500;
-		enemy->box.y = 50;
-		AddObject(enemy);
+		npc = new GameObject();
+		npc->AddComponent(new Npc(*npc, "assets/img/bluewitch.png"));
+		npc->box.x = 20 * tileSet->GetTileWidth();
+		npc->box.y = 875;
+		AddObject(npc);
 
-		enemy = new GameObject();
-		enemy->AddComponent(new Slime(*enemy));
-		enemy->box.x = 700;
-		enemy->box.y = 50;
-		AddObject(enemy);
-
-		enemy = new GameObject();
-		enemy->AddComponent(new Skeleton(*enemy));
-		enemy->box.x = 100;
-		enemy->box.y = 50;
-		AddObject(enemy);
-
-		player->box.x = 5*tileSet->GetTileWidth();
-		player->box.y = 12*tileSet->GetTileHeight();
 		AddObject(player);
 
 		tileMap = new TileMap(*map, "assets/map/room0.tmj", tileSet);
@@ -76,15 +67,13 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 		AddObject(map);
 
 		sensor = new GameObject();
-		sensor->AddComponent(new Sensor(*sensor, 1));
+		sensor->AddComponent(new Sensor(*sensor, {35 * tileSet->GetTileWidth(), 0}, 1));
 		sensor->AddComponent(new Collider(*sensor));
-		sensor->box.x = 67 * tileSet->GetTileWidth();
+		sensor->box.x = 66 * tileSet->GetTileWidth();
 		sensor->box.y = 19 * tileSet->GetTileHeight();
-		sensor->box.w = tileSet->GetTileWidth() * 3;
+		sensor->box.w = tileSet->GetTileWidth() * 4;
 		sensor->box.h = tileSet->GetTileHeight();
 		AddObject(sensor);
-
-		Camera::pos = {0, 5*tileSet->GetTileHeight()};
 		break;
 
 	case 1:
@@ -112,8 +101,6 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 		enemy->box.y = 80;
 		AddObject(enemy);
 
-		player->box.x = 35 * tileSet->GetTileWidth();
-		player->box.y = 0 * tileSet->GetTileHeight();
 		AddObject(player);
 
 		tileMap = new TileMap(*map, "assets/map/room1.tmj", tileSet);
@@ -123,15 +110,13 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 		AddObject(map);
 
 		sensor = new GameObject();
-		sensor->AddComponent(new Sensor(*sensor, 2));
+		sensor->AddComponent(new Sensor(*sensor, {tileSet->GetTileWidth(), 15 * tileSet->GetTileHeight()}, 2));
 		sensor->AddComponent(new Collider(*sensor));
 		sensor->box.x = 74 * tileSet->GetTileWidth();
 		sensor->box.y = 10 * tileSet->GetTileHeight();
 		sensor->box.w = tileSet->GetTileWidth();
-		sensor->box.h = tileSet->GetTileHeight() * 3;
+		sensor->box.h = tileSet->GetTileHeight() * 4;
 		AddObject(sensor);
-
-		Camera::pos = {30*tileSet->GetTileWidth(), 0};
 		break;
 
 	case 2:
@@ -141,17 +126,18 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 		background->box.y = 0;
 		AddObject(background);
 
-		enemy = new GameObject();
-		enemy->AddComponent(new Samurai(*enemy));
-		enemy->box.x = 65 * tileSet->GetTileWidth();
-		enemy->box.y = 15 * tileSet->GetTileHeight();
-		AddObject(enemy);
+		if( not GameData::samuraiSlain )
+		{
+			boss = new GameObject();
+			boss->AddComponent(new Samurai(*boss));
+			boss->box.x = 65 * tileSet->GetTileWidth();
+			boss->box.y = 15 * tileSet->GetTileHeight();
+			AddObject(boss);
 
-		bosshud = new GameObject();
-		bosshud->AddComponent(new BossHud(*bosshud, enemy, 10));
+			bosshud = new GameObject();
+			bosshud->AddComponent(new BossHud(*bosshud, boss, 10));
+		}
 
-		player->box.x = tileSet->GetTileWidth();
-		player->box.y = 15 * tileSet->GetTileHeight();
 		AddObject(player);
 
 		tileMap = new TileMap(*map, "assets/map/room2.tmj", tileSet);
@@ -160,9 +146,17 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 		map->box.y = 0;
 		AddObject(map);
 
-		AddObject(bosshud);
+		sensor = new GameObject();
+		sensor->AddComponent(new Sensor(*sensor, {71 * tileSet->GetTileWidth(), 10 * tileSet->GetTileHeight()}, 1));
+		sensor->AddComponent(new Collider(*sensor));
+		sensor->box.x = 0 * tileSet->GetTileWidth();
+		sensor->box.y = 14 * tileSet->GetTileHeight();
+		sensor->box.w = tileSet->GetTileWidth();
+		sensor->box.h = tileSet->GetTileHeight() * 4;
+		AddObject(sensor);
 
-		Camera::pos = {0, 5*tileSet->GetTileHeight()};
+		if(not GameData::samuraiSlain)
+			AddObject(bosshud);
 		break;
 	}
 
@@ -170,6 +164,7 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 	AddObject(hud);
 
 	// make android as camera focus
+	Camera::SetPos(player->box.x - 5 * tileSet->GetTileWidth(), player->box.y - 5 * tileSet->GetTileHeight(), tileMap->GetBox());
 	Camera::Follow(player);
 }
 
@@ -229,7 +224,7 @@ void StageState::Resume()
 }
 
 void StageState::Update(float dt)
-{	
+{
 	// update camera
 	Camera::Update(dt);
 

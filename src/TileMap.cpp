@@ -165,7 +165,7 @@ void TileMap::Render()
 {
     for (int i = 0; i < mapDepth; i++)
     {
-        RenderLayer(i, Camera::pos.x, Camera::pos.y);
+        RenderLayer(i, Camera::virtualPos.x, Camera::virtualPos.y);
     }
 }
 

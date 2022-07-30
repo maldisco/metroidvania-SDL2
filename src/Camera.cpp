@@ -6,16 +6,12 @@
 #include "StageState.h"
 
 Vec2 Camera::pos = Vec2(448, 2469);
-Vec2 Camera::dest = Vec2(0, 0);
+Vec2 Camera::virtualPos = Vec2(448, 2469);
 
 Rect Camera::window = Rect(576, 300, 384, 250);
 Rect Camera::panicBox = Rect(0, 50, 0, 600);
 
-float Camera::shakeDur = -1;
-Vec2 Camera::shakeForce;
-Timer Camera::shakeTimer;
-int Camera::shakeDir = -1;
-bool Camera::shake = false;
+float Camera::trauma = 0.0f;
 
 GameObject *Camera::focus = nullptr;
 void Camera::Follow(GameObject *newFocus)
@@ -32,6 +28,8 @@ void Camera::Reset()
 {
     Camera::pos.x = 0;
     Camera::pos.y = 0;
+    Camera::virtualPos.x = 0;
+    Camera::virtualPos.y = 0;
 }
 
 void Camera::Update(float dt)
@@ -49,7 +47,7 @@ void Camera::Update(float dt)
             if (collider->box.x + collider->box.w > (pos.x + window.x + window.w))
             {
                 float dist = ((collider->box.x + collider->box.w) - (pos.x + window.x + window.w));
-                pos.x = std::min(pos.x + dist / 4, mapBox.w - CAMERA_WIDTH);
+                pos.x = std::min(pos.x + dist*.1f, mapBox.w - CAMERA_WIDTH);
             }
         }
         else
@@ -59,11 +57,10 @@ void Camera::Update(float dt)
             if (collider->box.x < (pos.x + window.x))
             {
                 float dist = (collider->box.x - (pos.x + window.x));
-                pos.x = std::max(pos.x + dist / 4, 0.0f);
+                pos.x = std::max(pos.x + dist*.1f, 0.0f);
             }
         }
 
-        // Update vertical position when player lands in a platform
         float dist = (collider->box.y - (pos.y + window.y));
 
         // Only move if new position is inside map
@@ -71,23 +68,14 @@ void Camera::Update(float dt)
         {
             pos.y += dist / 8;
         }
-
-        if (shake)
-        {
-            shakeTimer.Update(dt);
-            if (shakeTimer.Get() < shakeDur)
-            {
-                pos = pos + shakeForce * shakeDir;
-                shakeDir = shakeDir * -1;
-            }
-            else
-            {
-                shakeDur = -1;
-                shakeTimer.Restart();
-                shake = false;
-            }
-        }
     }
+
+    // camera shake
+    float randomShake = rand()%2 == 1 ? (double)rand()/RAND_MAX : -(double)rand()/RAND_MAX;
+    float offsetY = SHAKE * (trauma*trauma) * randomShake;
+    float offsetX = SHAKE * (trauma*trauma) * randomShake;
+    virtualPos = pos + Vec2(offsetX, offsetY);
+    trauma = std::max(0.0f, trauma-0.05f);
 }
 
 void Camera::Render()
@@ -115,13 +103,9 @@ void Camera::Render()
 #endif
 }
 
-void Camera::TriggerShake(float time, Vec2 force)
+void Camera::AddTrauma(float qt)
 {
-    shakeTimer.Restart();
-    shakeDur = time;
-    shakeForce = force;
-    shakeDir = -1;
-    shake = true;
+    trauma += qt;
 }
 
 void Camera::SetPos(float x, float y, Rect mapBox)

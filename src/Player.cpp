@@ -2,6 +2,7 @@
 #include "Sprite.h"
 #include "Collider.h"
 #include "Game.h"
+#include "GameData.h"
 #include "Camera.h"
 #include "Damage.h"
 #include "Timer.h"
@@ -12,11 +13,13 @@
 #include "Text.h"
 
 Player *Player::player;
-Player::Player(GameObject &associated) : Being(associated, {100, 150}, 1, 5), combo(0), jumpCounter(0), invincible(false), invincibleTime(), jumpImpulse(), wallSlideCooldown()
+Player::Player(GameObject &associated) : Being(associated, {100, 150}, 1, 5), combo(0), jumpCounter(0), invincible(false), canDash(false), invincibleTime(), jumpImpulse(),
+                                         wallSlideCooldown(), attackSound(new Sound(PLAYER_ATTACK_SOUND, associated)),
+                                         jumpSound(new Sound(PLAYER_JUMP_SOUND, associated)), hurtSound(new Sound(PLAYER_HURT_SOUND, associated))
 {
     player = this;
     associated.AddComponent(new Sprite(PLAYER_IDLE_FILE, associated, 6, 0.05f));
-    associated.AddComponent(new Collider(associated, {64 / associated.box.w, 128 / associated.box.h}, {0, 20}));
+    associated.AddComponent(new Collider(associated, {60 / associated.box.w, 128 / associated.box.h}, {0, 20}));
 }
 
 Player::~Player()
@@ -62,32 +65,67 @@ void Player::Update(float dt)
 
     // check if adjacent to a wall
     bool leftWalled = false, rightWalled = false;
-    // - check if adjacent to a wall
     wallSlideCooldown.Update(dt);
     if (wallSlideCooldown.Get() > 0.1f)
     {
         if (tileMap->IsSolid((collider->box.x - 1) / tileSet->GetTileWidth(), collider->box.y / tileSet->GetTileHeight()))
-            leftWalled = true;
+            if (speed.x != 0)
+                leftWalled = true;
         if (tileMap->IsSolid((collider->box.x + collider->box.w + 1) / tileSet->GetTileWidth(), collider->box.y / tileSet->GetTileHeight()))
-            rightWalled = true;
+            if (speed.x != 0)
+                rightWalled = true;
+    }
+
+    // check if knockbacking
+    if(knockback)
+    {   
+        if(dir >= 0)
+            moveX(-10, collider->box, tileMap, tileSet);
+        else
+            moveX(10, collider->box, tileMap, tileSet);
+        knockbackTime.Update(dt);
+        if(knockbackTime.Get() >= 0.1f)
+        {
+            knockback = false;
+        }
+    }
+
+    // check if dash is in cooldown
+    dashCooldown.Update(dt);
+    if(dashCooldown.Get() >= 0.25f)
+    {
+        canDash = true;
     }
 
     if (not grounded and (charState != DASHING))
         speed.y = speed.y + GRAVITY;
     int left = inputManager.IsKeyDown(LEFT_ARROW_KEY) ? 1 : 0;
     int right = inputManager.IsKeyDown(RIGHT_ARROW_KEY) ? 1 : 0;
-    int jump = inputManager.KeyPress(C_KEY) ? 1 : 0;
-    int attack = inputManager.KeyPress(Z_KEY) ? 1 : 0;
-    int dash = inputManager.KeyPress(X_KEY) ? 1 : 0;
+    int jump = inputManager.KeyPress(Z_KEY) ? 1 : 0;
+    int attack = inputManager.KeyPress(X_KEY) ? 1 : 0;
+    int dash = inputManager.KeyPress(C_KEY) and canDash ? 1 : 0;
+
 
     // State machine
     switch (charState)
     {
     case IDLE:
         // Actions
+        if (left)
+            this->dir = -1;
+        else if (right)
+            this->dir = 1;
 
         // State change conditions
-        if (inputManager.KeyPress(LEFT_ARROW_KEY) or inputManager.KeyPress(RIGHT_ARROW_KEY))
+        if (dash)
+        {
+            Dash(dir);
+        }
+        else if (attack)
+        {
+            Attack();
+        }
+        else if (inputManager.KeyPress(LEFT_ARROW_KEY) or inputManager.KeyPress(RIGHT_ARROW_KEY))
         {
             Walk();
         }
@@ -98,14 +136,6 @@ void Player::Update(float dt)
         else if (not grounded)
         {
             Fall();
-        }
-        else if (attack)
-        {
-            Attack();
-        }
-        else if (dash)
-        {
-            Dash(dir);
         }
         break;
 
@@ -120,7 +150,15 @@ void Player::Update(float dt)
         }
 
         // State change conditions
-        if (not speed.x)
+        if (dash)
+        {
+            Dash(dir);
+        }
+        else if (attack)
+        {
+            Attack();
+        }
+        else if (not speed.x)
         {
             Idle();
         }
@@ -132,24 +170,16 @@ void Player::Update(float dt)
         {
             Fall();
         }
-        else if (attack)
-        {
-            Attack();
-        }
-        else if (dash)
-        {
-            Dash(dir);
-        }
         break;
 
     case JUMPING:
         // Actions
         // - if release jump key, cant impulse anymore
-        if (inputManager.KeyRelease(C_KEY))
+        if (inputManager.KeyRelease(Z_KEY))
             canImpulse = false;
 
         // - keep the impulse holding jump
-        if (inputManager.IsKeyDown(C_KEY) and canImpulse)
+        if (inputManager.IsKeyDown(Z_KEY) and canImpulse)
         {
             jumpImpulse.Update(dt);
             if (jumpImpulse.Get() <= 0.2f)
@@ -252,20 +282,55 @@ void Player::Update(float dt)
 
     case ATTACKING:
         // Actions
-        // - create damage box
+        // - create damage box and slash effect
         if (sprite->GetCurrentFrame() == sprite->GetFrameCount() - 3)
         {
+            // Slash effect
+            GameObject *slashEffect = new GameObject();
+            if (combo == 0)
+            {
+                Sprite *sprite = new Sprite("assets/img/playerslashfx.png", *slashEffect, 3, 0.03f, 0.09f);
+                slashEffect->AddComponent(sprite);
+                slashEffect->box.y = associated.box.y;
+                if (dir >= 0)
+                {
+                    slashEffect->box.x = associated.box.x + 10;
+                }
+                else
+                {
+                    slashEffect->box.x = associated.box.x - 10;
+                    sprite->SetDir(-1);
+                }
+            }
+            else
+            {
+                Sprite *sprite = new Sprite("assets/img/playerslashfx2.png", *slashEffect, 2, 0.03f, 0.06f);
+                slashEffect->AddComponent(sprite);
+                slashEffect->box.y = associated.box.y;
+                if (dir >= 0)
+                {
+                    slashEffect->box.x = associated.box.x + 10;
+                }
+                else
+                {
+                    slashEffect->box.x = associated.box.x - 10;
+                    sprite->SetDir(-1);
+                }
+            }
+
+            // damage box
             GameObject *damage = new GameObject();
             damage->AddComponent(new Damage(*damage, 1, false, 0.15f));
-            damage->box.w = 96;
-            damage->box.h = 128;
-            damage->box.y = collider->box.y;
+            damage->box.w = 64;
+            damage->box.h = 192;
+            damage->box.y = collider->box.y - (192 - collider->box.h) / 2;
             if (dir >= 0)
-                damage->box.x = collider->box.x + collider->box.w;
+                damage->box.x = collider->box.x + collider->box.w * 1.5;
             else
-                damage->box.x = collider->box.x - damage->box.w;
+                damage->box.x = collider->box.x - damage->box.w - collider->box.w * 0.5;
 
             Game::GetInstance().GetCurrentState().AddObject(damage);
+            Game::GetInstance().GetCurrentState().AddObject(slashEffect);
         }
         // - update combo
         if (attack and sprite->GetCurrentFrame() >= sprite->GetFrameCount() - 2)
@@ -317,8 +382,12 @@ void Player::Update(float dt)
 
         // State change conditions
         if (sprite->GetCurrentFrame() >= sprite->GetFrameCount() - 1)
-        {
-            if (inputManager.IsKeyDown(C_KEY) and jumpCounter < 2)
+        {   
+            // start dash cooldown
+            canDash = false;
+            dashCooldown.Restart();
+
+            if (inputManager.IsKeyDown(Z_KEY) and jumpCounter < 2)
             {
                 Jump();
             }
@@ -438,11 +507,16 @@ void Player::NotifyCollision(GameObject &other)
         if (damage->targetsPlayer and not(charState == DEAD or charState == DASHING) and not invincible)
         {
             Sprite *sprite = (Sprite *)associated.GetComponent("Sprite");
-            this->hp -= damage->GetDamage();
+            GameData::playerHp -= damage->GetDamage();
 
             this->charState = HURT;
             sprite->Change(PLAYER_HURT_FILE, 0.05, 4);
-            Camera::TriggerShake(0.5f, {5.0f, 0});
+
+            // play hurt sound
+            hurtSound->Play();
+
+            // add camera shake
+            Camera::AddTrauma(0.6f);
             invincible = true;
 
             // knockback
@@ -455,7 +529,7 @@ void Player::NotifyCollision(GameObject &other)
                 associated.box.x += 5;
             }
 
-            if (this->hp <= 0)
+            if (GameData::playerHp <= 0)
             {
                 this->charState = DEAD;
                 sprite->Change(PLAYER_DEATH_FILE, 0.1, 11);
@@ -467,14 +541,16 @@ void Player::NotifyCollision(GameObject &other)
         if (not(charState == DEAD or charState == DASHING or invincible))
         {
             Sprite *sprite = (Sprite *)associated.GetComponent("Sprite");
-            this->hp -= 1;
+            GameData::playerHp -= 1;
 
             this->charState = HURT;
             sprite->Change(PLAYER_HURT_FILE, 0.05, 4);
-            Camera::TriggerShake(0.5f, {5.0f, 0});
+
+            // add camera shake
+            Camera::AddTrauma(0.6f);
             invincible = true;
 
-            if (this->hp <= 0)
+            if (GameData::playerHp <= 0)
             {
                 this->charState = DEAD;
                 sprite->Change(PLAYER_DEATH_FILE, 0.1, 11);
@@ -495,43 +571,59 @@ void Player::Idle()
 }
 
 void Player::Attack()
-{
+{   
+    // change sprite
     Sprite *sprite = (Sprite *)associated.GetComponent("Sprite");
-
     sprite->Change(PLAYER_ATTACK1_FILE, 0.05f, 4);
     charState = ATTACKING;
+
+    // play sound
+    attackSound->Play();
 }
 
 void Player::Attack2()
-{
+{   
+    // change sprite
     Sprite *sprite = (Sprite *)associated.GetComponent("Sprite");
-
     sprite->Change(PLAYER_ATTACK2_FILE, 0.05f, 4);
     charState = ATTACKING;
+
+    // play sound
+    attackSound->Play();
 }
 
 void Player::Jump()
 {
+    // change sprite
     Sprite *sprite = (Sprite *)associated.GetComponent("Sprite");
-
     sprite->Change(PLAYER_JUMP_FILE, 0.05f, 3);
+
+    // apply force
     speed.y = -JUMP_FORCE / mass;
     charState = JUMPING;
     jumpCounter++;
     jumpImpulse.Restart();
     canImpulse = true;
+
+    // play sound
+    jumpSound->Play();
 }
 
 void Player::Jump2()
-{
+{   
+    // change sprite
     Sprite *sprite = (Sprite *)associated.GetComponent("Sprite");
-
     sprite->Change(PLAYER_JUMP_FILE, 0.05f, 3);
+
+    // apply force
     speed.y = -(JUMP_FORCE * 3) / mass;
     charState = JUMPING;
     jumpCounter++;
     jumpImpulse.Restart();
     canImpulse = false;
+
+    // play sound
+    jumpSound->Play();
 }
 
 void Player::Fall()

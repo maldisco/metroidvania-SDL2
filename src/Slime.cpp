@@ -10,7 +10,7 @@
 Slime::Slime(GameObject &associated) : Being(associated, {200, 0}, 1.0f, 3), cooldown()
 {
     associated.AddComponent(new Sprite(SLIME_IDLE_FILE, associated, 4, 0.1f));
-    associated.AddComponent(new Collider(associated, {128 / associated.box.w, 128 / associated.box.h}));
+    associated.AddComponent(new Collider(associated, {111 / associated.box.w, 75 / associated.box.h}, {0, 23}));
 }
 
 Slime::~Slime()
@@ -29,6 +29,20 @@ void Slime::Update(float dt)
     Sprite *sprite = (Sprite *)associated.GetComponent("Sprite");
     Collider *collider = (Collider *)associated.GetComponent("Collider");
     InputManager &inputManager = InputManager::GetInstance();
+
+    // check if knockbacking
+    if(knockback)
+    {   
+        if(dir >= 0)
+            moveX(-30, collider->box, tileMap, tileSet);
+        else
+            moveX(30, collider->box, tileMap, tileSet);
+        knockbackTime.Update(dt);
+        if(knockbackTime.Get() >= 0.1f)
+        {
+            knockback = false;
+        }
+    }
 
     // check if in ground
     bool grounded = false;
@@ -190,8 +204,14 @@ void Slime::NotifyCollision(GameObject &other)
             Sprite *sprite = (Sprite *)associated.GetComponent("Sprite");
             this->hp -= damage->GetDamage();
             other.RequestDelete();
+            
+            // add camera shake            
+            Camera::AddTrauma(0.4f);
 
-            Camera::TriggerShake(0.4f, {3.0f, 0});
+            // add knockback
+            knockback = true;
+            knockbackTime.Restart();
+
             if (this->charState != ATTACKING)
             {
                 this->charState = HURT;
@@ -203,6 +223,12 @@ void Slime::NotifyCollision(GameObject &other)
                 this->charState = DEAD;
                 sprite->Change(SLIME_DEATH_FILE, 0.05, 5);
             }
+
+            // add player knockback
+            Player::player->knockback = true;
+
+            // sleep for game feel
+            SDL_Delay(20);
         }
     }
 }

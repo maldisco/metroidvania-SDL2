@@ -8,7 +8,7 @@
 #include "InputManager.h"
 #include "Camera.h"
 
-Samurai::Samurai(GameObject &associated) : Being(associated, {300, 0}, 1.0f, 10), cooldown(), hitCooldown(), dashCooldown(), dashTime()
+Samurai::Samurai(GameObject &associated) : Being(associated, {200, 0}, 1.0f, 10), cooldown(), hitCooldown(), dashCooldown(), dashTime()
 {
     associated.AddComponent(new Sprite(SAMURAI_IDLE_FILE, associated, 7, 0.05f));
     associated.AddComponent(new Collider(associated, {47 / associated.box.w, 85 / associated.box.h}, {0, 0}));
@@ -45,7 +45,7 @@ void Samurai::Update(float dt)
     // check if can dash
     bool dash = false;
     dashCooldown.Update(dt);
-    if (dashCooldown.Get() >= 5.0f)
+    if (dashCooldown.Get() >= 3.0f)
         dash = true;
 
     bool attack = false;
@@ -70,7 +70,7 @@ void Samurai::Update(float dt)
             {
                 if (dash)
                 {
-                    sprite->Change(SAMURAI_DASH_FILE, 0.05f, 10, 7);
+                    sprite->Change(SAMURAI_DASH_FILE, 0.1f, 10, 7);
                     charState = DASHING;
                     if ((Player::player->GetBox().Center() - associated.box.Center()).x >= 0)
                         dir = 1;
@@ -120,7 +120,7 @@ void Samurai::Update(float dt)
         {
             if (dash)
             {
-                sprite->Change(SAMURAI_DASH_FILE, 0.05f, 10, 7);
+                sprite->Change(SAMURAI_DASH_FILE, 0.1f, 10, 7);
                 charState = DASHING;
                 if ((Player::player->GetBox().Center() - associated.box.Center()).x >= 0)
                     dir = 1;
@@ -184,8 +184,21 @@ void Samurai::Update(float dt)
 
     case DASHING:
         // Actions
-        if(sprite->GetCurrentFrame() >= 6)
-            moveX(speed.x * 3 * dt, collider->box, tileMap, tileSet);
+        if(sprite->GetCurrentFrame() >= 6) 
+        {
+            moveX(speed.x * 5 * dt, collider->box, tileMap, tileSet);
+            GameObject *damage = new GameObject();
+            damage->AddComponent(new Damage(*damage, 2, true, 0.2f));
+            damage->box.w = 116;
+            damage->box.h = 35;
+            damage->box.y = collider->box.y + 30;
+            if (speed.x >= 0)
+                damage->box.x = collider->box.x + collider->box.w;
+            else
+                damage->box.x = collider->box.x - damage->box.w;
+
+            Game::GetInstance().GetCurrentState().AddObject(damage);
+        }
 
         // State change conditions
         dashTime.Update(dt);
@@ -252,7 +265,8 @@ void Samurai::NotifyCollision(GameObject &other)
             this->hp -= damage->GetDamage();
             other.RequestDelete();
 
-            Camera::TriggerShake(0.4f, {3.0f, 0});
+            // add camera shake
+            Camera::AddTrauma(0.4f);
             if (this->charState != DASHING)
             {
                 this->charState = HURT;
@@ -263,8 +277,15 @@ void Samurai::NotifyCollision(GameObject &other)
             {
                 this->charState = DEAD;
                 sprite->Change(SAMURAI_DEAD_FILE, 0.05f, 17);
+                // set samurai as slain
                 GameData::samuraiSlain = true;
             }
+
+            // add player knockback
+            Player::player->knockback = true;
+
+            // sleep for game feel
+            SDL_Delay(20);
         }
     }
 }

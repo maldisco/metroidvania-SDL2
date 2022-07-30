@@ -1,10 +1,11 @@
 #include "Hud.h"
 #include "Sprite.h"
 #include "CameraFollower.h"
-#include "Player.h"
+#include "GameData.h"
 
 Hud::Hud(GameObject &associated, int maxHp) : Component(associated), maxHp(maxHp), hpbar(new Sprite(HPBAR, associated))
 {
+    hpbar->SetRenderWidth((float)GameData::playerHp/(float)maxHp);
     associated.AddComponent(new Sprite(HPBAR_BG, associated));
     associated.AddComponent(hpbar);
     associated.AddComponent(new Sprite(HPBAR_BORDER, associated));
@@ -17,10 +18,7 @@ void Hud::Render()
 
 void Hud::Update(float dt)
 {
-    if(Player::player != nullptr)
-        hpbar->SetRenderWidth((float)Player::player->GetHp()/(float)maxHp);
-    else
-        hpbar->SetRenderWidth(0);
+    hpbar->SetRenderWidth((float)GameData::playerHp/(float)maxHp);
 }
 
 bool Hud::Is(std::string type)

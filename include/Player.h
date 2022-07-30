@@ -19,8 +19,12 @@
 #define PLAYER_HURT_FILE "assets/img/warrior-hurt.png"
 #define PLAYER_WALLSLIDE_FILE "assets/img/warrior-wallslide.png"
 
+#define PLAYER_ATTACK_SOUND "assets/audio/attack2.wav"
+#define PLAYER_JUMP_SOUND "assets/audio/jump1.wav"
+#define PLAYER_HURT_SOUND "assets/audio/damaged2.wav"
+
 #include "Being.h"
-#include "Timer.h"
+#include "Sound.h"
 
 class Player : public Being
 {
@@ -53,7 +57,8 @@ public:
 
 private:
     int combo, jumpCounter;
-    bool invincible, canImpulse;
-    Timer invincibleTime, jumpImpulse, wallSlideCooldown;
+    bool invincible, canImpulse, canDash;
+    Timer invincibleTime, jumpImpulse, wallSlideCooldown, dashCooldown;
+    Sound *attackSound, *jumpSound, *hurtSound;
 };
 #endif

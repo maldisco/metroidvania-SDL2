@@ -62,11 +62,14 @@ public:
 
     virtual bool Grounded();
 
+    bool knockback;
 protected:
     Vec2 speed;
-    float mass;
+    Timer knockbackTime;
+    float mass, knockbackSpeed;
     int hp, dir;
     bool grounded;
+
     enum STATE
     {
         IDLE,

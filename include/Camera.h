@@ -3,7 +3,7 @@
 
 #define CAMERA_WIDTH 1600
 #define CAMERA_HEIGHT 900
-#define SHAKE 3.0f
+#define SHAKE 30.0f
 
 #include "Vec2.h"
 #include "GameObject.h"
@@ -21,25 +21,20 @@ public:
     static void Reset();
     static void Update(float dt);
     static void Render();
-    /**
-     * @brief Trigger a camera shake
-     *
-     * @param time
-     * @param intensity
-     */
-    static void TriggerShake(float time, Vec2 force);
+    static void AddTrauma(float qt);
     static void SetPos(float x, float y, Rect mapBox);
 
 
-    static Vec2 pos, dest;
+    static Vec2 pos, virtualPos, dest;
     static Rect window;
     static Rect panicBox;
 
-    static bool shake;
-    static Timer shakeTimer;
-    static Vec2 shakeForce;
-    static float shakeDur;
-    static int shakeDir;
+    // PENSE EM TROCAR O LERP POR CUBLIC SPLINE
+
+    static float trauma;
+    // things add 0.1-0.2 trauma
+    // trauma decreases linearly
+    // trauma is applied ² or ³
 
     // maybe use
     static Rect anchor;

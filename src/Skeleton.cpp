@@ -30,6 +30,21 @@ void Skeleton::Update(float dt)
     Collider *collider = (Collider *)associated.GetComponent("Collider");
     InputManager &inputManager = InputManager::GetInstance();
 
+    // check if knockbacking
+    if(knockback)
+    {   
+        if(dir >= 0)
+            moveX(-knockbackSpeed, collider->box, tileMap, tileSet);
+        else
+            moveX(knockbackSpeed, collider->box, tileMap, tileSet);
+        knockbackSpeed = knockbackSpeed*0.7;
+        knockbackTime.Update(dt);
+        if(knockbackTime.Get() >= 0.1f)
+        {
+            knockback = false;
+        }
+    }
+
     // check if in ground
     bool grounded = false;
     int tileLeftX = collider->box.x / tileSet->GetTileWidth();
@@ -200,7 +215,14 @@ void Skeleton::NotifyCollision(GameObject &other)
             this->hp -= damage->GetDamage();
             other.RequestDelete();
 
-            Camera::TriggerShake(0.4f, {3.0f, 0});
+            // add camera shake
+            Camera::AddTrauma(0.4f);
+
+            // add knockback
+            knockback = true;
+            knockbackTime.Restart();
+            knockbackSpeed = 30;
+
             if (this->charState != ATTACKING)
             {
                 this->charState = HURT;
@@ -212,6 +234,12 @@ void Skeleton::NotifyCollision(GameObject &other)
                 this->charState = DEAD;
                 sprite->Change(SKELETON_DEATH_FILE, 0.05, 13);
             }
+
+            // add player knockback
+            Player::player->knockback = true;
+
+            // sleep for game feel
+            SDL_Delay(20);
         }
     }
 }

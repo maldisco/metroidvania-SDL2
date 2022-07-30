@@ -122,7 +122,7 @@ void Sprite::Render(int x, int y)
 
 void Sprite::Render()
 {
-    Render(associated.box.x - Camera::pos.x, associated.box.y - Camera::pos.y);
+    Render(associated.box.x - Camera::virtualPos.x, associated.box.y - Camera::virtualPos.y);
 }
 
 void Sprite::NotifyCollision(GameObject &other) {}

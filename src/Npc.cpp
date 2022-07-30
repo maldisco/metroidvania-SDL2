@@ -1,10 +1,12 @@
 #include "Npc.h"
 #include "Sprite.h"
+#include "Collider.h"
 #include "Player.h"
 
 Npc::Npc(GameObject &associated, std::string file) : Component(associated)
 {
     associated.AddComponent(new Sprite(file, associated, 6, 0.1f));
+    associated.AddComponent(new Collider(associated));
 }
 
 void Npc::Render()

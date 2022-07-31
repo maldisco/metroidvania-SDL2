@@ -71,7 +71,7 @@ void Npc::NotifyCollision(GameObject &other)
             std::string line = dialogueLines.at(GameData::bluewitchLine);
             if(GameData::samuraiSlain)
                 line = "Thanks! My brother was trying to kill that skeleton for a long time";
-            dialogue->AddComponent(new Text(*dialogue, "assets/font/PeaberryBase.ttf", 30, Text::BLENDED, line, {0, 0, 0, SDL_ALPHA_OPAQUE}, 0, 5));
+            dialogue->AddComponent(new Text(*dialogue, "assets/font/PeaberryBase.ttf", 30, Text::BLENDED, line, {0, 0, 0, SDL_ALPHA_OPAQUE}, 0, 3));
             Game::GetInstance().GetCurrentState().AddObject(dialogue);
             if(GameData::bluewitchLine < dialogueLines.size()-1)
                 GameData::bluewitchLine++;

@@ -13,6 +13,11 @@ Rect Camera::panicBox = Rect(0, 50, 0, 600);
 
 float Camera::trauma = 0.0f;
 
+float Camera::angle = 0.0f;
+float Camera::virtualAngle = 0.0f;
+
+int Camera::noisePos = 0;
+
 GameObject *Camera::focus = nullptr;
 void Camera::Follow(GameObject *newFocus)
 {
@@ -47,7 +52,7 @@ void Camera::Update(float dt)
             if (collider->box.x + collider->box.w > (pos.x + window.x + window.w))
             {
                 float dist = ((collider->box.x + collider->box.w) - (pos.x + window.x + window.w));
-                pos.x = std::min(pos.x + dist*.1f, mapBox.w - CAMERA_WIDTH);
+                pos.x = std::min(pos.x + dist * .1f, mapBox.w - CAMERA_WIDTH);
             }
         }
         else
@@ -57,7 +62,7 @@ void Camera::Update(float dt)
             if (collider->box.x < (pos.x + window.x))
             {
                 float dist = (collider->box.x - (pos.x + window.x));
-                pos.x = std::max(pos.x + dist*.1f, 0.0f);
+                pos.x = std::max(pos.x + dist * .1f, 0.0f);
             }
         }
 
@@ -70,12 +75,20 @@ void Camera::Update(float dt)
         }
     }
 
-    // camera shake
-    float randomShake = rand()%2 == 1 ? (double)rand()/RAND_MAX : -(double)rand()/RAND_MAX;
-    float offsetY = SHAKE * (trauma*trauma) * randomShake;
-    float offsetX = SHAKE * (trauma*trauma) * randomShake;
+    // camera shake angle
+    float randomShakeAngle = NoiseFun(noisePos++) % 2 == 1 ? (double)NoiseFun(noisePos++) / UINT32_MAX : -(double)NoiseFun(noisePos++) / UINT32_MAX;
+    float offsetAngle = MAX_ANGLE * (trauma * trauma) * (randomShakeAngle);
+    virtualAngle = angle + offsetAngle;
+
+    // camera shake pos
+    float randomShakeX = NoiseFun(noisePos++) % 2 == 1 ? (double)NoiseFun(noisePos++) / UINT32_MAX : -(double)NoiseFun(noisePos++) / UINT32_MAX;
+    float randomShakeY = NoiseFun(noisePos++) % 2 == 1 ? (double)NoiseFun(noisePos++) / UINT32_MAX : -(double)NoiseFun(noisePos++) / UINT32_MAX;
+    float offsetY = MAX_SHAKE * (trauma * trauma) * randomShakeY;
+    float offsetX = MAX_SHAKE * (trauma * trauma) * randomShakeX;
     virtualPos = pos + Vec2(offsetX, offsetY);
-    trauma = std::max(0.0f, trauma-0.05f);
+
+    // decrease trauma (shake qt)
+    trauma = std::max(0.0f, trauma - 0.05f);
 }
 
 void Camera::Render()
@@ -112,4 +125,21 @@ void Camera::SetPos(float x, float y, Rect mapBox)
 {
     pos.x = std::min(std::max(x, 0.0f), mapBox.w - CAMERA_WIDTH);
     pos.y = std::min(std::max(y, 0.0f), mapBox.h - CAMERA_HEIGHT);
+}
+
+uint32_t Camera::NoiseFun(int position)
+{
+    constexpr unsigned int BIT_NOISE1 = 0xB5297A4D;
+    constexpr unsigned int BIT_NOISE2 = 0x68E31DA4;
+    constexpr unsigned int BIT_NOISE3 = 0x1B56C4E9;
+
+    unsigned int mangled = position;
+    mangled *= BIT_NOISE1;
+    mangled ^= (mangled >> 8);
+    mangled += BIT_NOISE2;
+    mangled ^= (mangled << 8);
+    mangled *= BIT_NOISE3;
+    mangled ^= (mangled >> 8);
+
+    return mangled;
 }

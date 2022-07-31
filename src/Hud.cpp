@@ -9,7 +9,7 @@ Hud::Hud(GameObject &associated, int maxHp) : Component(associated), maxHp(maxHp
     associated.AddComponent(new Sprite(HPBAR_BG, associated));
     associated.AddComponent(hpbar);
     associated.AddComponent(new Sprite(HPBAR_BORDER, associated));
-    associated.AddComponent(new CameraFollower(associated, {10, 5}));
+    associated.AddComponent(new CameraFollower(associated, {30, 15}));
 }
 
 void Hud::Render()

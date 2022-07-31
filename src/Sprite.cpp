@@ -112,11 +112,11 @@ void Sprite::Render(int x, int y)
 
     if (dir >= 0)
     {
-        SDL_RenderCopyEx(Game::GetInstance().GetRenderer(), texture.get(), &clipRect, &dstrect, associated.angleDeg, nullptr, SDL_FLIP_NONE);
+        SDL_RenderCopyEx(Game::GetInstance().GetRenderer(), texture.get(), &clipRect, &dstrect, associated.angleDeg + Camera::virtualAngle, nullptr, SDL_FLIP_NONE);
     }
     else
     {
-        SDL_RenderCopyEx(Game::GetInstance().GetRenderer(), texture.get(), &clipRect, &dstrect, associated.angleDeg, nullptr, SDL_FLIP_HORIZONTAL);
+        SDL_RenderCopyEx(Game::GetInstance().GetRenderer(), texture.get(), &clipRect, &dstrect, associated.angleDeg + Camera::virtualAngle, nullptr, SDL_FLIP_HORIZONTAL);
     }
 }
 

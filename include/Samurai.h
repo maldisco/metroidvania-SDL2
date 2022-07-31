@@ -29,6 +29,7 @@ public:
     void NotifyCollision(GameObject &other);
 
 private:
-    Timer cooldown, hitCooldown, dashCooldown, dashTime;
+    Timer cooldown, dashTime;
+    Vec2 dashPosLeft, dashPosRight;
 };
 #endif

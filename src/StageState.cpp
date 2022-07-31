@@ -111,7 +111,7 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 		AddObject(map);
 
 		sensor = new GameObject();
-		sensor->AddComponent(new Sensor(*sensor, {tileSet->GetTileWidth(), 15 * tileSet->GetTileHeight()}, 2));
+		sensor->AddComponent(new Sensor(*sensor, {tileSet->GetTileWidth(), 8 * tileSet->GetTileHeight()}, 2));
 		sensor->AddComponent(new Collider(*sensor));
 		sensor->box.x = 74 * tileSet->GetTileWidth();
 		sensor->box.y = 10 * tileSet->GetTileHeight();
@@ -131,7 +131,8 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 
 	case 2:
 		background = new GameObject();
-		background->AddComponent(new TileMap(*background, "assets/map/background.tmj", tileSet, true));
+		TileSet *bossRoomTS = new TileSet(*background, 64, 64, "assets/img/duskTileSet.png");
+		background->AddComponent(new TileMap(*background, "assets/map/room2bg.tmj", bossRoomTS, true));
 		background->box.x = 0;
 		background->box.y = 0;
 		AddObject(background);
@@ -140,12 +141,12 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 		{
 			boss = new GameObject();
 			boss->AddComponent(new Samurai(*boss));
-			boss->box.x = 65 * tileSet->GetTileWidth();
-			boss->box.y = 15 * tileSet->GetTileHeight();
+			boss->box.x = 17 * tileSet->GetTileWidth();
+			boss->box.y = 9 * tileSet->GetTileHeight();
 			AddObject(boss);
 
 			bosshud = new GameObject();
-			bosshud->AddComponent(new BossHud(*bosshud, boss, 10));
+			bosshud->AddComponent(new BossHud(*bosshud, boss, 20));
 		}
 
 		AddObject(player);
@@ -160,7 +161,7 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 		sensor->AddComponent(new Sensor(*sensor, {71 * tileSet->GetTileWidth(), 10 * tileSet->GetTileHeight()}, 1));
 		sensor->AddComponent(new Collider(*sensor));
 		sensor->box.x = 0 * tileSet->GetTileWidth();
-		sensor->box.y = 14 * tileSet->GetTileHeight();
+		sensor->box.y = 8 * tileSet->GetTileHeight();
 		sensor->box.w = tileSet->GetTileWidth();
 		sensor->box.h = tileSet->GetTileHeight() * 4;
 		AddObject(sensor);

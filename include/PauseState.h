@@ -1,12 +1,12 @@
-#ifndef MENUSTATE_H
-#define MENUSTATE_H
+#ifndef PAUSESTATE_H
+#define PAUSESTATE_H
 #include "State.h"
 
-class MenuState : public State
+class PauseState : public State
 {
 public:
-    MenuState();
-    ~MenuState();
+    PauseState();
+    ~PauseState();
 
     void LoadAssets();
     void Update(float dt);

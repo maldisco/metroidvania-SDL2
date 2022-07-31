@@ -12,6 +12,7 @@ public:
     static bool samuraiSlain;
     static int playerHp;
     static Vec2 playerPos;
-    static Rect dialogueBox;
+    static Vec2 cameraPos;
+    static int bluewitchLine;
 };
 #endif

@@ -12,6 +12,7 @@
 #include "Collision.cpp"
 #include "Collider.h"
 #include "TitleState.h"
+#include "PauseState.h"
 #include "EndState.h"
 #include "Resources.h"
 #include "GameData.h"
@@ -53,7 +54,7 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 		AddObject(background);
 
 		npc = new GameObject();
-		npc->AddComponent(new Npc(*npc, "assets/img/bluewitch.png"));
+		npc->AddComponent(new Npc(*npc, "assets/img/bluewitch.png", "assets/dialogues/bluewitch.txt"));
 		npc->box.x = 20 * tileSet->GetTileWidth();
 		npc->box.y = 875;
 		AddObject(npc);
@@ -67,7 +68,7 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 		AddObject(map);
 
 		sensor = new GameObject();
-		sensor->AddComponent(new Sensor(*sensor, {35 * tileSet->GetTileWidth(), 0}, 1));
+		sensor->AddComponent(new Sensor(*sensor, {35 * tileSet->GetTileWidth(), 2 * tileSet->GetTileHeight()}, 1));
 		sensor->AddComponent(new Collider(*sensor));
 		sensor->box.x = 66 * tileSet->GetTileWidth();
 		sensor->box.y = 19 * tileSet->GetTileHeight();
@@ -117,6 +118,15 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 		sensor->box.w = tileSet->GetTileWidth();
 		sensor->box.h = tileSet->GetTileHeight() * 4;
 		AddObject(sensor);
+
+		sensor = new GameObject();
+		sensor->AddComponent(new Sensor(*sensor, {64 * tileSet->GetTileWidth(), 15 * tileSet->GetTileHeight()}, 0));
+		sensor->AddComponent(new Collider(*sensor));
+		sensor->box.x = 35 * tileSet->GetTileWidth();
+		sensor->box.y = 1 * tileSet->GetTileHeight();
+		sensor->box.w = tileSet->GetTileWidth() * 4;
+		sensor->box.h = tileSet->GetTileHeight();
+		AddObject(sensor);
 		break;
 
 	case 2:
@@ -126,7 +136,7 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 		background->box.y = 0;
 		AddObject(background);
 
-		if( not GameData::samuraiSlain )
+		if (not GameData::samuraiSlain)
 		{
 			boss = new GameObject();
 			boss->AddComponent(new Samurai(*boss));
@@ -155,7 +165,7 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 		sensor->box.h = tileSet->GetTileHeight() * 4;
 		AddObject(sensor);
 
-		if(not GameData::samuraiSlain)
+		if (not GameData::samuraiSlain)
 			AddObject(bosshud);
 		break;
 	}
@@ -234,17 +244,18 @@ void StageState::Update(float dt)
 		quitRequested = true;
 	}
 
-	if (InputManager::GetInstance().KeyPress(ESCAPE_KEY))
-	{
-		popRequested = true;
-	}
-
 	if (Player::player == nullptr)
 	{
 		if (InputManager::GetInstance().KeyPress(SPACE_KEY))
 		{
 			popRequested = true;
 		}
+	}
+
+	// check if pause was requested
+	if (InputManager::GetInstance().KeyPress(ESCAPE_KEY))
+	{
+		Game::GetInstance().Push(new PauseState());
 	}
 
 	// Update every object

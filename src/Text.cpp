@@ -3,7 +3,9 @@
 #include "Game.h"
 #include "Resources.h"
 
-Text::Text(GameObject &associated, std::string fontFile, int fontSize, TextStyle style, std::string text, SDL_Color color, float fade) : Component(associated), fontFile(fontFile), fontSize(fontSize), style(style), text(text), color(color), texture(nullptr), cooldown(), showText(true), fade(fade), alpha(0)
+Text::Text(GameObject &associated, std::string fontFile, int fontSize, TextStyle style, std::string text, SDL_Color color, float fade, float lifespan)
+    : Component(associated), fontFile(fontFile), fontSize(fontSize), style(style), text(text), color(color), texture(nullptr), cooldown(), showText(true), fade(fade),
+      lifespan(lifespan), alpha(0)
 {
     MakeTexture();
     if (fade > 0)
@@ -26,6 +28,15 @@ void Text::Update(float dt)
     {
         SDL_SetTextureAlphaMod(texture, alpha);
         alpha += 2;
+    }
+
+    if (lifespan > 0)
+    {
+        cooldown.Update(dt);
+        if(cooldown.Get() >= lifespan)
+        {
+            associated.RequestDelete();
+        }
     }
 }
 
@@ -85,7 +96,6 @@ void Text::SetFontSize(int fontSize)
     this->fontSize = fontSize;
     RemakeTexture();
 }
-
 
 void Text::MakeTexture()
 {

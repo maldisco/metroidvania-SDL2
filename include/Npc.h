@@ -11,13 +11,15 @@ public:
      * @param associated 
      * @param file 
      */
-    Npc(GameObject &associated, std::string file);
+    Npc(GameObject &associated, std::string sprite, std::string dialogues);
     void Update(float dt);
     void Render();
     bool Is(std::string type);
     void NotifyCollision(GameObject &other);
+    void LoadDialogue(std::string file);
 
 private:
-    int dialogue;
+    int line;
+    std::vector<std::string> dialogueLines;
 };
 #endif

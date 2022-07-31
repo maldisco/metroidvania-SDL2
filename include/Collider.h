@@ -5,6 +5,11 @@
 
 #define GRAVITY 80
 
+// projectile motion
+// f(t) = (1/2)gt² + Vo t + Po
+// Vo = 2 * h / Th, onde h = altura e Th = tempo para alcançar essa altura
+// g = -2 * h / Th²
+
 class Collider : public Component
 {
 public:

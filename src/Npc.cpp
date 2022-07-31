@@ -2,11 +2,32 @@
 #include "Sprite.h"
 #include "Collider.h"
 #include "Player.h"
+#include "InputManager.h"
+#include "Text.h"
+#include "Game.h"
+#include "GameData.h"
 
-Npc::Npc(GameObject &associated, std::string file) : Component(associated)
+Npc::Npc(GameObject &associated, std::string sprite, std::string dialogue) : Component(associated)
 {
-    associated.AddComponent(new Sprite(file, associated, 6, 0.1f));
+    associated.AddComponent(new Sprite(sprite, associated, 6, 0.1f));
     associated.AddComponent(new Collider(associated));
+    LoadDialogue(dialogue);
+}
+
+void Npc::LoadDialogue(std::string file)
+{
+    std::fstream dialogue;
+    std::vector<int> dims;
+
+    dialogue.open(file);
+    if (dialogue.is_open())
+    {
+        std::string line;
+        while (getline(dialogue, line))
+        {
+            dialogueLines.push_back(line);
+        }
+    }
 }
 
 void Npc::Render()
@@ -16,9 +37,9 @@ void Npc::Render()
 void Npc::Update(float dt)
 {
     Sprite *sprite = (Sprite *)associated.GetComponent("Sprite");
-    if(Player::player != nullptr)
+    if (Player::player != nullptr)
     {
-        if(Player::player->GetBox().Center().x < associated.box.Center().x)
+        if (Player::player->GetBox().Center().x < associated.box.Center().x)
         {
             sprite->SetDir(-1);
         }
@@ -27,7 +48,6 @@ void Npc::Update(float dt)
             sprite->SetDir(1);
         }
     }
-    
 }
 
 bool Npc::Is(std::string type)
@@ -39,4 +59,22 @@ bool Npc::Is(std::string type)
 
     return false;
 }
-void Npc::NotifyCollision(GameObject &other) {}
+void Npc::NotifyCollision(GameObject &other)
+{
+    if (other.GetComponent("Player") != nullptr)
+    {
+        if(InputManager::GetInstance().KeyPress(E_KEY))
+        {
+            GameObject *dialogue = new GameObject();
+            dialogue->box.x = associated.box.Center().x;
+            dialogue->box.y = associated.box.y - 50;
+            std::string line = dialogueLines.at(GameData::bluewitchLine);
+            if(GameData::samuraiSlain)
+                line = "Thanks! My brother was trying to kill that skeleton for a long time";
+            dialogue->AddComponent(new Text(*dialogue, "assets/font/PeaberryBase.ttf", 30, Text::BLENDED, line, {0, 0, 0, SDL_ALPHA_OPAQUE}, 0, 5));
+            Game::GetInstance().GetCurrentState().AddObject(dialogue);
+            if(GameData::bluewitchLine < dialogueLines.size()-1)
+                GameData::bluewitchLine++;
+        }
+    }
+}

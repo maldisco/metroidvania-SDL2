@@ -22,7 +22,20 @@ public:
         BLENDED
     };
 
-    Text(GameObject &associated, std::string fontFile, int fontSize, TextStyle style, std::string text, SDL_Color color, float fade = 0);
+    /**
+     * @brief Construct a new Text object
+     * 
+     * @param associated 
+     * @param fontFile 
+     * @param fontSize 
+     * @param style 
+     * @param text 
+     * @param color 
+     * @param fade 
+     * @param lifespan 
+     */
+    Text(GameObject &associated, std::string fontFile, int fontSize, TextStyle style, std::string text, SDL_Color color, float fade = 0, float lifespan = 0);
+
     ~Text();
 
     void Update(float dt);
@@ -45,8 +58,7 @@ private:
     SDL_Color color;
     Timer cooldown;
     bool showText;
-    float fade;
-    float alpha;
+    float fade, alpha, lifespan;
 
     void MakeTexture();
     void RemakeTexture();

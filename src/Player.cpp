@@ -92,7 +92,7 @@ void Player::Update(float dt)
 
     // check if dash is in cooldown
     dashCooldown.Update(dt);
-    if(dashCooldown.Get() >= 0.25f)
+    if(dashCooldown.Get() >= 0.20f)
     {
         canDash = true;
     }
@@ -125,7 +125,7 @@ void Player::Update(float dt)
         {
             Attack();
         }
-        else if (inputManager.KeyPress(LEFT_ARROW_KEY) or inputManager.KeyPress(RIGHT_ARROW_KEY))
+        else if (right - left)
         {
             Walk();
         }

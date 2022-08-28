@@ -6,16 +6,17 @@
 #define INCLUDE_SDL_IMAGE
 #include "SDL_include.h"
 
-Sprite::Sprite(GameObject &associated, int frameCount, float frameTime, float secondsToSelfDestruct, int restart, float renderWidth) : Component(associated), texture(nullptr),
-                                                                                                                                       selfDestructCount(), frameCount(frameCount), currentFrame(0),
-                                                                                                                                       timeElapsed(0), frameTime(frameTime), renderWidth(renderWidth),
-                                                                                                                                       secondsToSelfDestruct(secondsToSelfDestruct),
-                                                                                                                                       dir(0), restart(restart) {}
+Sprite::Sprite(GameObject &associated, int frameCount, float frameTime, float secondsToSelfDestruct, int restart) : Component(associated), texture(nullptr),
+                                                                                                                    selfDestructCount(), clipScale({1, 1}),
+                                                                                                                    frameCount(frameCount), currentFrame(0),
+                                                                                                                    timeElapsed(), frameTime(frameTime),
+                                                                                                                    secondsToSelfDestruct(secondsToSelfDestruct),
+                                                                                                                    dir(0), restart(restart) {}
 
-Sprite::Sprite(std::string file, GameObject &associated, int frameCount, float frameTime, float secondsToSelfDestruct, int restart, float renderWidth) : Component(associated), texture(nullptr),
-                                                                                                                                      selfDestructCount(), scale({1, 1}),
+Sprite::Sprite(std::string file, GameObject &associated, int frameCount, float frameTime, float secondsToSelfDestruct, int restart) : Component(associated), texture(nullptr),
+                                                                                                                                      selfDestructCount(), scale({1, 1}), clipScale({1, 1}),
                                                                                                                                       frameCount(frameCount), currentFrame(0),
-                                                                                                                                      timeElapsed(0), frameTime(frameTime), renderWidth(renderWidth),
+                                                                                                                                      timeElapsed(), frameTime(frameTime),
                                                                                                                                       secondsToSelfDestruct(secondsToSelfDestruct),
                                                                                                                                       dir(0), restart(restart)
 {
@@ -70,16 +71,16 @@ void Sprite::SetClip(int x, int y, int w, int h)
 
 void Sprite::Update(float dt)
 {
-    timeElapsed += dt;
-    if (timeElapsed > frameTime)
+    timeElapsed.Update(dt);
+    if (timeElapsed.Get() > frameTime)
     {
         currentFrame++;
-        timeElapsed = 0;
         if (currentFrame >= frameCount)
         {
             currentFrame = restart;
         }
-        SetClip((currentFrame)*GetWidth(), 0, GetWidth()*renderWidth, GetHeight());
+        SetClip((currentFrame)*GetWidth(), 0, GetWidth() * clipScale.x, GetHeight());
+        timeElapsed.Restart();
     }
 
     if (secondsToSelfDestruct > 0)
@@ -127,24 +128,19 @@ void Sprite::Render()
 
 void Sprite::NotifyCollision(GameObject &other) {}
 
-void Sprite::SetScaleX(float scaleX, float scaleY)
+void Sprite::SetScale(float scaleX, float scaleY)
 {
-    // % of increase/decrease in size rate
-    float widthChangeRate = scaleX - scale.x;
-    float heightChangeRate = scaleY - scale.y;
-
-    // absolute value of increase/decrease
-    float widthChange = associated.box.w * widthChangeRate;
-    float heightChange = associated.box.h * heightChangeRate;
-
-    // rescale associated box
-    associated.box.w += widthChange;
-    width = associated.box.w;
-    associated.box.h += heightChange;
-    height = associated.box.h;
-
     scale.x = scaleX;
     scale.y = scaleY;
+
+    associated.box.w = clipRect.w * scale.x;
+    associated.box.h = clipRect.h * scale.y;
+}
+
+void Sprite::SetClipScale(float clipScaleX, float clipScaleY)
+{
+    clipScale.x = clipScaleX;
+    clipScale.y = clipScaleY;
 }
 
 void Sprite::SetFrame(int frame)
@@ -169,17 +165,14 @@ void Sprite::SetFrameTime(float frameTime)
     this->frameTime = frameTime;
 }
 
-void Sprite::SetRenderWidth(float renderWidth)
-{
-    this->renderWidth = renderWidth;
-}
-
 void Sprite::SetRestart(int restart)
 {
     this->restart = restart;
 }
 
 Vec2 Sprite::GetScale() { return scale; }
+
+Vec2 Sprite::GetClipScale() { return clipScale; }
 
 int Sprite::GetWidth()
 {

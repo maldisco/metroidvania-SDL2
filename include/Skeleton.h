@@ -1,7 +1,9 @@
 #ifndef SKELETON_H
 #define SKELETON_H
+
 #include "Being.h"
 #include "Timer.h"
+
 
 #define SKELETON_IDLE_FILE "assets/img/skeletonidle.png"
 #define SKELETON_RUN_FILE "assets/img/skeletonrun.png"
@@ -29,5 +31,7 @@ public:
 
 private:
     Timer cooldown;
+    Sprite *sprite;
+    Collider *collider;
 };
 #endif

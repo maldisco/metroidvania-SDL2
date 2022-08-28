@@ -11,6 +11,9 @@ public:
     void LoadAssets();
     void Update(float dt);
     void Render();
+    void PaintOptions();
+    void HandleInput();
+    void SelectOption(int option);
 
     void Start();
     void Pause();

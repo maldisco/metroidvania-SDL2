@@ -10,7 +10,7 @@
 class Hud : public Component
 {
 public:
-    Hud(GameObject &associated, int maxHp = 5);
+    Hud(GameObject &associated, int maxHp);
     void Update(float dt);
     void Render();
     bool Is(std::string type);

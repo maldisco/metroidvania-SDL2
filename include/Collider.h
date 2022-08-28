@@ -28,6 +28,8 @@ public:
     bool Is(std::string type);
     void NotifyCollision(GameObject &other);
 
+    bool IsGrounded();
+
     void SetScale(Vec2 scale);
     void SetOffset(Vec2 offset);
 

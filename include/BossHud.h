@@ -2,6 +2,7 @@
 #define BOSSHUD_H
 #include "Component.h"
 #include "Sprite.h"
+#include "Being.h"
 
 #define BOSS_HPBAR_BG "assets/img/bossbarbg.png"
 #define BOSS_HPBAR "assets/img/bossbar.png"
@@ -11,6 +12,7 @@ class BossHud : public Component
 {
 public:
     BossHud(GameObject &associated, GameObject *boss, int maxHp = 10);
+    void Start();
     void Update(float dt);
     void Render();
     bool Is(std::string type);
@@ -20,5 +22,6 @@ private:
     int maxHp;
     Sprite *hpbar;
     GameObject *boss;
+    Being *status;
 };
 #endif

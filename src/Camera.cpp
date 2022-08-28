@@ -76,13 +76,13 @@ void Camera::Update(float dt)
     }
 
     // camera shake angle
-    float randomShakeAngle = NoiseFun(noisePos++) % 2 == 1 ? (double)NoiseFun(noisePos++) / UINT32_MAX : -(double)NoiseFun(noisePos++) / UINT32_MAX;
+    float randomShakeAngle = NoiseFun(noisePos++) % 2 == 1 ? static_cast<double>(NoiseFun(noisePos++)) / UINT32_MAX : -static_cast<double>(NoiseFun(noisePos++)) / UINT32_MAX;
     float offsetAngle = MAX_ANGLE * (trauma * trauma) * (randomShakeAngle);
     virtualAngle = angle + offsetAngle;
 
     // camera shake pos
-    float randomShakeX = NoiseFun(noisePos++) % 2 == 1 ? (double)NoiseFun(noisePos++) / UINT32_MAX : -(double)NoiseFun(noisePos++) / UINT32_MAX;
-    float randomShakeY = NoiseFun(noisePos++) % 2 == 1 ? (double)NoiseFun(noisePos++) / UINT32_MAX : -(double)NoiseFun(noisePos++) / UINT32_MAX;
+    float randomShakeX = NoiseFun(noisePos++) % 2 == 1 ? static_cast<double>(NoiseFun(noisePos++)) / UINT32_MAX : -static_cast<double>(NoiseFun(noisePos++)) / UINT32_MAX;
+    float randomShakeY = NoiseFun(noisePos++) % 2 == 1 ? static_cast<double>(NoiseFun(noisePos++)) / UINT32_MAX : -static_cast<double>(NoiseFun(noisePos++)) / UINT32_MAX;
     float offsetY = MAX_SHAKE * (trauma * trauma) * randomShakeY;
     float offsetX = MAX_SHAKE * (trauma * trauma) * randomShakeX;
     virtualPos = pos + Vec2(offsetX, offsetY);

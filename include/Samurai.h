@@ -31,5 +31,7 @@ public:
 private:
     Timer cooldown, dashTime;
     Vec2 dashPosLeft, dashPosRight;
+    Sprite *sprite;
+    Collider *collider;
 };
 #endif

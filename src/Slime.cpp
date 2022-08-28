@@ -15,6 +15,8 @@ Slime::Slime(GameObject &associated) : Being(associated, {200, 0}, 1.0f, 3), coo
 
 Slime::~Slime()
 {
+    this->sprite = static_cast<Sprite*>(associated.GetComponent("Sprite"));
+    this->collider = static_cast<Collider*>(associated.GetComponent("Collider"));
 }
 
 void Slime::Start()
@@ -26,8 +28,6 @@ void Slime::Update(float dt)
     // Useful objects
     TileMap *tileMap = ((StageState &)Game::GetInstance().GetCurrentState()).GetTileMap();
     TileSet *tileSet = ((StageState &)Game::GetInstance().GetCurrentState()).GetTileSet();
-    Sprite *sprite = (Sprite *)associated.GetComponent("Sprite");
-    Collider *collider = (Collider *)associated.GetComponent("Collider");
     InputManager &inputManager = InputManager::GetInstance();
 
     // check if knockbacking
@@ -131,11 +131,10 @@ void Slime::Update(float dt)
         // Actions
         if (sprite->GetCurrentFrame() == 2)
         {
-            GameObject *damage = new GameObject();
+            GameObject *damage = new GameObject(0, collider->box.y);
             damage->AddComponent(new Damage(*damage, 1, true, 0.3f));
             damage->box.w = 96;
             damage->box.h = 96;
-            damage->box.y = collider->box.y;
             if (dir >= 0)
                 damage->box.x = collider->box.x + collider->box.w;
             else
@@ -198,10 +197,9 @@ void Slime::NotifyCollision(GameObject &other)
 {
     if (other.GetComponent("Damage") != nullptr)
     {
-        Damage *damage = (Damage *)other.GetComponent("Damage");
+        Damage *damage = static_cast<Damage*>(other.GetComponent("Damage"));
         if (not damage->targetsPlayer and not(charState == DEAD or charState == HURT))
         {
-            Sprite *sprite = (Sprite *)associated.GetComponent("Sprite");
             this->hp -= damage->GetDamage();
             other.RequestDelete();
             

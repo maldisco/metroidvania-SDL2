@@ -8,8 +8,12 @@ BossHud::BossHud(GameObject &associated, GameObject *boss, int maxHp) : Componen
 {
     associated.AddComponent(new Sprite(BOSS_HPBAR_BG, associated));
     associated.AddComponent(hpbar);
-    associated.AddComponent(new Sprite(BOSS_HPBAR_BORDER, associated));
     associated.AddComponent(new CameraFollower(associated, {CAMERA_WIDTH / 2 - 824 / 2, 860}));
+}
+
+void BossHud::Start()
+{
+    this->status = (Being *)boss->GetComponent("Samurai");
 }
 
 void BossHud::Render()
@@ -18,10 +22,10 @@ void BossHud::Render()
 
 void BossHud::Update(float dt)
 {   
-    if(((Being *)boss->GetComponent("Samurai"))->GetHp() <= 0)
+    if(status->GetHp() <= 0)
         associated.RequestDelete();
     
-    hpbar->SetRenderWidth((float)((Being *)boss->GetComponent("Samurai"))->GetHp() / (float)maxHp);
+    hpbar->SetClipScale(static_cast<float>(status->GetHp()) / static_cast<float>(maxHp), hpbar->GetClipScale().y);
 }
 
 bool BossHud::Is(std::string type)

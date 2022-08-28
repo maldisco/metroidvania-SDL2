@@ -29,5 +29,7 @@ public:
 
 private:
     Timer cooldown;
+    Sprite *sprite;
+    Collider *collider;
 };
 #endif

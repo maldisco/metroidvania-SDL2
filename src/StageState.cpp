@@ -13,7 +13,6 @@
 #include "Collider.h"
 #include "TitleState.h"
 #include "PauseState.h"
-#include "EndState.h"
 #include "Resources.h"
 #include "GameData.h"
 #include "Sensor.h"
@@ -25,18 +24,16 @@
 StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinnabar.mp3")
 {
 	// all stages have a map (with the same tileset)
-	GameObject *map = new GameObject();
+	GameObject *map = new GameObject(0, 0);
 	tileSet = new TileSet(*map, 64, 64, "assets/img/foresTileset.png");
 
 	// all stages have a player
-	GameObject *player = new GameObject();
-	player->AddComponent(new Player(*player));
-	player->box.x = GameData::playerPos.x;
-	player->box.y = GameData::playerPos.y;
+	GameObject *player = new GameObject(GameData::playerPos.x, GameData::playerPos.y);
+	new Player(*player);
 
 	// all stages have HUD
 	GameObject *hud = new GameObject();
-	hud->AddComponent(new Hud(*hud, 5));
+	new Hud(*hud, 5); // Hud adds itself as component
 
 	GameObject *enemy = new GameObject();
 	GameObject *sensor = new GameObject();
@@ -47,102 +44,76 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 	switch (stage)
 	{
 	case 0:
-		background = new GameObject();
+		background = new GameObject(0, 0);
 		background->AddComponent(new TileMap(*background, "assets/map/background.tmj", tileSet, true));
-		background->box.x = 0;
-		background->box.y = 0;
 		AddObject(background);
 
-		npc = new GameObject();
+		npc = new GameObject(20 * tileSet->GetTileWidth(), 875);
 		npc->AddComponent(new Npc(*npc, "assets/img/bluewitch.png", "assets/dialogues/bluewitch.txt"));
-		npc->box.x = 20 * tileSet->GetTileWidth();
-		npc->box.y = 875;
 		AddObject(npc);
 
 		AddObject(player);
 
 		tileMap = new TileMap(*map, "assets/map/room0.tmj", tileSet);
 		map->AddComponent(tileMap);
-		map->box.x = 0;
-		map->box.y = 0;
 		AddObject(map);
 
-		sensor = new GameObject();
+		sensor = new GameObject(66 * tileSet->GetTileWidth(), 19 * tileSet->GetTileHeight());
 		sensor->AddComponent(new Sensor(*sensor, {35 * tileSet->GetTileWidth(), 2 * tileSet->GetTileHeight()}, 1));
 		sensor->AddComponent(new Collider(*sensor));
-		sensor->box.x = 66 * tileSet->GetTileWidth();
-		sensor->box.y = 19 * tileSet->GetTileHeight();
 		sensor->box.w = tileSet->GetTileWidth() * 4;
 		sensor->box.h = tileSet->GetTileHeight();
 		AddObject(sensor);
 		break;
 
 	case 1:
-		background = new GameObject();
+		background = new GameObject(0, 0);
 		background->AddComponent(new TileMap(*background, "assets/map/background.tmj", tileSet, true));
-		background->box.x = 0;
-		background->box.y = 0;
 		AddObject(background);
 
-		enemy = new GameObject();
+		enemy = new GameObject(500, 80);
 		enemy->AddComponent(new Slime(*enemy));
-		enemy->box.x = 500;
-		enemy->box.y = 80;
 		AddObject(enemy);
 
-		enemy = new GameObject();
+		enemy = new GameObject(700, 80);
 		enemy->AddComponent(new Skeleton(*enemy));
-		enemy->box.x = 700;
-		enemy->box.y = 80;
 		AddObject(enemy);
 
-		enemy = new GameObject();
+		enemy = new GameObject(100, 80);
 		enemy->AddComponent(new Slime(*enemy));
-		enemy->box.x = 100;
-		enemy->box.y = 80;
 		AddObject(enemy);
 
 		AddObject(player);
 
 		tileMap = new TileMap(*map, "assets/map/room1.tmj", tileSet);
 		map->AddComponent(tileMap);
-		map->box.x = 0;
-		map->box.y = 0;
 		AddObject(map);
 
-		sensor = new GameObject();
+		sensor = new GameObject(74 * tileSet->GetTileWidth(), 10 * tileSet->GetTileHeight());
 		sensor->AddComponent(new Sensor(*sensor, {tileSet->GetTileWidth(), 8 * tileSet->GetTileHeight()}, 2));
 		sensor->AddComponent(new Collider(*sensor));
-		sensor->box.x = 74 * tileSet->GetTileWidth();
-		sensor->box.y = 10 * tileSet->GetTileHeight();
 		sensor->box.w = tileSet->GetTileWidth();
 		sensor->box.h = tileSet->GetTileHeight() * 4;
 		AddObject(sensor);
 
-		sensor = new GameObject();
+		sensor = new GameObject(35 * tileSet->GetTileWidth(), 1 * tileSet->GetTileHeight());
 		sensor->AddComponent(new Sensor(*sensor, {64 * tileSet->GetTileWidth(), 15 * tileSet->GetTileHeight()}, 0));
 		sensor->AddComponent(new Collider(*sensor));
-		sensor->box.x = 35 * tileSet->GetTileWidth();
-		sensor->box.y = 1 * tileSet->GetTileHeight();
 		sensor->box.w = tileSet->GetTileWidth() * 4;
 		sensor->box.h = tileSet->GetTileHeight();
 		AddObject(sensor);
 		break;
 
 	case 2:
-		background = new GameObject();
+		background = new GameObject(0, 0);
 		TileSet *bossRoomTS = new TileSet(*background, 64, 64, "assets/img/duskTileSet.png");
 		background->AddComponent(new TileMap(*background, "assets/map/room2bg.tmj", bossRoomTS, true));
-		background->box.x = 0;
-		background->box.y = 0;
 		AddObject(background);
 
 		if (not GameData::samuraiSlain)
 		{
-			boss = new GameObject();
+			boss = new GameObject(17 * tileSet->GetTileWidth(), 9 * tileSet->GetTileHeight());
 			boss->AddComponent(new Samurai(*boss));
-			boss->box.x = 17 * tileSet->GetTileWidth();
-			boss->box.y = 9 * tileSet->GetTileHeight();
 			AddObject(boss);
 
 			bosshud = new GameObject();
@@ -153,15 +124,11 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 
 		tileMap = new TileMap(*map, "assets/map/room2.tmj", tileSet);
 		map->AddComponent(tileMap);
-		map->box.x = 0;
-		map->box.y = 0;
 		AddObject(map);
 
-		sensor = new GameObject();
+		sensor = new GameObject(0, 8 * tileSet->GetTileHeight());
 		sensor->AddComponent(new Sensor(*sensor, {71 * tileSet->GetTileWidth(), 10 * tileSet->GetTileHeight()}, 1));
 		sensor->AddComponent(new Collider(*sensor));
-		sensor->box.x = 0 * tileSet->GetTileWidth();
-		sensor->box.y = 8 * tileSet->GetTileHeight();
 		sensor->box.w = tileSet->GetTileWidth();
 		sensor->box.h = tileSet->GetTileHeight() * 4;
 		AddObject(sensor);
@@ -268,8 +235,8 @@ void StageState::Update(float dt)
 	{
 		for (unsigned j = i + 1; j < collidable.size(); j++)
 		{
-			Collider *collider1 = (Collider *)collidable[i].lock()->GetComponent("Collider");
-			Collider *collider2 = (Collider *)collidable[j].lock()->GetComponent("Collider");
+			Collider *collider1 = static_cast<Collider*>(collidable[i].lock()->GetComponent("Collider"));
+			Collider *collider2 = static_cast<Collider*>(collidable[j].lock()->GetComponent("Collider"));
 			if (Collision::IsColliding(collider1->box, collider2->box, collidable[i].lock()->angleDeg * PI / 180, collidable[j].lock()->angleDeg * PI / 180))
 			{
 				collidable[i].lock()->NotifyCollision(*collidable[j].lock());

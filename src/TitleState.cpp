@@ -8,15 +8,11 @@
 
 TitleState::TitleState() : State()
 {
-    GameObject *bg = new GameObject();
+    GameObject *bg = new GameObject(0, 0);
     bg->AddComponent(new Sprite("assets/img/title.jpg", *bg, 1, 1.0f));
-    bg->box.x = 0;
-    bg->box.y = 0;
     AddObject(bg);
 
-    GameObject *text = new GameObject();
-    text->box.x = CAMERA_WIDTH / 2;
-    text->box.y = 500;
+    GameObject *text = new GameObject(CAMERA_WIDTH / 2, 500);
     text->AddComponent(new Text(*text, "assets/font/callMeMaybe.ttf", 50, Text::BLENDED, "Press space to play", {255, 0, 0, SDL_ALPHA_OPAQUE}));
     AddObject(text);
 }

@@ -24,18 +24,10 @@ private:
      * @brief Rectangle specifying dimensions of the texture
      */
     SDL_Rect clipRect;
-    Vec2 scale;
-    int width;
-    int height;
-    int frameCount;
-    int currentFrame;
-    float timeElapsed;
-    float frameTime;
-    float secondsToSelfDestruct;
-    float renderWidth;
-    Timer selfDestructCount;
-    int dir;
-    int restart;
+    Vec2 scale, clipScale;
+    int width, height, frameCount, currentFrame, dir, restart;
+    float frameTime, secondsToSelfDestruct;
+    Timer timeElapsed, selfDestructCount;
 
 public:
     /**
@@ -47,7 +39,7 @@ public:
      * @param secondsToSelfDestruct
      * @param restart
      */
-    Sprite(GameObject &associated, int frameCount, float frameTime, float secondsToSelfDestruct = 0, int restart = 0, float renderWidth = 1);
+    Sprite(GameObject &associated, int frameCount, float frameTime, float secondsToSelfDestruct = 0, int restart = 0);
 
     /**
      * @brief Construct a new Sprite object
@@ -59,7 +51,7 @@ public:
      * @param secondsToSelfDestruct
      * @param restart
      */
-    Sprite(std::string file, GameObject &associated, int frameCount = 1, float frameTime = 1, float secondsToSelfDestruct = 0, int restart = 0, float renderWidth = 1);
+    Sprite(std::string file, GameObject &associated, int frameCount = 1, float frameTime = 1, float secondsToSelfDestruct = 0, int restart = 0);
     ~Sprite();
 
     /**
@@ -135,13 +127,22 @@ public:
     void NotifyCollision(GameObject &other);
 
     /**
-     * @brief Set sprite scale (size)
+     * @brief Set scale onscreen
      *
      * @param scaleX
      * @param scaleY
      */
-    void SetScaleX(float scaleX, float scaleY);
+    void SetScale(float scaleX, float scaleY);
     Vec2 GetScale();
+
+    /**
+     * @brief Set scale from source image (cut)
+     * 
+     * @param clipScaleX 
+     * @param clipScaleY 
+     */
+    void SetClipScale(float clipScaleX, float clipScaleY);
+    Vec2 GetClipScale();
 
     /**
      * @brief Set the Dir object
@@ -149,13 +150,6 @@ public:
      * @param dir
      */
     void SetDir(int dir);
-
-    /**
-     * @brief Set the renderWidth object
-     * 
-     * @param renderWidth 
-     */
-    void SetRenderWidth(float renderWidth);
 
     /**
      * @brief Get the Width object

@@ -2,7 +2,7 @@
 #define PLAYER_H
 
 #define MAX_SPEEDH 400
-#define JUMP_FORCE 250
+#define JUMP_FORCE 1000
 #define JUMP_HOLD 175
 
 #define PLAYER_JUMP_FILE "assets/img/warrior-jump.png"
@@ -25,6 +25,7 @@
 
 #include "Being.h"
 #include "Sound.h"
+#include "RigidBody.h"
 
 class Player : public Being
 {
@@ -43,6 +44,8 @@ public:
     bool Is(std::string type);
     void NotifyCollision(GameObject &other);
 
+    bool IsOnWall();
+
     void Idle();
     void Attack();
     void Attack2();
@@ -57,8 +60,11 @@ public:
 
 private:
     int combo, jumpCounter;
-    bool invincible, canImpulse, canDash;
-    Timer invincibleTime, jumpImpulse, wallSlideCooldown, dashCooldown;
+    bool invincible, canDash;
+    Timer invincibleTime, wallSlideCooldown, dashCooldown;
     Sound *attackSound, *jumpSound, *hurtSound;
+    Sprite *sprite;
+    Collider *collider;
+    RigidBody *rigidBody;
 };
 #endif

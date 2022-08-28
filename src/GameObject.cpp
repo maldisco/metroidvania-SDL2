@@ -5,7 +5,11 @@
 #define INCLUDE_SDL_IMAGE
 #include "SDL_include.h"
 
-GameObject::GameObject() : started(false), angleDeg(0), isDead(false) {}
+GameObject::GameObject(float x, float y) : started(false), angleDeg(0), isDead(false) 
+{
+    box.x = x;
+    box.y = y;
+}
 
 GameObject::~GameObject()
 {

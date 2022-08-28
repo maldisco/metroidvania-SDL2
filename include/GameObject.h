@@ -19,7 +19,7 @@ public:
     bool started;
     double angleDeg;
 
-    GameObject();
+    GameObject(float x = 0, float y = 0);
 
     ~GameObject();
 

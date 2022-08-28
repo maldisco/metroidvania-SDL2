@@ -12,6 +12,10 @@ public:
     void Update(float dt);
     void Render();
 
+    void HandleInput();
+    void PaintOptions();
+    void SelectOption(int selectedOption);
+
     void Start();
     void Pause();
     void Resume();

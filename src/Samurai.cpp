@@ -9,7 +9,7 @@
 #include "Camera.h"
 
 Samurai::Samurai(GameObject &associated) : Being(associated, {200, 0}, 1.0f, 20), cooldown(), dashTime(),
-dashPosLeft(128, 512), dashPosRight(1152, 512)
+dashPosLeft(128, 574), dashPosRight(1152, 574)
 {
     associated.AddComponent(new Sprite(SAMURAI_IDLE_FILE, associated, 7, 0.05f));
     associated.AddComponent(new Collider(associated, {47 / associated.box.w, 85 / associated.box.h}, {0, 0}));
@@ -22,6 +22,8 @@ Samurai::~Samurai()
 
 void Samurai::Start()
 {
+    this->sprite = static_cast<Sprite*>(associated.GetComponent("Sprite"));
+    this->collider = static_cast<Collider*>(associated.GetComponent("Collider"));
 }
 
 void Samurai::Update(float dt)
@@ -29,8 +31,6 @@ void Samurai::Update(float dt)
     // Useful objects
     TileMap *tileMap = ((StageState &)Game::GetInstance().GetCurrentState()).GetTileMap();
     TileSet *tileSet = ((StageState &)Game::GetInstance().GetCurrentState()).GetTileSet();
-    Sprite *sprite = (Sprite *)associated.GetComponent("Sprite");
-    Collider *collider = (Collider *)associated.GetComponent("Collider");
     InputManager &inputManager = InputManager::GetInstance();
 
     // check if in ground
@@ -100,11 +100,10 @@ void Samurai::Update(float dt)
         if (sprite->GetCurrentFrame() >= 6)
         {
             moveX(speed.x * 5 * dt, collider->box, tileMap, tileSet);
-            GameObject *damage = new GameObject();
-            damage->AddComponent(new Damage(*damage, 2, true, 0.2f));
+            GameObject *damage = new GameObject(0, collider->box.y + 30);
+            damage->AddComponent(new Damage(*damage, 2, true, 0.1f));
             damage->box.w = 116;
             damage->box.h = 35;
-            damage->box.y = collider->box.y + 30;
             if (speed.x >= 0)
                 damage->box.x = collider->box.x + collider->box.w;
             else
@@ -131,12 +130,10 @@ void Samurai::Update(float dt)
         if (sprite->GetCurrentFrame() >= 6)
         {
             moveY(speed.y / 4 * dt, collider->box, tileMap, tileSet);
-            GameObject *damage = new GameObject();
-            damage->AddComponent(new Damage(*damage, 2, true, 0.2f));
+            GameObject *damage = new GameObject(collider->box.x - 30, collider->box.y + collider->box.h);
+            damage->AddComponent(new Damage(*damage, 2, true, 0.1f));
             damage->box.w = 116;
             damage->box.h = 35;
-            damage->box.y = collider->box.y + collider->box.h;
-            damage->box.x = collider->box.x - 30;
             damage->angleDeg = associated.angleDeg;
 
             Game::GetInstance().GetCurrentState().AddObject(damage);
@@ -203,10 +200,9 @@ void Samurai::NotifyCollision(GameObject &other)
 {
     if (other.GetComponent("Damage") != nullptr)
     {
-        Damage *damage = (Damage *)other.GetComponent("Damage");
+        Damage *damage = static_cast<Damage*>(other.GetComponent("Damage"));
         if (not damage->targetsPlayer and not(charState == DEAD or charState == HURT))
         {
-            Sprite *sprite = (Sprite *)associated.GetComponent("Sprite");
             this->hp -= damage->GetDamage();
             other.RequestDelete();
 

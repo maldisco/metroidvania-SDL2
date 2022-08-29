@@ -26,12 +26,13 @@
 #include "Being.h"
 #include "Sound.h"
 #include "RigidBody.h"
+#include "Animator.h"
 
 class Player : public Being
 {
 public:
     /**
-     * @brief Construct a new Red Hood object
+     * @brief Construct a new Player object
      *
      * @param associated
      */
@@ -39,10 +40,30 @@ public:
     ~Player();
 
     void Start();
+    void OldUpdate(float dt);
     void Update(float dt);
     void Render();
     bool Is(std::string type);
     void NotifyCollision(GameObject &other);
+
+    void ConfigureAnimator();
+    void SetAnimator();
+    void GatherInput();
+    void JumpCut();
+    void CheckWallSlide();
+    void CheckWallSlideStop();
+    void ResetDash();
+    void ApplyWalkingDirection();
+    void ApplyHorizontalMovement();
+    void ApplyWallSlide();
+    void ApplyJump();
+    void ApplyDash();
+    void ApplyAttack();
+    bool CanAttack();
+    void StopAttacking();
+    void StopDashing();
+    void PauseControl();
+    void HandleCoroutines(float dt);
 
     bool IsOnWall();
 
@@ -59,12 +80,15 @@ public:
     static Player *player;
 
 private:
-    int combo, jumpCounter;
-    bool invincible, canDash;
-    Timer invincibleTime, wallSlideCooldown, dashCooldown;
+    int combo, jumpCounter, inputX, inputJump, inputAttack, inputDash;
+    bool invincible, canDash, isWallSliding, isDashing, isAttacking, canMove;
+    float dashVelocity;
+    Vec2 dashDir, wallJumpForce;
+    Timer invincibleTime, pauseTimer, wallSlideCooldown, dashCooldown;
     Sound *attackSound, *jumpSound, *hurtSound;
     Sprite *sprite;
     Collider *collider;
     RigidBody *rigidBody;
+    Animator *animator;
 };
 #endif

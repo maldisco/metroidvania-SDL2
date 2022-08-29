@@ -10,5 +10,23 @@ public:
     {
         return std::max(min, value) == value ? std::min(max, value) : min;
     }
+
+    static inline bool All(std::vector<bool> list)
+    {
+        for(bool v : list)
+        {
+            if(not v)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    static inline int Sign(int value)
+    {
+        return value >= 0 ? 1 : -1;
+    }
 };
 #endif

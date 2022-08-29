@@ -141,7 +141,7 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 	// Add hud in front of everything onscreen
 	AddObject(hud);
 
-	// make android as camera focus
+	// make player as camera focus
 	Camera::SetPos(player->box.x - 5 * tileSet->GetTileWidth(), player->box.y - 5 * tileSet->GetTileHeight(), tileMap->GetBox());
 	Camera::Follow(player);
 }

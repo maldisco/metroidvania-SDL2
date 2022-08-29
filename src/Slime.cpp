@@ -15,12 +15,12 @@ Slime::Slime(GameObject &associated) : Being(associated, {200, 0}, 1.0f, 3), coo
 
 Slime::~Slime()
 {
-    this->sprite = static_cast<Sprite*>(associated.GetComponent("Sprite"));
-    this->collider = static_cast<Collider*>(associated.GetComponent("Collider"));
 }
 
 void Slime::Start()
 {
+    this->sprite = static_cast<Sprite*>(associated.GetComponent("Sprite"));
+    this->collider = static_cast<Collider*>(associated.GetComponent("Collider"));
 }
 
 void Slime::Update(float dt)

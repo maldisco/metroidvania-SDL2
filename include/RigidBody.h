@@ -8,8 +8,9 @@ class RigidBody : public Component
 {
 public:
     Vec2 velocity;
+    float gravityScale;
 
-    RigidBody(GameObject& associated);
+    RigidBody(GameObject& associated, float gravityScale = 1);
     void Start();
     void Update(float dt);
     void Render();

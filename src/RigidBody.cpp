@@ -4,7 +4,7 @@
 #include "StageState.h"
 #include "Game.h"
 
-RigidBody::RigidBody(GameObject &associated) : Component(associated), velocity()
+RigidBody::RigidBody(GameObject &associated, float gravityScale) : Component(associated), velocity(), gravityScale(gravityScale)
 {
 }
 
@@ -15,15 +15,15 @@ void RigidBody::Start()
 
 void RigidBody::Update(float dt)
 {
-    ApplyGravity();
     MoveX(dt);
     MoveY(dt);
+    ApplyGravity();
 }
 
 void RigidBody::ApplyGravity()
 {
     if (not collider->IsGrounded())
-        velocity = Vec2(velocity.x, velocity.y + GRAVITY);
+        velocity = Vec2(velocity.x, velocity.y + (GRAVITY * gravityScale));
 }
 
 void RigidBody::MoveX(float dt)

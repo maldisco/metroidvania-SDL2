@@ -26,6 +26,7 @@ public:
 
     void Start();
     void NotifyCollision(GameObject &other);
+    void HandleDamage(int dmg);
 
 private:
     Timer cooldown;

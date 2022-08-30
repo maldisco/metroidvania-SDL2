@@ -21,8 +21,6 @@ public:
     void Turn();
     void Update(float dt);
     void Start();
-    void Render();
-    bool Is(std::string type);
     void NotifyCollision(GameObject &other);
     void LoadDialogue(std::string file);
 

@@ -64,16 +64,11 @@ void PauseState::HandleInput()
     int up = InputManager::GetInstance().KeyPress(UP_ARROW_KEY) ? 1 : 0;
     int down = InputManager::GetInstance().KeyPress(DOWN_ARROW_KEY) ? 1 : 0;
     int select = InputManager::GetInstance().KeyPress(E_KEY) ? 1 : 0;
+    quitRequested = InputManager::GetInstance().KeyPress(ESCAPE_KEY) || InputManager::GetInstance().QuitRequested();
 
     selectedOption = Helpers::Clamp(0, selectedOption + (down - up), (int)options.size()-1);
     if (select)
         SelectOption(selectedOption);
-
-    // check if quit was requested
-    if (InputManager::GetInstance().KeyPress(ESCAPE_KEY) || InputManager::GetInstance().QuitRequested())
-    {
-        quitRequested = true;
-    }
 }
 
 void PauseState::SelectOption(int option)
@@ -94,15 +89,15 @@ void PauseState::SelectOption(int option)
 void PauseState::PaintOptions()
 {
     int curOption = 0;
-    for (auto go : QueryObjectsBy("Text"))
+    for (auto go : QueryObjectsBy<Text>())
     {
         if (curOption == selectedOption)
         {
-            static_cast<Text*>(go.lock()->GetComponent("Text"))->SetColor({255, 0, 0, SDL_ALPHA_OPAQUE});
+            static_cast<Text*>(go.lock()->GetComponent<Text>())->SetColor({255, 0, 0, SDL_ALPHA_OPAQUE});
         }
         else
         {
-            static_cast<Text*>(go.lock()->GetComponent("Text"))->SetColor({255, 255, 255, SDL_ALPHA_OPAQUE});
+            static_cast<Text*>(go.lock()->GetComponent<Text>())->SetColor({255, 255, 255, SDL_ALPHA_OPAQUE});
         }
         curOption++;
     }

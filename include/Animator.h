@@ -18,10 +18,7 @@ class Animator : public Component
 public:
     Animator(GameObject &associated, Sprite *sprite, std::string startingState = "idle");
 
-    void Start();
     void Update(float dt);
-    void Render();
-    bool Is(std::string type);
 
     void AddSprite(std::string name, std::string path, float frameTime, float frameCount, int restart = 0);
     void AddCondition(std::string condition);

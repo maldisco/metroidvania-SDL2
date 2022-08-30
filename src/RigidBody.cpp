@@ -10,7 +10,7 @@ RigidBody::RigidBody(GameObject &associated, float gravityScale) : Component(ass
 
 void RigidBody::Start()
 {
-    collider = static_cast<Collider *>(associated.GetComponent("Collider"));
+    collider = static_cast<Collider *>(associated.GetComponent<Collider>());
 }
 
 void RigidBody::Update(float dt)
@@ -81,16 +81,4 @@ void RigidBody::MoveY(float dt)
     }
 
     associated.box.y += motion;
-}
-
-void RigidBody::Render() {}
-
-bool RigidBody::Is(std::string type)
-{
-    if (type.compare("RigidBody") == 0)
-    {
-        return true;
-    }
-
-    return false;
 }

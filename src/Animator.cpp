@@ -3,8 +3,6 @@
 
 Animator::Animator(GameObject &associated, Sprite *sprite, std::string startingState) : Component(associated), sprite(sprite), state(startingState) {}
 
-void Animator::Start(){}
-
 void Animator::Update(float dt)
 {
     for(auto connection : connectionMap[state])
@@ -30,8 +28,6 @@ void Animator::ResetConditions()
         condition.second = false;
     }
 }
-
-void Animator::Render(){}
 
 void Animator::AddSprite(std::string name, std::string path, float frameTime, float frameCount, int restart)
 {
@@ -65,22 +61,8 @@ std::vector<bool> Animator::CheckConditions(std::vector<std::string> conditions)
     std::vector<bool> check;
     for(auto condition : conditions)
     {
-        if(condition.find(condition) == condition.npos)
-        {
-            SDL_Log("Non existent condition: %s", condition.c_str());
-        }
         check.push_back(conditionMap[condition]);
     }
 
     return check;
-}
-
-bool Animator::Is(std::string type)
-{
-    if (type.compare("Animator") == 0)
-    {
-        return true;
-    }
-
-    return false;
 }

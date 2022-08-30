@@ -16,7 +16,7 @@ Npc::Npc(GameObject &associated, std::string sprite, std::string dialogue) : Com
 
 void Npc::Start()
 {
-    this->sprite = static_cast<Sprite*>(associated.GetComponent("Sprite"));
+    this->sprite = static_cast<Sprite*>(associated.GetComponent<Sprite>());
 }
 
 void Npc::LoadDialogue(std::string file)
@@ -33,10 +33,6 @@ void Npc::LoadDialogue(std::string file)
             dialogueLines.push_back(line);
         }
     }
-}
-
-void Npc::Render()
-{
 }
 
 void Npc::Update(float dt)
@@ -59,18 +55,9 @@ void Npc::Turn()
     }
 }
 
-bool Npc::Is(std::string type)
-{
-    if (type.compare("Npc") == 0)
-    {
-        return true;
-    }
-
-    return false;
-}
 void Npc::NotifyCollision(GameObject &other)
 {
-    if (other.GetComponent("Player") != nullptr)
+    if (other.GetComponent<Player>() != nullptr)
     {
         if(InputManager::GetInstance().KeyPress(E_KEY))
         {

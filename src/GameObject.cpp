@@ -2,6 +2,8 @@
 #include "algorithm"
 #include "Component.h"
 
+#include <typeinfo>
+
 #define INCLUDE_SDL_IMAGE
 #include "SDL_include.h"
 
@@ -63,32 +65,13 @@ void GameObject::AddComponent(Component *cpt)
 
 void GameObject::RemoveComponent(Component *cpt)
 {
-    // iterate through components
     for (unsigned i = 0; i < components.size(); i++)
     {
-        // find the one thats equal to argument
         if (components[i].get() == cpt)
         {
-            // erase it
             components.erase(components.begin() + i);
         }
     }
-}
-
-Component *GameObject::GetComponent(std::string type)
-{
-    // iterate through components
-    for (unsigned i = 0; i < components.size(); i++)
-    {
-        // if type (string like 'Sound' or 'Face') equals argument
-        if (components[i]->Is(type))
-        {
-            // return it
-            return components[i].get();
-        }
-    }
-
-    return nullptr;
 }
 
 void GameObject::NotifyCollision(GameObject &other)

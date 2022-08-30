@@ -40,7 +40,7 @@ std::shared_ptr<Mix_Music> Resources::GetMusic(std::string file)
         return musicTable[file];
     }
 
-    std::cout << "Carregou " << file << "\n";
+    std::cout << " - Carregou " << file << "\n";
     Mix_Music *music = Mix_LoadMUS(file.c_str());
     musicTable[file] = std::shared_ptr<Mix_Music>(music, [](Mix_Music *ptr)
                                                   { Mix_FreeMusic(ptr); });

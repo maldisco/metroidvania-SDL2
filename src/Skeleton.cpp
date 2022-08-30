@@ -19,8 +19,8 @@ Skeleton::~Skeleton()
 
 void Skeleton::Start()
 {
-    this->sprite = static_cast<Sprite*>(associated.GetComponent("Sprite"));
-    this->collider = static_cast<Collider*>(associated.GetComponent("Collider"));
+    this->sprite = static_cast<Sprite*>(GetComponent<Sprite>());
+    this->collider = static_cast<Collider*>(GetComponent<Collider>());
 }
 
 void Skeleton::Update(float dt)
@@ -189,25 +189,11 @@ void Skeleton::Update(float dt)
     sprite->SetDir(dir);
 }
 
-void Skeleton::Render()
-{
-}
-
-bool Skeleton::Is(std::string type)
-{
-    if (type.compare("Skeleton") == 0)
-    {
-        return true;
-    }
-
-    return false;
-}
-
 void Skeleton::NotifyCollision(GameObject &other)
 {
-    if (other.GetComponent("Damage") != nullptr)
+    if (other.GetComponent<Damage>() != nullptr)
     {
-        Damage *damage = static_cast<Damage*>(other.GetComponent("Damage"));
+        Damage *damage = static_cast<Damage*>(other.GetComponent<Damage>());
         if (not damage->targetsPlayer and not(charState == DEAD or charState == HURT))
         {
             this->hp -= damage->GetDamage();

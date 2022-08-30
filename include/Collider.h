@@ -25,9 +25,7 @@ public:
     Collider(GameObject &associated, Vec2 scale = {1, 1}, Vec2 offset = {0, 0});
     void Update(float dt);
     void Render();
-    bool Is(std::string type);
-    void NotifyCollision(GameObject &other);
-
+    
     bool IsGrounded();
 
     void SetScale(Vec2 scale);

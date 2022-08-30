@@ -32,10 +32,6 @@ public:
     bool IsOpen();
 
     void Update(float dt);
-    void Render();
-    void NotifyCollision(GameObject &other);
-
-    bool Is(std::string type);
 
 private:
     std::shared_ptr<Mix_Chunk> chunk;

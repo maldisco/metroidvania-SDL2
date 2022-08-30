@@ -41,7 +41,7 @@ void Camera::Update(float dt)
 {
     if (focus)
     {
-        Collider *collider = (Collider *)focus->GetComponent("Collider");
+        Collider *collider = (Collider *)focus->GetComponent<Collider>();
         Rect mapBox = ((StageState &)Game::GetInstance().GetCurrentState()).GetTileMap()->GetBox();
 
         if (Player::player->GetDir() >= 0)
@@ -57,7 +57,7 @@ void Camera::Update(float dt)
         }
         else
         {
-            window.x = 736;
+            window.x = 836;
 
             if (collider->box.x < (pos.x + window.x))
             {

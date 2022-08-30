@@ -22,8 +22,8 @@ Samurai::~Samurai()
 
 void Samurai::Start()
 {
-    this->sprite = static_cast<Sprite*>(associated.GetComponent("Sprite"));
-    this->collider = static_cast<Collider*>(associated.GetComponent("Collider"));
+    this->sprite = static_cast<Sprite*>(associated.GetComponent<Sprite>());
+    this->collider = static_cast<Collider*>(associated.GetComponent<Collider>());
 }
 
 void Samurai::Update(float dt)
@@ -182,25 +182,11 @@ void Samurai::Update(float dt)
     sprite->SetDir(dir);
 }
 
-void Samurai::Render()
-{
-}
-
-bool Samurai::Is(std::string type)
-{
-    if (type.compare("Samurai") == 0)
-    {
-        return true;
-    }
-
-    return false;
-}
-
 void Samurai::NotifyCollision(GameObject &other)
 {
-    if (other.GetComponent("Damage") != nullptr)
+    if (other.GetComponent<Damage>() != nullptr)
     {
-        Damage *damage = static_cast<Damage*>(other.GetComponent("Damage"));
+        Damage *damage = static_cast<Damage*>(other.GetComponent<Damage>());
         if (not damage->targetsPlayer and not(charState == DEAD or charState == HURT))
         {
             this->hp -= damage->GetDamage();

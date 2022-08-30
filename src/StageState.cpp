@@ -11,7 +11,6 @@
 #include "Slime.h"
 #include "Collision.cpp"
 #include "Collider.h"
-#include "TitleState.h"
 #include "PauseState.h"
 #include "Resources.h"
 #include "GameData.h"
@@ -162,7 +161,6 @@ void StageState::Start()
 
 void StageState::LoadAssets()
 {
-	std::cout << "Carregando sprites do personagem principal...\n";
 	Resources::GetImage(PLAYER_IDLE_FILE);
 	Resources::GetImage(PLAYER_RUN_FILE);
 	Resources::GetImage(PLAYER_JUMP_FILE);
@@ -175,19 +173,16 @@ void StageState::LoadAssets()
 	Resources::GetImage(PLAYER_SLIDE_FILE);
 	Resources::GetImage(PLAYER_ATTACK1_FILE);
 	Resources::GetImage(PLAYER_ATTACK2_FILE);
-	std::cout << "Carregando sprites do inimigo numero 1...\n";
 	Resources::GetImage(SKELETON_IDLE_FILE);
 	Resources::GetImage(SKELETON_RUN_FILE);
 	Resources::GetImage(SKELETON_HURT_FILE);
 	Resources::GetImage(SKELETON_DEATH_FILE);
 	Resources::GetImage(SKELETON_ATTACK_FILE);
-	std::cout << "Carregando sprites do inimigo numero2...";
 	Resources::GetImage(SLIME_IDLE_FILE);
 	Resources::GetImage(SLIME_MOVE_FILE);
 	Resources::GetImage(SLIME_HURT_FILE);
 	Resources::GetImage(SLIME_DEATH_FILE);
 	Resources::GetImage(SLIME_ATTACK_FILE);
-	std::cout << "Carregando fonte...\n";
 	Resources::GetFont(PEABERRY_FONT, 150);
 }
 
@@ -212,12 +207,9 @@ void StageState::Update(float dt)
 		quitRequested = true;
 	}
 
-	if (Player::player == nullptr)
+	if (Player::player == nullptr and InputManager::GetInstance().KeyPress(SPACE_KEY))
 	{
-		if (InputManager::GetInstance().KeyPress(SPACE_KEY))
-		{
-			popRequested = true;
-		}
+		popRequested = true;
 	}
 
 	// check if pause was requested
@@ -230,13 +222,13 @@ void StageState::Update(float dt)
 	UpdateArray(dt);
 
 	// check collidable objects
-	std::vector<std::weak_ptr<GameObject>> collidable = QueryObjectsBy("Collider");
+	std::vector<std::weak_ptr<GameObject>> collidable = QueryObjectsBy<Collider>();
 	for (unsigned i = 0; i < collidable.size(); i++)
 	{
 		for (unsigned j = i + 1; j < collidable.size(); j++)
 		{
-			Collider *collider1 = static_cast<Collider*>(collidable[i].lock()->GetComponent("Collider"));
-			Collider *collider2 = static_cast<Collider*>(collidable[j].lock()->GetComponent("Collider"));
+			Collider *collider1 = static_cast<Collider*>(collidable[i].lock()->GetComponent<Collider>());
+			Collider *collider2 = static_cast<Collider*>(collidable[j].lock()->GetComponent<Collider>());
 			if (Collision::IsColliding(collider1->box, collider2->box, collidable[i].lock()->angleDeg * PI / 180, collidable[j].lock()->angleDeg * PI / 180))
 			{
 				collidable[i].lock()->NotifyCollision(*collidable[j].lock());

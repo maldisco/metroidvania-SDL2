@@ -93,16 +93,6 @@ void Sprite::Update(float dt)
     }
 }
 
-bool Sprite::Is(std::string type)
-{
-    if (type.compare("Sprite") == 0)
-    {
-        return true;
-    }
-
-    return false;
-}
-
 void Sprite::Render(int x, int y)
 {
     SDL_Rect dstrect;
@@ -125,8 +115,6 @@ void Sprite::Render()
 {
     Render(associated.box.x - Camera::virtualPos.x, associated.box.y - Camera::virtualPos.y);
 }
-
-void Sprite::NotifyCollision(GameObject &other) {}
 
 void Sprite::SetScale(float scaleX, float scaleY)
 {

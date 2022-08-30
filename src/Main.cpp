@@ -4,8 +4,7 @@
 int main(int argc, char **argv)
 {
     Game game = Game::GetInstance();
-    State *initialState = new MenuState();
-    game.Push(initialState);
+    game.Push(new MenuState());
     game.Run();
 
     return 0;

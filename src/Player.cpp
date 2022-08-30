@@ -14,6 +14,8 @@
 #include "RigidBody.h"
 #include "Animator.h"
 #include "Helpers.h"
+#include "Gravitypp.h"
+#include "Samurai.h"
 
 Player *Player::player;
 Player::Player(GameObject &associated) : Being(associated, {100, 150}, 1, 5), combo(0), jumpCounter(0), invincible(false), canDash(false), invincibleTime(),
@@ -27,6 +29,7 @@ Player::Player(GameObject &associated) : Being(associated, {100, 150}, 1, 5), co
     associated.AddComponent(this);
     associated.AddComponent(new Animator(associated, sprite));
     associated.AddComponent(sprite);
+    associated.AddComponent(new Gravitypp(associated, 1.5f));
     associated.AddComponent(new RigidBody(associated));
 }
 
@@ -37,25 +40,15 @@ Player::~Player()
 
 void Player::Start()
 {
-    this->sprite = static_cast<Sprite*>(associated.GetComponent("Sprite"));
-    this->collider = static_cast<Collider*>(associated.GetComponent("Collider"));
-    this->rigidBody = static_cast<RigidBody*>(associated.GetComponent("RigidBody"));
-    this->animator = static_cast<Animator*>(associated.GetComponent("Animator"));
+    this->sprite = static_cast<Sprite *>(GetComponent<Sprite>());
+    this->collider = static_cast<Collider *>(GetComponent<Collider>());
+    this->rigidBody = static_cast<RigidBody *>(GetComponent<RigidBody>());
+    this->animator = static_cast<Animator *>(GetComponent<Animator>());
     ConfigureAnimator();
 }
 
 void Player::Update(float dt)
 {
-    if (invincible)
-    {
-        invincibleTime.Update(dt);
-        if (invincibleTime.Get() >= 1.0f)
-        {
-            invincible = false;
-            invincibleTime.Restart();
-        }
-    }
-
     // Game event related (grounded, on wall)
     CheckWallSlideStop();
     ResetDash();
@@ -89,7 +82,7 @@ void Player::GatherInput()
     inputJump = inputManager.KeyPress(Z_KEY) ? 1 : 0;
     inputAttack = inputManager.KeyPress(X_KEY) ? 1 : 0;
 
-    if(inputManager.KeyPress(C_KEY) and canDash)
+    if (inputManager.KeyPress(C_KEY) and canDash)
     {
         isDashing = true;
         canDash = false;
@@ -99,7 +92,7 @@ void Player::GatherInput()
 
 void Player::JumpCut()
 {
-    if(InputManager::GetInstance().KeyRelease(Z_KEY) and rigidBody->velocity.y < 0)
+    if (InputManager::GetInstance().KeyRelease(Z_KEY) and rigidBody->velocity.y < 0)
     {
         rigidBody->velocity = Vec2(rigidBody->velocity.x, rigidBody->velocity.y * 0.1f);
     }
@@ -107,7 +100,7 @@ void Player::JumpCut()
 
 void Player::CheckWallSlide()
 {
-    if(IsOnWall() and not collider->IsGrounded() and inputX != 0 and rigidBody->velocity.y > 0)
+    if (IsOnWall() and not collider->IsGrounded() and inputX != 0 and rigidBody->velocity.y > 0)
     {
         isWallSliding = true;
     }
@@ -115,7 +108,7 @@ void Player::CheckWallSlide()
 
 void Player::CheckWallSlideStop()
 {
-    if(not IsOnWall() or collider->IsGrounded())
+    if (not IsOnWall() or collider->IsGrounded())
     {
         isWallSliding = false;
     }
@@ -123,7 +116,7 @@ void Player::CheckWallSlideStop()
 
 void Player::ApplyWalkingDirection()
 {
-    if(inputX != 0)
+    if (inputX != 0)
     {
         dir = inputX;
         sprite->SetDir(dir);
@@ -132,7 +125,7 @@ void Player::ApplyWalkingDirection()
 
 void Player::ApplyHorizontalMovement()
 {
-    if(canMove and not isDashing)
+    if (canMove and not isDashing)
     {
         rigidBody->velocity = Vec2(inputX * MAX_SPEEDH, rigidBody->velocity.y);
     }
@@ -140,7 +133,7 @@ void Player::ApplyHorizontalMovement()
 
 void Player::ApplyWallSlide()
 {
-    if(isWallSliding and canMove)
+    if (isWallSliding and canMove)
     {
         rigidBody->velocity = Vec2(rigidBody->velocity.x, 16);
     }
@@ -148,7 +141,7 @@ void Player::ApplyWallSlide()
 
 void Player::ApplyDash()
 {
-    if(isDashing)
+    if (isDashing)
     {
         rigidBody->velocity = dashDir * dashVelocity;
     }
@@ -156,11 +149,11 @@ void Player::ApplyDash()
 
 void Player::ApplyJump()
 {
-    if(collider->IsGrounded() and inputJump)
+    if (collider->IsGrounded() and inputJump)
     {
         rigidBody->velocity = Vec2(rigidBody->velocity.x, -JUMP_FORCE / mass);
         jumpSound->Play();
-    } 
+    }
     else if (isWallSliding and inputJump)
     {
         rigidBody->velocity = Vec2(wallJumpForce.x * -dir, wallJumpForce.y);
@@ -171,7 +164,7 @@ void Player::ApplyJump()
 
 void Player::ApplyAttack()
 {
-    if(inputAttack and not isAttacking and CanAttack())
+    if (inputAttack and not isAttacking and CanAttack())
     {
         isAttacking = true;
 
@@ -192,27 +185,33 @@ void Player::ApplyAttack()
 
 void Player::HandleCoroutines(float dt)
 {
-    if(isDashing)
+    if (isDashing)
     {
         dashCooldown.Update(dt);
         StopDashing();
     }
-        
-    if(not canMove)
+
+    if (not canMove)
     {
         pauseTimer.Update(dt);
         PauseControl();
-    } 
+    }
 
-    if(isAttacking)
+    if (isAttacking)
     {
         StopAttacking();
+    }
+
+    if (invincible)
+    {
+        invincibleTime.Update(dt);
+        StopInvincibility();
     }
 }
 
 void Player::StopDashing()
 {
-    if(dashCooldown.Get() > 0.2f)
+    if (dashCooldown.Get() > 0.2f)
     {
         isDashing = false;
         dashCooldown.Restart();
@@ -221,7 +220,7 @@ void Player::StopDashing()
 
 void Player::PauseControl()
 {
-    if(pauseTimer.Get() > 0.1f)
+    if (pauseTimer.Get() > 0.1f)
     {
         canMove = true;
         pauseTimer.Restart();
@@ -230,9 +229,18 @@ void Player::PauseControl()
 
 void Player::StopAttacking()
 {
-    if(sprite->GetCurrentFrame() >= sprite->GetFrameCount()-1)
+    if (sprite->GetCurrentFrame() >= sprite->GetFrameCount() - 1)
     {
         isAttacking = false;
+    }
+}
+
+void Player::StopInvincibility()
+{
+    if (invincibleTime.Get() >= 1.0f)
+    {
+        invincible = false;
+        invincibleTime.Restart();
     }
 }
 
@@ -243,7 +251,7 @@ bool Player::CanAttack()
 
 void Player::ResetDash()
 {
-    if(collider->IsGrounded())
+    if (collider->IsGrounded())
     {
         canDash = true;
     }
@@ -251,9 +259,9 @@ void Player::ResetDash()
 
 void Player::NotifyCollision(GameObject &other)
 {
-    if (other.GetComponent("Damage") != nullptr)
+    if (other.GetComponent<Damage>() != nullptr)
     {
-        Damage *damage = static_cast<Damage*>(other.GetComponent("Damage"));
+        Damage *damage = static_cast<Damage *>(other.GetComponent<Damage>());
 
         if (damage->targetsPlayer and not(isDashing or GameData::playerHp <= 0 or invincible))
         {
@@ -279,7 +287,7 @@ void Player::NotifyCollision(GameObject &other)
             }
         }
     }
-    else if (other.GetComponent("Samurai") != nullptr)
+    else if (other.GetComponent<Samurai>() != nullptr)
     {
         if (not(isDashing or GameData::playerHp <= 0 or invincible))
         {
@@ -297,10 +305,10 @@ void Player::Render() {}
 
 bool Player::IsOnWall()
 {
-    TileMap *tileMap = static_cast<StageState&>(Game::GetInstance().GetCurrentState()).GetTileMap();
-    TileSet *tileSet = static_cast<StageState&>(Game::GetInstance().GetCurrentState()).GetTileSet();
+    TileMap *tileMap = static_cast<StageState &>(Game::GetInstance().GetCurrentState()).GetTileMap();
+    TileSet *tileSet = static_cast<StageState &>(Game::GetInstance().GetCurrentState()).GetTileSet();
 
-    if(dir >= 0)
+    if (dir >= 0)
     {
         return tileMap->IsSolid((collider->box.x + collider->box.w + 1) / tileSet->GetTileWidth(), collider->box.y / tileSet->GetTileHeight());
     }
@@ -324,7 +332,7 @@ void Player::SetAnimator()
     animator->SetCondition("IsAttacking", isAttacking);
     animator->SetCondition("IsDead", GameData::playerHp <= 0);
     animator->SetCondition("IsNotDead", GameData::playerHp > 0);
-    animator->SetCondition("ExitAnim", sprite->GetCurrentFrame() >= sprite->GetFrameCount()-1);
+    animator->SetCondition("ExitAnim", sprite->GetCurrentFrame() >= sprite->GetFrameCount() - 1);
 }
 
 void Player::ConfigureAnimator()
@@ -397,17 +405,7 @@ void Player::ConfigureAnimator()
     animator->AddConnection("wallslide", "idle", {"IsGrounded"});
     animator->AddConnection("wallslide", "jump", {"IsNotOnWall", "IsOnAir", "IsRising"});
     animator->AddConnection("wallslide", "fall", {"IsNotOnWall", "IsOnAir", "IsFalling"});
-    
+
     animator->AddConnection("hurt", "death", {"ExitAnim", "IsDead"});
     animator->AddConnection("hurt", "idle", {"ExitAnim", "IsNotDead"});
-}
-
-bool Player::Is(std::string type)
-{
-    if (type.compare("Player") == 0)
-    {
-        return true;
-    }
-
-    return false;
 }

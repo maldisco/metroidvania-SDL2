@@ -170,16 +170,6 @@ void TileMap::Render()
 }
 
 void TileMap::Update(float dt) {}
-bool TileMap::Is(std::string type)
-{
-    if (type.compare("Tile map") == 0)
-    {
-        return true;
-    }
-
-    return false;
-}
-void TileMap::NotifyCollision(GameObject &other) {}
 
 int TileMap::GetDepth() { return mapDepth; }
 int TileMap::GetWidth() { return mapWidth; }

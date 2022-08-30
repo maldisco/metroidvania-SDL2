@@ -40,7 +40,19 @@ public:
 
     void NotifyCollision(GameObject &other);
 
-    Component *GetComponent(std::string type);
+    template <class T>
+    Component *GetComponent()
+    {
+        for (unsigned i = 0; i < components.size(); i++)
+        {
+            if (dynamic_cast<T*>(components[i].get()) != nullptr)
+            {
+                return components[i].get();
+            }
+        }
+
+        return nullptr;
+    }
 
 private:
     // every component is a part of the entity e.g sprite, sound...

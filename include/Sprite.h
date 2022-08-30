@@ -123,8 +123,6 @@ public:
     void Render();
 
     void Update(float dt);
-    bool Is(std::string type);
-    void NotifyCollision(GameObject &other);
 
     /**
      * @brief Set scale onscreen

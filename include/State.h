@@ -22,13 +22,27 @@ public:
 
     virtual std::weak_ptr<GameObject> AddObject(GameObject *object);
     virtual std::weak_ptr<GameObject> GetObjectPtr(GameObject *object);
+    
     /**
-     * @brief return a vector of gameobjects that contain some component
-     *
-     * @param component
-     * @return std::vector<std::weak_ptr<GameObject>>
+     * @brief Search for gameobjects that contains some type of component
+     * 
+     * @tparam T 
+     * @return std::vector<std::weak_ptr<GameObject>> 
      */
-    virtual std::vector<std::weak_ptr<GameObject>> QueryObjectsBy(std::string component);
+    template <class T>
+    std::vector<std::weak_ptr<GameObject>> QueryObjectsBy()
+    {
+        std::vector<std::weak_ptr<GameObject>> gameObjects;
+        for (unsigned i = 0; i < objectArray.size(); i++)
+        {
+            if (objectArray[i]->GetComponent<T>() != nullptr)
+            {
+                gameObjects.push_back(objectArray[i]);
+            }
+        }
+
+        return gameObjects;
+    }
 
     bool PopRequested();
     bool QuitRequested();

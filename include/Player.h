@@ -43,7 +43,6 @@ public:
     void OldUpdate(float dt);
     void Update(float dt);
     void Render();
-    bool Is(std::string type);
     void NotifyCollision(GameObject &other);
 
     void ConfigureAnimator();
@@ -62,20 +61,12 @@ public:
     bool CanAttack();
     void StopAttacking();
     void StopDashing();
+    void StopInvincibility();
     void PauseControl();
     void HandleCoroutines(float dt);
 
     bool IsOnWall();
 
-    void Idle();
-    void Attack();
-    void Attack2();
-    void Jump();
-    void Jump2();
-    void Walk();
-    void Dash(int dir);
-    void WallSlide();
-    void Fall();
 
     static Player *player;
 

@@ -13,8 +13,6 @@ public:
     RigidBody(GameObject& associated, float gravityScale = 1);
     void Start();
     void Update(float dt);
-    void Render();
-    bool Is(std::string type);
 
 private:
     Collider *collider;

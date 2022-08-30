@@ -1,6 +1,8 @@
 #include "Damage.h"
 #include "sprite.h"
 #include "Collider.h"
+#include "Player.h"
+#include "Skeleton.h"
 
 Damage::Damage(GameObject &associated, int damage, bool targetsPlayer, float msToSelfDestruct) : Component(associated), damage(damage), targetsPlayer(targetsPlayer),
                                                                                                  lifeTime(), msToSelfDestruct(msToSelfDestruct)
@@ -18,34 +20,22 @@ void Damage::Update(float dt)
     }
 }
 
-void Damage::Render() {}
-
 void Damage::NotifyCollision(GameObject &other)
 {
     if (targetsPlayer)
     {
-        if (other.GetComponent("Player") != nullptr)
+        if (other.GetComponent<Player>() != nullptr)
         {
             associated.RequestDelete();
         }
     }
     else
     {
-        if (other.GetComponent("Skeleton") != nullptr)
+        if (other.GetComponent<Skeleton>() != nullptr)
         {
             associated.RequestDelete();
         }
     }
-}
-
-bool Damage::Is(std::string type)
-{
-    if (type.compare("Damage") == 0)
-    {
-        return true;
-    }
-
-    return false;
 }
 
 int Damage::GetDamage() { return damage; }

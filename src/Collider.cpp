@@ -51,17 +51,5 @@ void Collider::Render()
 #endif // DEBUG
 }
 
-void Collider::NotifyCollision(GameObject &other) {}
-
-bool Collider::Is(std::string type)
-{
-	if (type.compare("Collider") == 0)
-	{
-		return true;
-	}
-
-	return false;
-}
-
 void Collider::SetScale(Vec2 scale) { this->scale = scale; }
 void Collider::SetOffset(Vec2 offset) { this->offset = offset; }

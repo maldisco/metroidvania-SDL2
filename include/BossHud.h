@@ -14,9 +14,6 @@ public:
     BossHud(GameObject &associated, GameObject *boss, int maxHp = 10);
     void Start();
     void Update(float dt);
-    void Render();
-    bool Is(std::string type);
-    void NotifyCollision(GameObject &other);
 
 private:
     int maxHp;

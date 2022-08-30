@@ -27,16 +27,7 @@ public:
     /**
      * @brief render (if it can) component on game window
      */
-    virtual void Render() = 0;
-
-    /**
-     * @brief check type of the component
-     *
-     * @param type
-     * @return true
-     * @return false
-     */
-    virtual bool Is(std::string type) = 0;
+    virtual void Render();
 
     /**
      * @brief preparatory actions
@@ -44,9 +35,31 @@ public:
      */
     virtual void Start();
 
-    virtual void NotifyCollision(GameObject &other);
+    /**
+     * @brief Get the Component object
+     * 
+     * @tparam T 
+     * @return Component* 
+     */
+    template <class T>
+    Component *GetComponent()
+    {
+        {
+            return associated.GetComponent<T>();
+        }
+    }
 
-    virtual Rect GetBox();
+    /**
+     * @brief Get the associated Box object
+     * 
+     * @return Rect 
+     */
+    Rect GetBox()
+    {
+        return associated.box;
+    }
+
+    virtual void NotifyCollision(GameObject &other);
 
 protected:
     GameObject &associated;

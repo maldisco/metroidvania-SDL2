@@ -10,19 +10,6 @@ Sound::Sound(std::string file, GameObject &associated) : Sound(associated)
 
 void Sound::Update(float dt) {}
 
-bool Sound::Is(std::string type)
-{
-    if (type.compare("Sound") == 0)
-    {
-        return true;
-    }
-
-    return false;
-}
-
-void Sound::Render() {}
-void Sound::NotifyCollision(GameObject &other) {}
-
 void Sound::Play(int times)
 {
     channel = Mix_PlayChannel(-1, chunk.get(), times - 1);

@@ -107,9 +107,7 @@ public:
     int GetDepth();
 
     void Update(float dt);
-    bool Is(std::string type);
-    void NotifyCollision(GameObject &other);
-
+    
 private:
     /**
      * @brief Matrix that represent game map

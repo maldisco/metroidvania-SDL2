@@ -19,8 +19,8 @@ Skeleton::~Skeleton()
 
 void Skeleton::Start()
 {
-    this->sprite = static_cast<Sprite*>(GetComponent<Sprite>());
-    this->collider = static_cast<Collider*>(GetComponent<Collider>());
+    this->sprite = static_cast<Sprite *>(GetComponent<Sprite>());
+    this->collider = static_cast<Collider *>(GetComponent<Collider>());
 }
 
 void Skeleton::Update(float dt)
@@ -31,15 +31,15 @@ void Skeleton::Update(float dt)
     InputManager &inputManager = InputManager::GetInstance();
 
     // check if knockbacking
-    if(knockback)
-    {   
-        if(dir >= 0)
+    if (knockback)
+    {
+        if (dir >= 0)
             moveX(-knockbackSpeed, collider->box, tileMap, tileSet);
         else
             moveX(knockbackSpeed, collider->box, tileMap, tileSet);
-        knockbackSpeed = knockbackSpeed*0.7;
+        knockbackSpeed = knockbackSpeed * 0.7;
         knockbackTime.Update(dt);
-        if(knockbackTime.Get() >= 0.1f)
+        if (knockbackTime.Get() >= 0.1f)
         {
             knockback = false;
         }
@@ -189,11 +189,42 @@ void Skeleton::Update(float dt)
     sprite->SetDir(dir);
 }
 
+void Skeleton::HandleDamage(int dmg)
+{
+    this->hp -= dmg;
+
+    // add camera shake
+    Camera::AddTrauma(0.4f);
+
+    // add knockback
+    knockback = true;
+    knockbackTime.Restart();
+    knockbackSpeed = 30;
+
+    if (this->charState != ATTACKING)
+    {
+        this->charState = HURT;
+        sprite->Change(SKELETON_HURT_FILE, 0.05, 3);
+    }
+
+    if (this->hp <= 0)
+    {
+        this->charState = DEAD;
+        sprite->Change(SKELETON_DEATH_FILE, 0.05, 13);
+    }
+
+    // add player knockback
+    Player::player->knockback = true;
+
+    // sleep for game feel
+    SDL_Delay(20);
+}
+
 void Skeleton::NotifyCollision(GameObject &other)
 {
     if (other.GetComponent<Damage>() != nullptr)
     {
-        Damage *damage = static_cast<Damage*>(other.GetComponent<Damage>());
+        Damage *damage = static_cast<Damage *>(other.GetComponent<Damage>());
         if (not damage->targetsPlayer and not(charState == DEAD or charState == HURT))
         {
             this->hp -= damage->GetDamage();

@@ -16,6 +16,8 @@
 #include "Helpers.h"
 #include "Gravitypp.h"
 #include "Samurai.h"
+#include "Physics.h"
+#include "Skeleton.h"
 
 Player *Player::player;
 Player::Player(GameObject &associated) : Being(associated, {100, 150}, 1, 5), combo(0), jumpCounter(0), invincible(false), canDash(false), invincibleTime(),
@@ -167,18 +169,16 @@ void Player::ApplyAttack()
     if (inputAttack and not isAttacking and CanAttack())
     {
         isAttacking = true;
-
-        // damage box
-        GameObject *damage = new GameObject(0, collider->box.y - (192 - collider->box.h) / 2);
-        damage->AddComponent(new Damage(*damage, 1, false, 0.15f));
-        damage->box.w = 64;
-        damage->box.h = 192;
-        if (dir >= 0)
-            damage->box.x = collider->box.x + collider->box.w * 1.5;
-        else
-            damage->box.x = collider->box.x - damage->box.w - collider->box.w * 0.5;
-
-        Game::GetInstance().GetCurrentState().AddObject(damage);
+        Vec2 damagePoint = Vec2(collider->box.Center().x + Helpers::Sign(dir)*100, collider->box.Center().y);
+        float damageRadius = 128;
+        auto hitObjects = Physics::OverlapCircleAll(damagePoint, damageRadius, Enums::Enemy);
+        for(auto col : hitObjects)
+        {
+            if(col->GetComponent<Skeleton>() != nullptr)
+            {
+                static_cast<Skeleton*>(col->GetComponent<Skeleton>())->HandleDamage(1);
+            }
+        }
         attackSound->Play();
     }
 }
@@ -300,8 +300,6 @@ void Player::NotifyCollision(GameObject &other)
         }
     }
 }
-
-void Player::Render() {}
 
 bool Player::IsOnWall()
 {

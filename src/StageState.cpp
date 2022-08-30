@@ -27,7 +27,7 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 	tileSet = new TileSet(*map, 64, 64, "assets/img/foresTileset.png");
 
 	// all stages have a player
-	GameObject *player = new GameObject(GameData::playerPos.x, GameData::playerPos.y);
+	GameObject *player = new GameObject(GameData::playerPos.x, GameData::playerPos.y, Enums::Player);
 	new Player(*player);
 
 	// all stages have HUD
@@ -70,15 +70,15 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 		background->AddComponent(new TileMap(*background, "assets/map/background.tmj", tileSet, true));
 		AddObject(background);
 
-		enemy = new GameObject(500, 80);
+		enemy = new GameObject(500, 80, Enums::Enemy);
 		enemy->AddComponent(new Slime(*enemy));
 		AddObject(enemy);
 
-		enemy = new GameObject(700, 80);
+		enemy = new GameObject(700, 80, Enums::Enemy);
 		enemy->AddComponent(new Skeleton(*enemy));
 		AddObject(enemy);
 
-		enemy = new GameObject(100, 80);
+		enemy = new GameObject(100, 80, Enums::Enemy);
 		enemy->AddComponent(new Slime(*enemy));
 		AddObject(enemy);
 
@@ -111,7 +111,7 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 
 		if (not GameData::samuraiSlain)
 		{
-			boss = new GameObject(17 * tileSet->GetTileWidth(), 9 * tileSet->GetTileHeight());
+			boss = new GameObject(17 * tileSet->GetTileWidth(), 9 * tileSet->GetTileHeight(), Enums::Enemy);
 			boss->AddComponent(new Samurai(*boss));
 			AddObject(boss);
 

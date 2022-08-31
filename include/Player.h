@@ -27,6 +27,8 @@
 #include "RigidBody.h"
 #include "Animator.h"
 #include "IHittable.h"
+#include "Health.h"
+#include "Transform.h"
 
 class Player : public Component, public IHittable
 {
@@ -74,12 +76,14 @@ private:
     int combo, jumpCounter, inputX, inputJump, inputAttack, inputDash;
     bool invincible, canDash, isWallSliding, isDashing, isAttacking, canMove;
     float dashVelocity, attackRadius;
-    Vec2 dashDir, wallJumpForce, attackPoint;
+    Vec2 dashDir, wallJumpForce;
     Timer invincibleTime, pauseTimer, wallSlideCooldown, dashCooldown;
     Sound *attackSound, *jumpSound, *hurtSound;
     Sprite *sprite;
     Collider *collider;
     RigidBody *rigidBody;
     Animator *animator;
+    Health *health;
+    Transform *attackPoint;
 };
 #endif

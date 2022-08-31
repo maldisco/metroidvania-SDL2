@@ -22,7 +22,7 @@ public:
      *
      * @param dt
      */
-    virtual void Update(float dt) = 0;
+    virtual void Update(float dt);
 
     /**
      * @brief render (if it can) component on game window

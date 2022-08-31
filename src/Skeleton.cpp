@@ -13,6 +13,7 @@ Skeleton::Skeleton(GameObject &associated) : Component(associated), cooldown()
     associated.AddComponent(new Sprite(SKELETON_IDLE_FILE, associated, 4, 0.05f));
     associated.AddComponent(new Collider(associated, {64 / associated.box.w, 128 / associated.box.h}));
     associated.AddComponent(new RigidBody(associated));
+    associated.AddComponent(new Health(associated, 3));
 }
 
 Skeleton::~Skeleton()
@@ -24,10 +25,13 @@ void Skeleton::Start()
     this->sprite = GetComponent<Sprite>();
     this->collider = GetComponent<Collider>();
     this->rigidBody = GetComponent<RigidBody>();
+    this->health = GetComponent<Health>();
 }
 
 void Skeleton::Update(float dt)
 {
+    HandleDeath();
+
     switch (charState)
     {
     case IDLE:
@@ -143,12 +147,17 @@ void Skeleton::Update(float dt)
     case DEAD:
         // Actions
 
-        // State change conditions
-        if (sprite->GetCurrentFrame() == sprite->GetFrameCount() - 1)
-        {
-            associated.RequestDelete();
-        }
         break;
+    }
+}
+
+void Skeleton::HandleDeath()
+{
+    if(health->hp <= 0 and charState != DEAD)
+    {
+        this->charState = DEAD;
+        sprite->Change(SKELETON_DEATH_FILE, 0.05, 13, 12);
+        associated.layer = Enums::Corpse;
     }
 }
 
@@ -168,31 +177,4 @@ void Skeleton::HandleDamage(Rect &box)
 
 void Skeleton::NotifyCollision(GameObject &other)
 {
-    if (other.GetComponent<Damage>() != nullptr)
-    {
-        Damage *damage = static_cast<Damage *>(other.GetComponent<Damage>());
-        if (not damage->targetsPlayer and not(charState == DEAD or charState == HURT))
-        {
-            this->hp -= damage->GetDamage();
-            other.RequestDelete();
-
-            // add camera shake
-            Camera::AddTrauma(0.4f);
-
-            if (this->charState != ATTACKING)
-            {
-                this->charState = HURT;
-                sprite->Change(SKELETON_HURT_FILE, 0.05, 3);
-            }
-
-            if (this->hp <= 0)
-            {
-                this->charState = DEAD;
-                sprite->Change(SKELETON_DEATH_FILE, 0.05, 13);
-            }
-
-            // sleep for game feel
-            SDL_Delay(20);
-        }
-    }
 }

@@ -17,6 +17,7 @@
 #include "Gravitypp.h"
 #include "Physics.h"
 #include "Skeleton.h"
+#include "Transform.h"
 
 Player *Player::player;
 Player::Player(GameObject &associated) : Component(associated), combo(0), jumpCounter(0), invincible(false), canDash(false), invincibleTime(),
@@ -27,7 +28,9 @@ Player::Player(GameObject &associated) : Component(associated), combo(0), jumpCo
     player = this;
     Sprite *sprite = new Sprite(PLAYER_IDLE_FILE, associated, 6, 0.05f);
     associated.AddComponent(new Collider(associated, {60 / associated.box.w, 128 / associated.box.h}, {0, 20}));
+    associated.AddComponent(new Transform(associated, Vec2(75, 0)));
     associated.AddComponent(this);
+    associated.AddComponent(new Health(associated, 10));
     associated.AddComponent(new Animator(associated, sprite));
     associated.AddComponent(sprite);
     associated.AddComponent(new Gravitypp(associated, 1.5f));
@@ -45,13 +48,13 @@ void Player::Start()
     this->collider = GetComponent<Collider>();
     this->rigidBody = GetComponent<RigidBody>();
     this->animator = GetComponent<Animator>();
+    this->health = GetComponent<Health>();
+    this->attackPoint = GetComponent<Transform>();
     ConfigureAnimator();
 }
 
 void Player::Update(float dt)
 {
-    attackPoint = Vec2(collider->box.Center().x + Helpers::Sign(associated.direction)*75, collider->box.Center().y);
-
     // Game event related (grounded, on wall)
     CheckWallSlideStop();
     ResetDash();
@@ -79,7 +82,7 @@ void Player::Update(float dt)
 
 void Player::Render()
 {
-    Physics::DrawCircle(Game::GetInstance().GetRenderer(), attackPoint.x - Camera::virtualPos.x, attackPoint.y - Camera::virtualPos.y, attackRadius);
+    Physics::DrawCircle(Game::GetInstance().GetRenderer(), attackPoint->position.x - Camera::virtualPos.x, attackPoint->position.y - Camera::virtualPos.y, attackRadius);
 }
 
 void Player::GatherInput()
@@ -174,10 +177,11 @@ void Player::ApplyAttack()
     if (inputAttack and not isAttacking and CanAttack())
     {
         isAttacking = true;
-        auto hitEnemies = Physics::OverlapCircleAll(attackPoint, attackRadius, Enums::Enemy);
+        auto hitEnemies = Physics::OverlapCircleAll(attackPoint->position, attackRadius, Enums::Enemy);
         for(auto enemy : hitEnemies)
         {
             enemy->GetComponent<IHittable>()->HandleDamage(associated.box);
+            enemy->GetComponent<Health>()->Damage(1);
         }
         attackSound->Play();
     }

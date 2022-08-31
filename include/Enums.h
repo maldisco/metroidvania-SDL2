@@ -7,7 +7,8 @@ namespace Enums
     {
         Default,
         Enemy,
-        Player
+        Player,
+        Corpse
     };
 }
 

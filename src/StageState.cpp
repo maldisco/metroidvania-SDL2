@@ -7,7 +7,6 @@
 #include "CameraFollower.h"
 #include "Player.h"
 #include "Skeleton.h"
-#include "Collision.cpp"
 #include "Collider.h"
 #include "PauseState.h"
 #include "Resources.h"
@@ -69,6 +68,10 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 		AddObject(background);
 
 		enemy = new GameObject(700, 80, Enums::Enemy);
+		enemy->AddComponent(new Skeleton(*enemy));
+		AddObject(enemy);
+
+		enemy = new GameObject(1200, 80, Enums::Enemy);
 		enemy->AddComponent(new Skeleton(*enemy));
 		AddObject(enemy);
 

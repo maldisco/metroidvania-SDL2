@@ -6,6 +6,8 @@ Component::~Component() {}
 
 void Component::Start() {}
 
+void Component::Update(float dt) {}
+
 void Component::Render() {}
 
 void Component::NotifyCollision(GameObject &other) {}

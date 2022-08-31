@@ -6,6 +6,7 @@
 #include "Timer.h"
 #include "IHittable.h"
 #include "RigidBody.h"
+#include "Health.h"
 
 #define SKELETON_SPEEDX 300
 
@@ -31,6 +32,7 @@ public:
     void Start();
     void NotifyCollision(GameObject &other);
     void HandleDamage(Rect &box);
+    void HandleDeath();
 
 private:
     int hp;
@@ -38,6 +40,7 @@ private:
     Sprite *sprite;
     Collider *collider;
     RigidBody *rigidBody;
+    Health *health;
 
     enum STATE
     {

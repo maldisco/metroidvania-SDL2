@@ -3,7 +3,6 @@
 #include "CameraFollower.h"
 #include "Camera.h"
 #include "Player.h"
-#include "Samurai.h"
 
 BossHud::BossHud(GameObject &associated, GameObject *boss, int maxHp) : Component(associated), boss(boss), maxHp(maxHp), hpbar(new Sprite(BOSS_HPBAR, associated))
 {
@@ -14,13 +13,15 @@ BossHud::BossHud(GameObject &associated, GameObject *boss, int maxHp) : Componen
 
 void BossHud::Start()
 {
-    this->status = static_cast<Being*>(boss->GetComponent<Samurai>());
+    return;
+    //this->status = GetComponent<Samurai>();
 }
 
 void BossHud::Update(float dt)
 {   
-    if(status->GetHp() <= 0)
-        associated.RequestDelete();
+    return;
+    //if(status->GetHp() <= 0)
+        //associated.RequestDelete();
     
-    hpbar->SetClipScale(static_cast<float>(status->GetHp()) / static_cast<float>(maxHp), hpbar->GetClipScale().y);
+    //hpbar->SetClipScale(static_cast<float>(status->GetHp()) / static_cast<float>(maxHp), hpbar->GetClipScale().y);
 }

@@ -15,15 +15,14 @@
 #include "Animator.h"
 #include "Helpers.h"
 #include "Gravitypp.h"
-#include "Samurai.h"
 #include "Physics.h"
 #include "Skeleton.h"
 
 Player *Player::player;
-Player::Player(GameObject &associated) : Being(associated, {100, 150}, 1, 5), combo(0), jumpCounter(0), invincible(false), canDash(false), invincibleTime(),
+Player::Player(GameObject &associated) : Component(associated), combo(0), jumpCounter(0), invincible(false), canDash(false), invincibleTime(),
                                          wallSlideCooldown(), attackSound(new Sound(PLAYER_ATTACK_SOUND, associated)),
                                          jumpSound(new Sound(PLAYER_JUMP_SOUND, associated)), hurtSound(new Sound(PLAYER_HURT_SOUND, associated)),
-                                         dashVelocity(1200), wallJumpForce({400, -1000})
+                                         dashVelocity(1200), wallJumpForce({400, -1000}), attackRadius(64)
 {
     player = this;
     Sprite *sprite = new Sprite(PLAYER_IDLE_FILE, associated, 6, 0.05f);
@@ -42,15 +41,17 @@ Player::~Player()
 
 void Player::Start()
 {
-    this->sprite = static_cast<Sprite *>(GetComponent<Sprite>());
-    this->collider = static_cast<Collider *>(GetComponent<Collider>());
-    this->rigidBody = static_cast<RigidBody *>(GetComponent<RigidBody>());
-    this->animator = static_cast<Animator *>(GetComponent<Animator>());
+    this->sprite = GetComponent<Sprite>();
+    this->collider = GetComponent<Collider>();
+    this->rigidBody = GetComponent<RigidBody>();
+    this->animator = GetComponent<Animator>();
     ConfigureAnimator();
 }
 
 void Player::Update(float dt)
 {
+    attackPoint = Vec2(collider->box.Center().x + Helpers::Sign(associated.direction)*75, collider->box.Center().y);
+
     // Game event related (grounded, on wall)
     CheckWallSlideStop();
     ResetDash();
@@ -58,7 +59,7 @@ void Player::Update(float dt)
     // Fake coroutines
     HandleCoroutines(dt);
 
-    // Input realted
+    // Input related
     JumpCut();
     GatherInput();
 
@@ -76,6 +77,11 @@ void Player::Update(float dt)
     ApplyAttack();
 }
 
+void Player::Render()
+{
+    Physics::DrawCircle(Game::GetInstance().GetRenderer(), attackPoint.x - Camera::virtualPos.x, attackPoint.y - Camera::virtualPos.y, attackRadius);
+}
+
 void Player::GatherInput()
 {
     InputManager &inputManager = InputManager::GetInstance();
@@ -88,7 +94,7 @@ void Player::GatherInput()
     {
         isDashing = true;
         canDash = false;
-        dashDir = Vec2(Helpers::Sign(dir), 0);
+        dashDir = Vec2(Helpers::Sign(associated.direction), 0);
     }
 }
 
@@ -120,8 +126,7 @@ void Player::ApplyWalkingDirection()
 {
     if (inputX != 0)
     {
-        dir = inputX;
-        sprite->SetDir(dir);
+        associated.direction = inputX;
     }
 }
 
@@ -153,12 +158,12 @@ void Player::ApplyJump()
 {
     if (collider->IsGrounded() and inputJump)
     {
-        rigidBody->velocity = Vec2(rigidBody->velocity.x, -JUMP_FORCE / mass);
+        rigidBody->velocity = Vec2(rigidBody->velocity.x, -JUMP_FORCE);
         jumpSound->Play();
     }
     else if (isWallSliding and inputJump)
     {
-        rigidBody->velocity = Vec2(wallJumpForce.x * -dir, wallJumpForce.y);
+        rigidBody->velocity = Vec2(wallJumpForce.x * -associated.direction, wallJumpForce.y);
         canMove = false;
         jumpSound->Play();
     }
@@ -169,15 +174,10 @@ void Player::ApplyAttack()
     if (inputAttack and not isAttacking and CanAttack())
     {
         isAttacking = true;
-        Vec2 damagePoint = Vec2(collider->box.Center().x + Helpers::Sign(dir)*100, collider->box.Center().y);
-        float damageRadius = 128;
-        auto hitObjects = Physics::OverlapCircleAll(damagePoint, damageRadius, Enums::Enemy);
-        for(auto col : hitObjects)
+        auto hitEnemies = Physics::OverlapCircleAll(attackPoint, attackRadius, Enums::Enemy);
+        for(auto enemy : hitEnemies)
         {
-            if(col->GetComponent<Skeleton>() != nullptr)
-            {
-                static_cast<Skeleton*>(col->GetComponent<Skeleton>())->HandleDamage(1);
-            }
+            enemy->GetComponent<IHittable>()->HandleDamage(associated.box);
         }
         attackSound->Play();
     }
@@ -257,6 +257,15 @@ void Player::ResetDash()
     }
 }
 
+void Player::HandleDamage(Rect &box)
+{
+    animator->SetCondition("IsHurt", true);
+    hurtSound->Play();
+    Camera::AddTrauma(0.6f);
+    invincible = true;
+    associated.box.x += Helpers::Sign(associated.box.x - box.x) * 5;
+}
+
 void Player::NotifyCollision(GameObject &other)
 {
     if (other.GetComponent<Damage>() != nullptr)
@@ -287,18 +296,6 @@ void Player::NotifyCollision(GameObject &other)
             }
         }
     }
-    else if (other.GetComponent<Samurai>() != nullptr)
-    {
-        if (not(isDashing or GameData::playerHp <= 0 or invincible))
-        {
-            GameData::playerHp -= 1;
-
-            animator->SetCondition("IsHurt", true);
-            // add camera shake
-            Camera::AddTrauma(0.6f);
-            invincible = true;
-        }
-    }
 }
 
 bool Player::IsOnWall()
@@ -306,14 +303,7 @@ bool Player::IsOnWall()
     TileMap *tileMap = static_cast<StageState &>(Game::GetInstance().GetCurrentState()).GetTileMap();
     TileSet *tileSet = static_cast<StageState &>(Game::GetInstance().GetCurrentState()).GetTileSet();
 
-    if (dir >= 0)
-    {
-        return tileMap->IsSolid((collider->box.x + collider->box.w + 1) / tileSet->GetTileWidth(), collider->box.y / tileSet->GetTileHeight());
-    }
-    else
-    {
-        return tileMap->IsSolid((collider->box.x - 1) / tileSet->GetTileWidth(), collider->box.y / tileSet->GetTileHeight());
-    }
+    return tileMap->IsSolid((collider->box.Center().x + ((collider->box.w/2 + 1)*Helpers::Sign(associated.direction))) / tileSet->GetTileWidth(), collider->box.y / tileSet->GetTileHeight());
 }
 
 void Player::SetAnimator()

@@ -5,7 +5,7 @@ Gravitypp::Gravitypp(GameObject& associated, float fallMultiplier) : Component(a
 
 void Gravitypp::Start()
 {
-    this->rigidBody = static_cast<RigidBody *>(associated.GetComponent<RigidBody>());
+    this->rigidBody = GetComponent<RigidBody>();
 }
 
 void Gravitypp::Update(float dt)

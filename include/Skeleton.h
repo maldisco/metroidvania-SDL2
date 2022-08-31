@@ -1,9 +1,13 @@
 #ifndef SKELETON_H
 #define SKELETON_H
 
-#include "Being.h"
+#include "Component.h"
+#include "Sprite.h"
 #include "Timer.h"
+#include "IHittable.h"
+#include "RigidBody.h"
 
+#define SKELETON_SPEEDX 300
 
 #define SKELETON_IDLE_FILE "assets/img/skeletonidle.png"
 #define SKELETON_RUN_FILE "assets/img/skeletonrun.png"
@@ -11,7 +15,7 @@
 #define SKELETON_ATTACK_FILE "assets/img/skeletonattack.png"
 #define SKELETON_HURT_FILE "assets/img/skeletonhurt.png"
 
-class Skeleton : public Being
+class Skeleton : public Component, public IHittable
 {
 public:
     /**
@@ -26,11 +30,27 @@ public:
 
     void Start();
     void NotifyCollision(GameObject &other);
-    void HandleDamage(int dmg);
+    void HandleDamage(Rect &box);
 
 private:
+    int hp;
     Timer cooldown;
     Sprite *sprite;
     Collider *collider;
+    RigidBody *rigidBody;
+
+    enum STATE
+    {
+        IDLE,
+        WALKING,
+        JUMPING,
+        FALLING,
+        ATTACKING,
+        DASHING,
+        HURT,
+        DEAD,
+        WALLSLIDING
+    };
+    STATE charState;
 };
 #endif

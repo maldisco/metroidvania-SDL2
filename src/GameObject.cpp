@@ -7,7 +7,7 @@
 #define INCLUDE_SDL_IMAGE
 #include "SDL_include.h"
 
-GameObject::GameObject(float x, float y, Enums::Layer layer) : started(false), angleDeg(0), isDead(false), layer(layer)
+GameObject::GameObject(float x, float y, Enums::Layer layer) : started(false), angleDeg(0), isDead(false), layer(layer), direction(1)
 {
     box.x = x;
     box.y = y;

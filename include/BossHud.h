@@ -2,7 +2,6 @@
 #define BOSSHUD_H
 #include "Component.h"
 #include "Sprite.h"
-#include "Being.h"
 
 #define BOSS_HPBAR_BG "assets/img/bossbarbg.png"
 #define BOSS_HPBAR "assets/img/bossbar.png"
@@ -19,6 +18,5 @@ private:
     int maxHp;
     Sprite *hpbar;
     GameObject *boss;
-    Being *status;
 };
 #endif

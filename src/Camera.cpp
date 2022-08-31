@@ -44,7 +44,7 @@ void Camera::Update(float dt)
         Collider *collider = (Collider *)focus->GetComponent<Collider>();
         Rect mapBox = ((StageState &)Game::GetInstance().GetCurrentState()).GetTileMap()->GetBox();
 
-        if (Player::player->GetDir() >= 0)
+        if (Player::player->associated.direction >= 0)
         {
             window.x = 288;
 

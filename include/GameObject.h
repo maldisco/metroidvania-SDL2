@@ -5,6 +5,7 @@
 #include "Rect.h"
 #include <vector>
 #include <memory>
+#include <type_traits>
 
 // forward declaration to dodge circular dependency
 class Component;
@@ -19,6 +20,7 @@ public:
     Rect box;
     bool started;
     double angleDeg;
+    int direction;
     Enums::Layer layer;
 
     GameObject(float x = 0, float y = 0, Enums::Layer layer = Enums::Default);
@@ -42,14 +44,21 @@ public:
 
     void NotifyCollision(GameObject &other);
 
+    /**
+     * @brief Get the Component object
+     * 
+     * @tparam T 
+     * @return std::common_type<T>::type* 
+     */
     template <class T>
-    Component *GetComponent()
+    typename std::common_type<T>::type *GetComponent()
     {
         for (unsigned i = 0; i < components.size(); i++)
         {
             if (dynamic_cast<T *>(components[i].get()) != nullptr)
             {
-                return components[i].get();
+                auto component = dynamic_cast<T *>(components[i].get());
+                return component;
             }
         }
 

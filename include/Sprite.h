@@ -25,7 +25,7 @@ private:
      */
     SDL_Rect clipRect;
     Vec2 scale, clipScale;
-    int width, height, frameCount, currentFrame, dir, restart;
+    int width, height, frameCount, currentFrame, restart;
     float frameTime, secondsToSelfDestruct;
     Timer timeElapsed, selfDestructCount;
 

@@ -39,10 +39,10 @@ public:
      * @brief Get the Component object
      * 
      * @tparam T 
-     * @return Component* 
+     * @return std::common_type<T>::type* 
      */
     template <class T>
-    Component *GetComponent()
+    typename std::common_type<T>::type *GetComponent()
     {
         {
             return associated.GetComponent<T>();
@@ -61,7 +61,6 @@ public:
 
     virtual void NotifyCollision(GameObject &other);
 
-protected:
     GameObject &associated;
 };
 #endif

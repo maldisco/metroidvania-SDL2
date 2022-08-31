@@ -64,7 +64,8 @@ void PauseState::HandleInput()
     int up = InputManager::GetInstance().KeyPress(UP_ARROW_KEY) ? 1 : 0;
     int down = InputManager::GetInstance().KeyPress(DOWN_ARROW_KEY) ? 1 : 0;
     int select = InputManager::GetInstance().KeyPress(E_KEY) ? 1 : 0;
-    quitRequested = InputManager::GetInstance().KeyPress(ESCAPE_KEY) || InputManager::GetInstance().QuitRequested();
+    quitRequested = InputManager::GetInstance().QuitRequested();
+    popRequested = InputManager::GetInstance().KeyPress(ESCAPE_KEY);
 
     selectedOption = Helpers::Clamp(0, selectedOption + (down - up), (int)options.size()-1);
     if (select)

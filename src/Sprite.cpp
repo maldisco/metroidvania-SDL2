@@ -11,14 +11,14 @@ Sprite::Sprite(GameObject &associated, int frameCount, float frameTime, float se
                                                                                                                     frameCount(frameCount), currentFrame(0),
                                                                                                                     timeElapsed(), frameTime(frameTime),
                                                                                                                     secondsToSelfDestruct(secondsToSelfDestruct),
-                                                                                                                    dir(0), restart(restart) {}
+                                                                                                                    restart(restart) {}
 
 Sprite::Sprite(std::string file, GameObject &associated, int frameCount, float frameTime, float secondsToSelfDestruct, int restart) : Component(associated), texture(nullptr),
                                                                                                                                       selfDestructCount(), scale({1, 1}), clipScale({1, 1}),
                                                                                                                                       frameCount(frameCount), currentFrame(0),
                                                                                                                                       timeElapsed(), frameTime(frameTime),
                                                                                                                                       secondsToSelfDestruct(secondsToSelfDestruct),
-                                                                                                                                      dir(0), restart(restart)
+                                                                                                                                      restart(restart)
 {
     Open(file);
 }
@@ -101,14 +101,8 @@ void Sprite::Render(int x, int y)
     dstrect.w = clipRect.w * scale.x;
     dstrect.h = clipRect.h * scale.y;
 
-    if (dir >= 0)
-    {
-        SDL_RenderCopyEx(Game::GetInstance().GetRenderer(), texture.get(), &clipRect, &dstrect, associated.angleDeg - Camera::virtualAngle, nullptr, SDL_FLIP_NONE);
-    }
-    else
-    {
-        SDL_RenderCopyEx(Game::GetInstance().GetRenderer(), texture.get(), &clipRect, &dstrect, associated.angleDeg - Camera::virtualAngle, nullptr, SDL_FLIP_HORIZONTAL);
-    }
+    SDL_RenderCopyEx(Game::GetInstance().GetRenderer(), texture.get(), &clipRect, &dstrect, associated.angleDeg - Camera::virtualAngle,
+                     nullptr, associated.direction >= 0 ? SDL_FLIP_NONE : SDL_FLIP_HORIZONTAL);
 }
 
 void Sprite::Render()
@@ -139,8 +133,6 @@ void Sprite::SetFrame(int frame)
         SetClip((currentFrame)*GetWidth(), 0, GetWidth(), GetHeight());
     }
 }
-
-void Sprite::SetDir(int dir) { this->dir = dir; }
 
 void Sprite::SetFrameCount(int frameCount)
 {

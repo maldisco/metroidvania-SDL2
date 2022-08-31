@@ -23,12 +23,12 @@
 #define PLAYER_JUMP_SOUND "assets/audio/jump1.wav"
 #define PLAYER_HURT_SOUND "assets/audio/damaged2.wav"
 
-#include "Being.h"
 #include "Sound.h"
 #include "RigidBody.h"
 #include "Animator.h"
+#include "IHittable.h"
 
-class Player : public Being
+class Player : public Component, public IHittable
 {
 public:
     /**
@@ -40,7 +40,6 @@ public:
     ~Player();
 
     void Start();
-    void OldUpdate(float dt);
     void Update(float dt);
     void Render();
     void NotifyCollision(GameObject &other);
@@ -67,14 +66,15 @@ public:
 
     bool IsOnWall();
 
+    void HandleDamage(Rect &box);
 
     static Player *player;
 
 private:
     int combo, jumpCounter, inputX, inputJump, inputAttack, inputDash;
     bool invincible, canDash, isWallSliding, isDashing, isAttacking, canMove;
-    float dashVelocity;
-    Vec2 dashDir, wallJumpForce;
+    float dashVelocity, attackRadius;
+    Vec2 dashDir, wallJumpForce, attackPoint;
     Timer invincibleTime, pauseTimer, wallSlideCooldown, dashCooldown;
     Sound *attackSound, *jumpSound, *hurtSound;
     Sprite *sprite;

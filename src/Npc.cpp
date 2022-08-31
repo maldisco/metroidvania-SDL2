@@ -16,7 +16,7 @@ Npc::Npc(GameObject &associated, std::string sprite, std::string dialogue) : Com
 
 void Npc::Start()
 {
-    this->sprite = static_cast<Sprite*>(associated.GetComponent<Sprite>());
+    this->sprite = GetComponent<Sprite>();
 }
 
 void Npc::LoadDialogue(std::string file)
@@ -46,11 +46,11 @@ void Npc::Turn()
     {
         if(Player::player->GetBox().Center().x < associated.box.Center().x)
         {
-            sprite->SetDir(-1);
+            associated.direction = -1;
         }
         else
         {
-            sprite->SetDir(1);
+            associated.direction = 1;
         }
     }
 }

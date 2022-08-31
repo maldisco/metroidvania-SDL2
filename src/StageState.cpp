@@ -7,8 +7,6 @@
 #include "CameraFollower.h"
 #include "Player.h"
 #include "Skeleton.h"
-#include "Samurai.h"
-#include "Slime.h"
 #include "Collision.cpp"
 #include "Collider.h"
 #include "PauseState.h"
@@ -16,7 +14,7 @@
 #include "GameData.h"
 #include "Sensor.h"
 #include "Hud.h"
-#include "BossHud.h"
+#include "Physics.h"
 #include "Npc.h"
 #include "Text.h"
 
@@ -70,16 +68,8 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 		background->AddComponent(new TileMap(*background, "assets/map/background.tmj", tileSet, true));
 		AddObject(background);
 
-		enemy = new GameObject(500, 80, Enums::Enemy);
-		enemy->AddComponent(new Slime(*enemy));
-		AddObject(enemy);
-
 		enemy = new GameObject(700, 80, Enums::Enemy);
 		enemy->AddComponent(new Skeleton(*enemy));
-		AddObject(enemy);
-
-		enemy = new GameObject(100, 80, Enums::Enemy);
-		enemy->AddComponent(new Slime(*enemy));
 		AddObject(enemy);
 
 		AddObject(player);
@@ -108,16 +98,6 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 		TileSet *bossRoomTS = new TileSet(*background, 64, 64, "assets/img/duskTileSet.png");
 		background->AddComponent(new TileMap(*background, "assets/map/room2bg.tmj", bossRoomTS, true));
 		AddObject(background);
-
-		if (not GameData::samuraiSlain)
-		{
-			boss = new GameObject(17 * tileSet->GetTileWidth(), 9 * tileSet->GetTileHeight(), Enums::Enemy);
-			boss->AddComponent(new Samurai(*boss));
-			AddObject(boss);
-
-			bosshud = new GameObject();
-			bosshud->AddComponent(new BossHud(*bosshud, boss, 20));
-		}
 
 		AddObject(player);
 
@@ -178,11 +158,6 @@ void StageState::LoadAssets()
 	Resources::GetImage(SKELETON_HURT_FILE);
 	Resources::GetImage(SKELETON_DEATH_FILE);
 	Resources::GetImage(SKELETON_ATTACK_FILE);
-	Resources::GetImage(SLIME_IDLE_FILE);
-	Resources::GetImage(SLIME_MOVE_FILE);
-	Resources::GetImage(SLIME_HURT_FILE);
-	Resources::GetImage(SLIME_DEATH_FILE);
-	Resources::GetImage(SLIME_ATTACK_FILE);
 	Resources::GetFont(PEABERRY_FONT, 150);
 }
 
@@ -229,7 +204,7 @@ void StageState::Update(float dt)
 		{
 			Collider *collider1 = static_cast<Collider*>(collidable[i].lock()->GetComponent<Collider>());
 			Collider *collider2 = static_cast<Collider*>(collidable[j].lock()->GetComponent<Collider>());
-			if (Collision::IsColliding(collider1->box, collider2->box, collidable[i].lock()->angleDeg * PI / 180, collidable[j].lock()->angleDeg * PI / 180))
+			if (Physics::IsColliding(collider1->box, collider2->box, collidable[i].lock()->angleDeg * PI / 180, collidable[j].lock()->angleDeg * PI / 180))
 			{
 				collidable[i].lock()->NotifyCollision(*collidable[j].lock());
 				collidable[j].lock()->NotifyCollision(*collidable[i].lock());

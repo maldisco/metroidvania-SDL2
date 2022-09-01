@@ -19,6 +19,11 @@ private:
     TileMap *tileMap;
 
 public:
+    /**
+     * @brief Construct a new Stage State object
+     * 
+     * @param stage 
+     */
     StageState(int stage = 0);
     ~StageState();
 

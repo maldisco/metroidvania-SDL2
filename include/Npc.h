@@ -12,7 +12,7 @@ public:
      * @param associated 
      * @param file 
      */
-    Npc(GameObject &associated, std::string sprite, std::string dialogues);
+    Npc(GameObject &associated, std::string dialogues);
 
     /**
      * @brief Turn to look at protagonist

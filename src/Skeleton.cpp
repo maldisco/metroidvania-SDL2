@@ -10,10 +10,6 @@
 
 Skeleton::Skeleton(GameObject &associated) : Component(associated), cooldown()
 {
-    associated.AddComponent(new Sprite(SKELETON_IDLE_FILE, associated, 4, 0.05f));
-    associated.AddComponent(new Collider(associated, {64 / associated.box.w, 128 / associated.box.h}));
-    associated.AddComponent(new RigidBody(associated));
-    associated.AddComponent(new Health(associated, 3));
 }
 
 Skeleton::~Skeleton()

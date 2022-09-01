@@ -7,10 +7,8 @@
 #include "Game.h"
 #include "GameData.h"
 
-Npc::Npc(GameObject &associated, std::string sprite, std::string dialogue) : Component(associated)
+Npc::Npc(GameObject &associated, std::string dialogue) : Component(associated)
 {
-    associated.AddComponent(new Sprite(sprite, associated, 6, 0.1f));
-    associated.AddComponent(new Collider(associated));
     LoadDialogue(dialogue);
 }
 

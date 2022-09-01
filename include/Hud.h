@@ -10,11 +10,12 @@
 class Hud : public Component
 {
 public:
-    Hud(GameObject &associated, int maxHp);
+    Hud(GameObject &associated, Sprite *sprite);
     void Update(float dt);
 
+    void UpdateBar();
+
 private:
-    int maxHp;
     Sprite *hpbar;
 };
 #endif

@@ -26,15 +26,6 @@ Player::Player(GameObject &associated) : Component(associated), combo(0), jumpCo
                                          dashVelocity(1200), wallJumpForce({400, -1000}), attackRadius(64)
 {
     player = this;
-    Sprite *sprite = new Sprite(PLAYER_IDLE_FILE, associated, 6, 0.05f);
-    associated.AddComponent(new Collider(associated, {60 / associated.box.w, 128 / associated.box.h}, {0, 20}));
-    associated.AddComponent(new Transform(associated, Vec2(75, 0)));
-    associated.AddComponent(this);
-    associated.AddComponent(new Health(associated, 10));
-    associated.AddComponent(new Animator(associated, sprite));
-    associated.AddComponent(sprite);
-    associated.AddComponent(new Gravitypp(associated, 1.5f));
-    associated.AddComponent(new RigidBody(associated));
 }
 
 Player::~Player()
@@ -278,26 +269,8 @@ void Player::NotifyCollision(GameObject &other)
 
         if (damage->targetsPlayer and not(isDashing or GameData::playerHp <= 0 or invincible))
         {
-            GameData::playerHp -= damage->GetDamage();
-
-            animator->SetCondition("IsHurt", true);
-
-            // play hurt sound
-            hurtSound->Play();
-
-            // add camera shake
-            Camera::AddTrauma(0.6f);
-            invincible = true;
-
-            // knockback
-            if (damage->GetBox().x > associated.box.x)
-            {
-                associated.box.x -= 5;
-            }
-            else
-            {
-                associated.box.x += 5;
-            }
+            health->Damage(damage->GetDamage());
+            HandleDamage(damage->associated.box);
         }
     }
 }

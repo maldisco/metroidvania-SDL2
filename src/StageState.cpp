@@ -16,6 +16,7 @@
 #include "Physics.h"
 #include "Npc.h"
 #include "Text.h"
+#include "Prefabs.h"
 
 StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinnabar.mp3")
 {
@@ -24,19 +25,8 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 	tileSet = new TileSet(*map, 64, 64, "assets/img/foresTileset.png");
 
 	// all stages have a player
-	GameObject *player = new GameObject(GameData::playerPos.x, GameData::playerPos.y, Enums::Player);
-	new Player(*player);
-
-	// all stages have HUD
-	GameObject *hud = new GameObject();
-	new Hud(*hud, 5); // Hud adds itself as component
-
-	GameObject *enemy = new GameObject();
-	GameObject *sensor = new GameObject();
+	GameObject *player = Prefabs::PlayerPrefab(GameData::playerPos.x, GameData::playerPos.y);
 	GameObject *background = new GameObject();
-	GameObject *boss = new GameObject();
-	GameObject *bosshud = new GameObject();
-	GameObject *npc = new GameObject();
 	switch (stage)
 	{
 	case 0:
@@ -44,9 +34,7 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 		background->AddComponent(new TileMap(*background, "assets/map/background.tmj", tileSet, true));
 		AddObject(background);
 
-		npc = new GameObject(20 * tileSet->GetTileWidth(), 875);
-		npc->AddComponent(new Npc(*npc, "assets/img/bluewitch.png", "assets/dialogues/bluewitch.txt"));
-		AddObject(npc);
+		AddObject(Prefabs::MagdaPrefab(20 * tileSet->GetTileWidth(), 875));
 
 		AddObject(player);
 
@@ -54,12 +42,8 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 		map->AddComponent(tileMap);
 		AddObject(map);
 
-		sensor = new GameObject(66 * tileSet->GetTileWidth(), 19 * tileSet->GetTileHeight());
-		sensor->AddComponent(new Sensor(*sensor, {35 * tileSet->GetTileWidth(), 2 * tileSet->GetTileHeight()}, 1));
-		sensor->AddComponent(new Collider(*sensor));
-		sensor->box.w = tileSet->GetTileWidth() * 4;
-		sensor->box.h = tileSet->GetTileHeight();
-		AddObject(sensor);
+		AddObject(Prefabs::SensorPrefab(66 * tileSet->GetTileWidth(), 19 * tileSet->GetTileHeight(), 4 * tileSet->GetTileWidth(),
+										tileSet->GetTileHeight(), 35 * tileSet->GetTileWidth(), 2 * tileSet->GetTileHeight(), 1));
 		break;
 
 	case 1:
@@ -67,33 +51,21 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 		background->AddComponent(new TileMap(*background, "assets/map/background.tmj", tileSet, true));
 		AddObject(background);
 
-		enemy = new GameObject(700, 80, Enums::Enemy);
-		enemy->AddComponent(new Skeleton(*enemy));
-		AddObject(enemy);
+		AddObject(Prefabs::SkeletonPrefab(700, 80));
 
-		enemy = new GameObject(1200, 80, Enums::Enemy);
-		enemy->AddComponent(new Skeleton(*enemy));
-		AddObject(enemy);
-
+		AddObject(Prefabs::SkeletonPrefab(1200, 80));
+		
 		AddObject(player);
 
 		tileMap = new TileMap(*map, "assets/map/room1.tmj", tileSet);
 		map->AddComponent(tileMap);
 		AddObject(map);
 
-		sensor = new GameObject(74 * tileSet->GetTileWidth(), 10 * tileSet->GetTileHeight());
-		sensor->AddComponent(new Sensor(*sensor, {tileSet->GetTileWidth(), 8 * tileSet->GetTileHeight()}, 2));
-		sensor->AddComponent(new Collider(*sensor));
-		sensor->box.w = tileSet->GetTileWidth();
-		sensor->box.h = tileSet->GetTileHeight() * 4;
-		AddObject(sensor);
+		AddObject(Prefabs::SensorPrefab(74 * tileSet->GetTileWidth(), 10 * tileSet->GetTileHeight(), tileSet->GetTileWidth(),
+										4 * tileSet->GetTileHeight(), tileSet->GetTileWidth(), 8 * tileSet->GetTileHeight(), 2));
 
-		sensor = new GameObject(35 * tileSet->GetTileWidth(), 1 * tileSet->GetTileHeight());
-		sensor->AddComponent(new Sensor(*sensor, {64 * tileSet->GetTileWidth(), 15 * tileSet->GetTileHeight()}, 0));
-		sensor->AddComponent(new Collider(*sensor));
-		sensor->box.w = tileSet->GetTileWidth() * 4;
-		sensor->box.h = tileSet->GetTileHeight();
-		AddObject(sensor);
+		AddObject(Prefabs::SensorPrefab(35 * tileSet->GetTileWidth(), tileSet->GetTileHeight(), tileSet->GetTileWidth() * 4,
+										tileSet->GetTileHeight(), 64 * tileSet->GetTileWidth(), 15 * tileSet->GetTileHeight(), 0));
 		break;
 
 	case 2:
@@ -108,20 +80,13 @@ StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinna
 		map->AddComponent(tileMap);
 		AddObject(map);
 
-		sensor = new GameObject(0, 8 * tileSet->GetTileHeight());
-		sensor->AddComponent(new Sensor(*sensor, {71 * tileSet->GetTileWidth(), 10 * tileSet->GetTileHeight()}, 1));
-		sensor->AddComponent(new Collider(*sensor));
-		sensor->box.w = tileSet->GetTileWidth();
-		sensor->box.h = tileSet->GetTileHeight() * 4;
-		AddObject(sensor);
-
-		if (not GameData::samuraiSlain)
-			AddObject(bosshud);
+		AddObject(Prefabs::SensorPrefab(0, 8 * tileSet->GetTileHeight(), tileSet->GetTileWidth(), 4 * tileSet->GetTileHeight(),
+										71 * tileSet->GetTileWidth(), 10 * tileSet->GetTileHeight(), 1));
 		break;
 	}
 
 	// Add hud in front of everything onscreen
-	AddObject(hud);
+	AddObject(Prefabs::HpBarPrefab(15, 30));
 
 	// make player as camera focus
 	Camera::SetPos(player->box.x - 5 * tileSet->GetTileWidth(), player->box.y - 5 * tileSet->GetTileHeight(), tileMap->GetBox());
@@ -205,8 +170,8 @@ void StageState::Update(float dt)
 	{
 		for (unsigned j = i + 1; j < collidable.size(); j++)
 		{
-			Collider *collider1 = static_cast<Collider*>(collidable[i].lock()->GetComponent<Collider>());
-			Collider *collider2 = static_cast<Collider*>(collidable[j].lock()->GetComponent<Collider>());
+			Collider *collider1 = static_cast<Collider *>(collidable[i].lock()->GetComponent<Collider>());
+			Collider *collider2 = static_cast<Collider *>(collidable[j].lock()->GetComponent<Collider>());
 			if (Physics::IsColliding(collider1->box, collider2->box, collidable[i].lock()->angleDeg * PI / 180, collidable[j].lock()->angleDeg * PI / 180))
 			{
 				collidable[i].lock()->NotifyCollision(*collidable[j].lock());

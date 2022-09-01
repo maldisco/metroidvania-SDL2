@@ -3,9 +3,18 @@
 
 #include "Rect.h"
 
+/**
+ * @brief Interface for signing that object can take damage
+ * 
+ */
 class IHittable
 {
 public:
+    /**
+     * @brief Damage handler
+     * 
+     * @param box position of the origin of the damage
+     */
     virtual void HandleDamage(Rect &box) = 0;
 };
 

@@ -12,6 +12,12 @@ class Transform : public Component
 public:
     Vec2 position;
 
+    /**
+     * @brief Construct a new Transform object
+     * 
+     * @param associated 
+     * @param offset 
+     */
     Transform(GameObject &associated, Vec2 offset);
 
     void Update(float dt);

@@ -17,6 +17,7 @@ public:
 private:
     Collider *collider;
     int tileHeight, tileWidth;
+    float gravity;
 
     void MoveX(float dt);
     void MoveY(float dt);   

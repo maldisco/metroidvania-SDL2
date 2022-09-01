@@ -108,13 +108,13 @@ public:
 
     void Update(float dt);
     
+    TileSet *tileSet;
 private:
     /**
      * @brief Matrix that represent game map
      *
      */
     std::vector<int> tileMatrix;
-    TileSet *tileSet;
     int mapWidth;
     int mapHeight;
     int mapDepth;

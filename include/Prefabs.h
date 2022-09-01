@@ -11,6 +11,7 @@
 #include "RigidBody.h"
 #include "Skeleton.h"
 #include "Hud.h"
+#include "Transition.h"
 
 class Prefabs
 {
@@ -115,6 +116,28 @@ public:
         bar->AddComponent(new CameraFollower(*bar, {x, y}));
 
         return bar;
+    }
+
+    /**
+     * @brief Generates the game object of a transition
+     * 
+     * @param duration transition duration
+     * @return GameObject* 
+     */
+    static GameObject *TransitionPrefab(float duration)
+    {
+        GameObject *transition = new GameObject();
+        transition->AddComponent(new Transition(*transition, duration));
+
+        return transition;
+    }
+
+    static GameObject *TileMapPrefab(std::string tileSet, int tileWidth, int tileHeight, std::string tileMap, bool background = false)
+    {
+        GameObject *map = new GameObject();
+        map->AddComponent(new TileMap(*map, tileMap, new TileSet(*map, tileWidth, tileHeight, tileSet), background));
+
+        return map;
     }
 };
 

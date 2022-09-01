@@ -17,6 +17,7 @@ private:
     Music backgroundMusic;
     TileSet *tileSet;
     TileMap *tileMap;
+    int stage;
 
 public:
     /**
@@ -42,6 +43,8 @@ public:
     void Start();
     void Pause();
     void Resume();
+
+    void LoadStage();
 
     TileMap *GetTileMap();
     TileSet *GetTileSet();

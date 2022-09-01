@@ -18,79 +18,8 @@
 #include "Text.h"
 #include "Prefabs.h"
 
-StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinnabar.mp3")
+StageState::StageState(int stage) : State(), backgroundMusic("assets/audio/cinnabar.mp3"), stage(stage)
 {
-	// all stages have a map (with the same tileset)
-	GameObject *map = new GameObject(0, 0);
-	tileSet = new TileSet(*map, 64, 64, "assets/img/foresTileset.png");
-
-	// all stages have a player
-	GameObject *player = Prefabs::PlayerPrefab(GameData::playerPos.x, GameData::playerPos.y);
-	GameObject *background = new GameObject();
-	switch (stage)
-	{
-	case 0:
-		background = new GameObject(0, 0);
-		background->AddComponent(new TileMap(*background, "assets/map/background.tmj", tileSet, true));
-		AddObject(background);
-
-		AddObject(Prefabs::MagdaPrefab(20 * tileSet->GetTileWidth(), 875));
-
-		AddObject(player);
-
-		tileMap = new TileMap(*map, "assets/map/room0.tmj", tileSet);
-		map->AddComponent(tileMap);
-		AddObject(map);
-
-		AddObject(Prefabs::SensorPrefab(66 * tileSet->GetTileWidth(), 19 * tileSet->GetTileHeight(), 4 * tileSet->GetTileWidth(),
-										tileSet->GetTileHeight(), 35 * tileSet->GetTileWidth(), 2 * tileSet->GetTileHeight(), 1));
-		break;
-
-	case 1:
-		background = new GameObject(0, 0);
-		background->AddComponent(new TileMap(*background, "assets/map/background.tmj", tileSet, true));
-		AddObject(background);
-
-		AddObject(Prefabs::SkeletonPrefab(700, 80));
-
-		AddObject(Prefabs::SkeletonPrefab(1200, 80));
-		
-		AddObject(player);
-
-		tileMap = new TileMap(*map, "assets/map/room1.tmj", tileSet);
-		map->AddComponent(tileMap);
-		AddObject(map);
-
-		AddObject(Prefabs::SensorPrefab(74 * tileSet->GetTileWidth(), 10 * tileSet->GetTileHeight(), tileSet->GetTileWidth(),
-										4 * tileSet->GetTileHeight(), tileSet->GetTileWidth(), 8 * tileSet->GetTileHeight(), 2));
-
-		AddObject(Prefabs::SensorPrefab(35 * tileSet->GetTileWidth(), tileSet->GetTileHeight(), tileSet->GetTileWidth() * 4,
-										tileSet->GetTileHeight(), 64 * tileSet->GetTileWidth(), 15 * tileSet->GetTileHeight(), 0));
-		break;
-
-	case 2:
-		background = new GameObject(0, 0);
-		TileSet *bossRoomTS = new TileSet(*background, 64, 64, "assets/img/duskTileSet.png");
-		background->AddComponent(new TileMap(*background, "assets/map/room2bg.tmj", bossRoomTS, true));
-		AddObject(background);
-
-		AddObject(player);
-
-		tileMap = new TileMap(*map, "assets/map/room2.tmj", tileSet);
-		map->AddComponent(tileMap);
-		AddObject(map);
-
-		AddObject(Prefabs::SensorPrefab(0, 8 * tileSet->GetTileHeight(), tileSet->GetTileWidth(), 4 * tileSet->GetTileHeight(),
-										71 * tileSet->GetTileWidth(), 10 * tileSet->GetTileHeight(), 1));
-		break;
-	}
-
-	// Add hud in front of everything onscreen
-	AddObject(Prefabs::HpBarPrefab(15, 30));
-
-	// make player as camera focus
-	Camera::SetPos(player->box.x - 5 * tileSet->GetTileWidth(), player->box.y - 5 * tileSet->GetTileHeight(), tileMap->GetBox());
-	Camera::Follow(player);
 }
 
 StageState::~StageState()
@@ -101,6 +30,7 @@ StageState::~StageState()
 
 void StageState::Start()
 {
+	LoadStage();
 	LoadAssets();
 	StartArray();
 	backgroundMusic.Play();
@@ -127,6 +57,59 @@ void StageState::LoadAssets()
 	Resources::GetImage(SKELETON_DEATH_FILE);
 	Resources::GetImage(SKELETON_ATTACK_FILE);
 	Resources::GetFont(PEABERRY_FONT, 150);
+}
+
+void StageState::LoadStage()
+{
+	GameObject *map;
+	switch (stage)
+	{
+	case 0:
+		map = Prefabs::TileMapPrefab("assets/img/foresTileset.png", 64, 64, "assets/map/room0.tmj");
+		tileMap = map->GetComponent<TileMap>();
+		tileSet = tileMap->tileSet;
+		AddObject(Prefabs::TileMapPrefab("assets/img/foresTileset.png", 64, 64, "assets/map/background.tmj", true));
+		AddObject(Prefabs::MagdaPrefab(20 * tileSet->GetTileWidth(), 875));
+		AddObject(Prefabs::PlayerPrefab(GameData::playerPos.x, GameData::playerPos.y));
+		AddObject(map);
+		AddObject(Prefabs::SensorPrefab(66 * tileSet->GetTileWidth(), 19 * tileSet->GetTileHeight(), 4 * tileSet->GetTileWidth(),
+										tileSet->GetTileHeight(), 35 * tileSet->GetTileWidth(), 2 * tileSet->GetTileHeight(), 1));
+		break;
+
+	case 1:
+		map = Prefabs::TileMapPrefab("assets/img/foresTileset.png", 64, 64, "assets/map/room1.tmj");
+		tileMap = map->GetComponent<TileMap>();
+		tileSet = tileMap->tileSet;
+		AddObject(Prefabs::TileMapPrefab("assets/img/foresTileset.png", 64, 64, "assets/map/background.tmj", true));
+		AddObject(Prefabs::SkeletonPrefab(700, 80));
+		AddObject(Prefabs::SkeletonPrefab(1200, 80));
+		AddObject(Prefabs::PlayerPrefab(GameData::playerPos.x, GameData::playerPos.y));
+		AddObject(map);
+		AddObject(Prefabs::SensorPrefab(74 * tileSet->GetTileWidth(), 10 * tileSet->GetTileHeight(), tileSet->GetTileWidth(),
+										4 * tileSet->GetTileHeight(), tileSet->GetTileWidth(), 8 * tileSet->GetTileHeight(), 2));
+
+		AddObject(Prefabs::SensorPrefab(35 * tileSet->GetTileWidth(), tileSet->GetTileHeight(), tileSet->GetTileWidth() * 4,
+										tileSet->GetTileHeight(), 64 * tileSet->GetTileWidth(), 15 * tileSet->GetTileHeight(), 0));
+		break;
+
+	case 2:
+		map = Prefabs::TileMapPrefab("assets/img/foresTileset.png", 64, 64, "assets/map/room2.tmj");
+		tileMap = map->GetComponent<TileMap>();
+		tileSet = tileMap->tileSet;
+		AddObject(Prefabs::TileMapPrefab("assets/img/duskTileSet.png", 64, 64, "assets/map/room2bg.tmj", true));
+		AddObject(Prefabs::PlayerPrefab(GameData::playerPos.x, GameData::playerPos.y));
+		AddObject(map);
+		AddObject(Prefabs::SensorPrefab(0, 8 * tileSet->GetTileHeight(), tileSet->GetTileWidth(), 4 * tileSet->GetTileHeight(),
+										71 * tileSet->GetTileWidth(), 10 * tileSet->GetTileHeight(), 1));
+		break;
+	}
+	// Add hud in front of everything onscreen
+	AddObject(Prefabs::HpBarPrefab(15, 30));
+	AddObject(Prefabs::TransitionPrefab(1.5f));
+
+	// make player as camera focus
+	Camera::SetPos(Player::player->associated.box.x - 5 * tileSet->GetTileWidth(), Player::player->associated.box.y - 5 * tileSet->GetTileHeight(), tileMap->GetBox());
+	Camera::Follow(&Player::player->associated);
 }
 
 void StageState::Pause()

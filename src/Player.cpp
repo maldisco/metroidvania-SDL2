@@ -279,7 +279,6 @@ bool Player::IsOnWall()
 {
     TileMap *tileMap = static_cast<StageState &>(Game::GetInstance().GetCurrentState()).GetTileMap();
     TileSet *tileSet = static_cast<StageState &>(Game::GetInstance().GetCurrentState()).GetTileSet();
-
     return tileMap->IsSolid((collider->box.Center().x + ((collider->box.w/2 + 1)*Helpers::Sign(associated.direction))) / tileSet->GetTileWidth(), collider->box.y / tileSet->GetTileHeight());
 }
 

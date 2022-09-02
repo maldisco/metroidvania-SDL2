@@ -23,7 +23,10 @@ void State::UpdateArray(float dt)
 {
 	for (unsigned i = 0; i < objectArray.size(); i++)
 	{
-		objectArray[i]->Update(dt);
+		if(objectArray[i]->isActive)
+		{
+			objectArray[i]->Update(dt);
+		}
 	}
 }
 
@@ -31,7 +34,10 @@ void State::RenderArray()
 {
 	for (unsigned i = 0; i < objectArray.size(); i++)
 	{
-		objectArray[i]->Render();
+		if(objectArray[i]->isActive)
+		{
+			objectArray[i]->Render();
+		}
 	}
 }
 

@@ -18,7 +18,7 @@ class GameObject
 {
 public:
     Rect box;
-    bool started;
+    bool started, isActive;
     double angleDeg;
     int direction;
     Enums::Layer layer;
@@ -34,6 +34,8 @@ public:
     void Render();
 
     bool IsDead();
+
+    void SetActive(bool isActive);
 
     // object died/destroyed
     void RequestDelete();

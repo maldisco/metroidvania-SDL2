@@ -30,6 +30,8 @@ public:
     static void AddTrauma(float qt);
     static void SetPos(float x, float y, Rect mapBox);
 
+    static Vec2 GetNextPos();
+
     /**
      * @brief Squirrel Eiserloh noise function
      * 
@@ -43,7 +45,7 @@ public:
     static Rect window;
     static Rect panicBox;
 
-    static float angle, virtualAngle;
+    static float angle, virtualAngle, lookAhead;
 
     // PENSE EM TROCAR O LERP POR CUBIC SPLINE
 

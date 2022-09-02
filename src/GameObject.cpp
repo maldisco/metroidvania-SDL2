@@ -7,7 +7,7 @@
 #define INCLUDE_SDL_IMAGE
 #include "SDL_include.h"
 
-GameObject::GameObject(float x, float y, Enums::Layer layer) : started(false), angleDeg(0), isDead(false), layer(layer), direction(1)
+GameObject::GameObject(float x, float y, Enums::Layer layer) : started(false), angleDeg(0), isDead(false), isActive(true), layer(layer), direction(1)
 {
     box.x = x;
     box.y = y;
@@ -46,6 +46,11 @@ void GameObject::Render()
 bool GameObject::IsDead()
 {
     return isDead;
+}
+
+void GameObject::SetActive(bool isActive)
+{
+    this->isActive = isActive;
 }
 
 void GameObject::RequestDelete()

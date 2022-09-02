@@ -8,7 +8,7 @@ class RigidBody : public Component
 {
 public:
     Vec2 velocity;
-    float gravityScale;
+    float gravityScale, linearDrag, angularDrag;
 
     RigidBody(GameObject& associated, float gravityScale = 1);
     void Start();

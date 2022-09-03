@@ -6,6 +6,7 @@
 #include "Text.h"
 #include "Game.h"
 #include "GameData.h"
+#include "DialogueManager.h"
 
 Npc::Npc(GameObject &associated, std::string dialogue) : Component(associated)
 {
@@ -57,18 +58,9 @@ void Npc::NotifyCollision(GameObject &other)
 {
     if (other.GetComponent<Player>() != nullptr)
     {
-        if(InputManager::GetInstance().KeyPress(E_KEY))
+        if(InputManager::GetInstance().KeyPress(E_KEY) and not DialogueManager::Instance->inDialogue)
         {
-            GameObject *dialogue = new GameObject();
-            dialogue->box.x = associated.box.Center().x;
-            dialogue->box.y = associated.box.y - 50;
-            std::string line = dialogueLines.at(GameData::bluewitchLine);
-            if(GameData::samuraiSlain)
-                line = "Thanks! My brother was trying to kill that skeleton for a long time";
-            dialogue->AddComponent(new Text(*dialogue, "assets/font/PeaberryBase.ttf", 30, Text::BLENDED, line, {0, 0, 0, SDL_ALPHA_OPAQUE}, 0, 3));
-            Game::GetInstance().GetCurrentState().AddObject(dialogue);
-            if(GameData::bluewitchLine < dialogueLines.size()-1)
-                GameData::bluewitchLine++;
+            DialogueManager::Instance->StartDialogue(this->dialogueLines, "Magda");
         }
     }
 }

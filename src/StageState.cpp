@@ -103,6 +103,15 @@ void StageState::LoadStage()
 										71 * tileSet->GetTileWidth(), 10 * tileSet->GetTileHeight(), 1));
 		break;
 	}
+	GameObject *dialogueBox = Prefabs::DialogueBoxPrefab();
+	GameObject *dialogueText = Prefabs::DialogueTextPrefab();
+	GameObject *dialogueName = Prefabs::DialogueNamePrefab();
+	AddObject(Prefabs::DialogueManagerPrefab(dialogueBox, dialogueText, dialogueName));
+	AddObject(dialogueBox);
+	AddObject(dialogueText);
+	AddObject(dialogueName);
+
+
 	// Add hud in front of everything onscreen
 	AddObject(Prefabs::HpBarPrefab(15, 30));
 	AddObject(Prefabs::TransitionPrefab(1.5f));

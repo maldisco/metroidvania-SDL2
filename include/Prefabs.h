@@ -12,6 +12,7 @@
 #include "Skeleton.h"
 #include "Hud.h"
 #include "Transition.h"
+#include "DialogueManager.h"
 
 class Prefabs
 {
@@ -132,12 +133,83 @@ public:
         return transition;
     }
 
+    /**
+     * @brief Generates the game object of a tilemap
+     * 
+     * @param tileSet 
+     * @param tileWidth 
+     * @param tileHeight 
+     * @param tileMap 
+     * @param background bool
+     * @return GameObject* 
+     */
     static GameObject *TileMapPrefab(std::string tileSet, int tileWidth, int tileHeight, std::string tileMap, bool background = false)
     {
         GameObject *map = new GameObject();
         map->AddComponent(new TileMap(*map, tileMap, new TileSet(*map, tileWidth, tileHeight, tileSet), background));
 
         return map;
+    }
+
+    /**
+     * @brief Generates the game object of a dialogue box
+     * 
+     * @return GameObject* 
+     */
+    static GameObject *DialogueBoxPrefab()
+    {
+        GameObject *box = new GameObject();
+        Sprite *square = new Sprite("assets/img/square.png", *box);
+        square->SetScale(1, 1/3);
+        square->SetTransparency(0.8);
+        box->AddComponent(square);
+        box->AddComponent(new CameraFollower(*box, Vec2(400, 100)));
+
+        return box;
+    }
+
+    /**
+     * @brief Generates the game object of a dialogue text
+     * 
+     * @return GameObject* 
+     */
+    static GameObject *DialogueTextPrefab()
+    {
+        GameObject *dialText = new GameObject();
+        dialText->AddComponent(new Text(*dialText, PEABERRY_FONT, 30, Text::BLENDED, "Test", {255, 255, 255, SDL_ALPHA_OPAQUE}));
+        dialText->AddComponent(new CameraFollower(*dialText, Vec2(450, 120)));
+
+        return dialText;
+    }
+
+    /**
+     * @brief Generates the game object of a dialogue name
+     * 
+     * @return GameObject* 
+     */
+    static GameObject *DialogueNamePrefab()
+    {
+        GameObject *dialName = new GameObject();
+        dialName->AddComponent(new Text(*dialName, PEABERRY_FONT, 60, Text::BLENDED, "Name", {255, 255, 255, SDL_ALPHA_OPAQUE}));
+        dialName->AddComponent(new CameraFollower(*dialName, Vec2(50, 700)));
+
+        return dialName;
+    }
+
+    /**
+     * @brief Generates the game object of a dilogue manager
+     * 
+     * @param box Dialogue box game object
+     * @param text Dialogue text game object
+     * @param name Dialogue name game object
+     * @return GameObject* 
+     */
+    static GameObject *DialogueManagerPrefab(GameObject *box, GameObject *text, GameObject *name)
+    {
+        GameObject *dialManager = new GameObject();
+        dialManager->AddComponent(new DialogueManager(*dialManager, *box, *text, *name));
+
+        return dialManager;
     }
 };
 

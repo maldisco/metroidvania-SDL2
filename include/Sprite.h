@@ -110,6 +110,13 @@ public:
     void SetRestart(int restart);
 
     /**
+     * @brief Set the transparency of the sprite
+     * 
+     * @param alpha 
+     */
+    void SetTransparency(float alpha);
+
+    /**
      * @brief Render texture on game window at given coordinates
      *
      * @param x

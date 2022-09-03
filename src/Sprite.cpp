@@ -150,9 +150,21 @@ void Sprite::SetRestart(int restart)
     this->restart = restart;
 }
 
-Vec2 Sprite::GetScale() { return scale; }
+void Sprite::SetTransparency(float alpha)
+{
+    SDL_SetTextureBlendMode(texture.get(), SDL_BLENDMODE_BLEND);
+    SDL_SetTextureAlphaMod(texture.get(), alpha*255);
+}
 
-Vec2 Sprite::GetClipScale() { return clipScale; }
+Vec2 Sprite::GetScale()
+{ 
+    return scale; 
+}
+
+Vec2 Sprite::GetClipScale() 
+{ 
+    return clipScale; 
+}
 
 int Sprite::GetWidth()
 {

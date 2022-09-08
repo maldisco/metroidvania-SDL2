@@ -111,7 +111,6 @@ void StageState::LoadStage()
 	AddObject(dialogueText);
 	AddObject(dialogueName);
 
-
 	// Add hud in front of everything onscreen
 	AddObject(Prefabs::HpBarPrefab(15, 30));
 	AddObject(Prefabs::TransitionPrefab(1.5f));

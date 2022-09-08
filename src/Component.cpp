@@ -1,6 +1,6 @@
 #include "Component.h"
 
-Component::Component(GameObject &associated) : associated(associated) {}
+Component::Component(GameObject &associated) : associated(associated), enabled(true) {}
 
 Component::~Component() {}
 

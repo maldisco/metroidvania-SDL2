@@ -31,7 +31,8 @@ void GameObject::Update(float dt)
 {
     for (unsigned i = 0; i < components.size(); i++)
     {
-        components[i]->Update(dt);
+        if(components[i]->enabled)
+            components[i]->Update(dt);
     }
 }
 
@@ -39,7 +40,8 @@ void GameObject::Render()
 {
     for (unsigned i = 0; i < components.size(); i++)
     {
-        components[i]->Render();
+        if(components[i]->enabled)
+            components[i]->Render();
     }
 }
 

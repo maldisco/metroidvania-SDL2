@@ -1,5 +1,6 @@
 #include "DialogueManager.h"
 #include "InputManager.h"
+#include "Player.h"
 
 DialogueManager *DialogueManager::Instance;
 DialogueManager::DialogueManager(GameObject &associated, GameObject &box, GameObject &text, GameObject &name) : Component(associated), dialogueBox(box),
@@ -10,7 +11,7 @@ void DialogueManager::Start()
 {
     this->dialogue = dialogueText.GetComponent<Text>();
     this->name = dialogueName.GetComponent<Text>();
-    this->dialogueBox.SetActive(true);
+    this->dialogueBox.SetActive(false);
     this->dialogueText.SetActive(false);
     this->dialogueName.SetActive(false);
     this->Instance = this;
@@ -18,7 +19,7 @@ void DialogueManager::Start()
 
 void DialogueManager::Update(float dt)
 {
-    if(InputManager::GetInstance().KeyPress(E_KEY))
+    if(InputManager::GetInstance().KeyPress(SPACE_KEY))
     {
         if(not lines.empty())
         {
@@ -48,6 +49,7 @@ void DialogueManager::StartDialogue(std::vector<std::string> dialogueLines, std:
     this->dialogueName.SetActive(true);
 
     inDialogue = true;
+    Player::player->enabled = false;
 }
 
 void DialogueManager::EndDialogue()
@@ -57,4 +59,5 @@ void DialogueManager::EndDialogue()
     this->dialogueName.SetActive(false);
 
     inDialogue = false;
+    Player::player->enabled = true;
 }

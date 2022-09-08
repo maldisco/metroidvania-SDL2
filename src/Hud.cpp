@@ -4,7 +4,6 @@
 
 Hud::Hud(GameObject &associated, Sprite *hpBar) : Component(associated), hpbar(hpBar)
 {
-    // Decrease or increase hp bar
     UpdateBar();
 }
 

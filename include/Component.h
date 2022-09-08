@@ -62,5 +62,6 @@ public:
     virtual void NotifyCollision(GameObject &other);
 
     GameObject &associated;
+    bool enabled;
 };
 #endif

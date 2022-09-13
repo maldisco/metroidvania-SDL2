@@ -73,7 +73,9 @@ void Player::Update(float dt)
 
 void Player::Render()
 {
+#ifdef DEBUG
     Physics::DrawCircle(Game::GetInstance().GetRenderer(), attackPoint->position.x - Camera::virtualPos.x, attackPoint->position.y - Camera::virtualPos.y, attackRadius);
+#endif
 }
 
 void Player::GatherInput()
